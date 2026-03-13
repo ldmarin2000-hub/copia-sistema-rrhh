@@ -18,7 +18,7 @@ export default async function Empresas() {
         <BtnLogout />
       </div>
       
-      <FormEmpresa />
+      git add .<FormEmpresa />
 
       {empresas.length === 0 ? (
         <p className="text-gray-500">No hay empresas cargadas todavía.</p>
