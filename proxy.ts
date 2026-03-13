@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next()
+  
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +22,10 @@ export async function proxy(request: NextRequest) {
     }
   )
 
+  
   const { data: { user } } = await supabase.auth.getUser()
+  console.log('PATH:', request.nextUrl.pathname, 'USER:', user?.email)
+  console.log('PATH:', request.nextUrl.pathname, 'USER:', user?.email)
 
   if (!user && !request.nextUrl.pathname.startsWith('/login')) {
     return NextResponse.redirect(new URL('/login', request.url))
@@ -30,6 +34,7 @@ export async function proxy(request: NextRequest) {
   if (user && request.nextUrl.pathname.startsWith('/login')) {
     return NextResponse.redirect(new URL('/empresas', request.url))
   }
+
 
   return response
 }

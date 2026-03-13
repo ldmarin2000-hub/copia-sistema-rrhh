@@ -13,30 +13,79 @@ import {
   ChevronDown,
   ChevronRight,
   BookOpen,
+  ShieldCheck,
+  UserCog,
 } from 'lucide-react'
 
+const administracion = [
+  { href: '/empresas',  label: 'Empresas', icon: Building2 },
+  { href: '/usuarios',  label: 'Usuarios',  icon: UserCog },
+]
+
 const maestras = [
-  { href: '/convenios',        label: 'Convenios' },
-  { href: '/categorias',       label: 'Categorías' },
-  { href: '/tipos-empleado',   label: 'Tipos de empleado' },
-  { href: '/obras',            label: 'Obras' },
-  { href: '/adicionales',      label: 'Adicionales' },
-  { href: '/plantillas',       label: 'Plantillas jornada' },
-  { href: '/epp-catalogo',     label: 'EPP catálogo' },
+  { href: '/convenios',      label: 'Convenios' },
+  { href: '/categorias',     label: 'Categorías' },
+  { href: '/tipos-empleado', label: 'Tipos de empleado' },
+  { href: '/obras',          label: 'Obras' },
+  { href: '/adicionales',    label: 'Adicionales' },
+  { href: '/plantillas',     label: 'Plantillas jornada' },
+  { href: '/epp-catalogo',   label: 'EPP catálogo' },
 ]
 
 const gestion = [
-  { href: '/legajos',    label: 'Legajos',     icon: Users },
-  { href: '/novedades',  label: 'Novedades',   icon: Calendar },
-  { href: '/vacaciones', label: 'Vacaciones',  icon: Umbrella },
-  { href: '/epp',        label: 'EPP y Ropa',  icon: HardHat },
+  { href: '/legajos',    label: 'Legajos',    icon: Users },
+  { href: '/novedades',  label: 'Novedades',  icon: Calendar },
+  { href: '/vacaciones', label: 'Vacaciones', icon: Umbrella },
+  { href: '/epp',        label: 'EPP y Ropa', icon: HardHat },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const [maestrasAbiertas, setMaestrasAbiertas] = useState(false)
+
+  const adminAbierta = administracion.some(i => pathname.startsWith(i.href))
+  const maestrasAbiertas = maestras.some(i => pathname.startsWith(i.href))
+
+  const [adminOpen, setAdminOpen]       = useState(adminAbierta)
+  const [maestrasOpen, setMaestrasOpen] = useState(maestrasAbiertas)
 
   const activo = (href: string) => pathname.startsWith(href)
+
+  const itemStyle = (href: string) => ({
+    display: 'flex', alignItems: 'center', gap: '10px',
+    padding: '7px 10px', borderRadius: '6px', marginBottom: '2px',
+    background: activo(href) ? '#1a2a3a' : 'transparent',
+    textDecoration: 'none',
+    cursor: 'pointer',
+  })
+
+  const labelStyle = (href: string) => ({
+    fontSize: '13px',
+    color: activo(href) ? '#58a6ff' : '#8b949e',
+    fontWeight: activo(href) ? 500 : 400,
+  })
+
+  const seccionHeader = (
+    label: string,
+    icon: React.ReactNode,
+    open: boolean,
+    toggle: () => void
+  ) => (
+    <div
+      onClick={toggle}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '10px',
+        padding: '7px 10px', borderRadius: '6px',
+        cursor: 'pointer', marginBottom: '2px',
+      }}
+    >
+      {icon}
+      <span style={{ fontSize: '13px', color: '#8b949e', flex: 1 }}>{label}</span>
+      {open
+        ? <ChevronDown size={14} color="#8b949e" />
+        : <ChevronRight size={14} color="#8b949e" />
+      }
+    </div>
+  )
 
   return (
     <aside style={{
@@ -49,72 +98,51 @@ export default function Sidebar() {
     }}>
 
       {/* Dashboard */}
-      <div style={{ padding: '0 12px', marginBottom: '4px' }}>
+      <div style={{ padding: '0 12px', marginBottom: '8px' }}>
         <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            padding: '8px 10px', borderRadius: '6px',
-            background: activo('/dashboard') ? '#21262d' : 'transparent',
-          }}>
+          <div style={itemStyle('/dashboard')}>
             <LayoutDashboard size={16} color={activo('/dashboard') ? '#58a6ff' : '#8b949e'} />
-            <span style={{
-              fontSize: '13px',
-              color: activo('/dashboard') ? '#e6edf3' : '#8b949e',
-              fontWeight: activo('/dashboard') ? 500 : 400,
-            }}>Dashboard</span>
+            <span style={labelStyle('/dashboard')}>Dashboard</span>
           </div>
         </Link>
       </div>
 
-      {/* Empresas */}
+      {/* Administración colapsable */}
       <div style={{ padding: '0 12px', marginBottom: '4px' }}>
-        <Link href="/empresas" style={{ textDecoration: 'none' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            padding: '8px 10px', borderRadius: '6px',
-            background: activo('/empresas') ? '#1a2a3a' : 'transparent',
-          }}>
-            <Building2 size={16} color={activo('/empresas') ? '#58a6ff' : '#8b949e'} />
-            <span style={{
-              fontSize: '13px',
-              color: activo('/empresas') ? '#58a6ff' : '#8b949e',
-              fontWeight: activo('/empresas') ? 500 : 400,
-            }}>Empresas</span>
+        {seccionHeader(
+          'Administración',
+          <ShieldCheck size={16} color="#8b949e" />,
+          adminOpen,
+          () => setAdminOpen(!adminOpen)
+        )}
+        {adminOpen && (
+          <div style={{ paddingLeft: '16px' }}>
+            {administracion.map((item) => (
+              <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+                <div style={itemStyle(item.href)}>
+                  <item.icon size={15} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
+                  <span style={labelStyle(item.href)}>{item.label}</span>
+                </div>
+              </Link>
+            ))}
           </div>
-        </Link>
+        )}
       </div>
 
       {/* Maestras colapsable */}
       <div style={{ padding: '0 12px', marginBottom: '4px' }}>
-        <div
-          onClick={() => setMaestrasAbiertas(!maestrasAbiertas)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            padding: '8px 10px', borderRadius: '6px',
-            cursor: 'pointer',
-          }}
-        >
-          <BookOpen size={16} color="#8b949e" />
-          <span style={{ fontSize: '13px', color: '#8b949e', flex: 1 }}>Maestras</span>
-          {maestrasAbiertas
-            ? <ChevronDown size={14} color="#8b949e" />
-            : <ChevronRight size={14} color="#8b949e" />
-          }
-        </div>
-
-        {maestrasAbiertas && (
-          <div style={{ paddingLeft: '16px', marginTop: '2px' }}>
+        {seccionHeader(
+          'Maestras',
+          <BookOpen size={16} color="#8b949e" />,
+          maestrasOpen,
+          () => setMaestrasOpen(!maestrasOpen)
+        )}
+        {maestrasOpen && (
+          <div style={{ paddingLeft: '16px' }}>
             {maestras.map((item) => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
-                <div style={{
-                  padding: '6px 10px', borderRadius: '6px', marginBottom: '1px',
-                  background: activo(item.href) ? '#1a2a3a' : 'transparent',
-                }}>
-                  <span style={{
-                    fontSize: '13px',
-                    color: activo(item.href) ? '#58a6ff' : '#8b949e',
-                    fontWeight: activo(item.href) ? 500 : 400,
-                  }}>{item.label}</span>
+                <div style={itemStyle(item.href)}>
+                  <span style={labelStyle(item.href)}>{item.label}</span>
                 </div>
               </Link>
             ))}
@@ -123,25 +151,17 @@ export default function Sidebar() {
       </div>
 
       {/* Gestión */}
-      <div style={{ padding: '8px 22px 4px', marginTop: '4px' }}>
-        <span style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+      <div style={{ padding: '8px 22px 4px' }}>
+        <span style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
           Gestión
         </span>
       </div>
       <div style={{ padding: '0 12px' }}>
         {gestion.map((item) => (
           <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              padding: '7px 10px', borderRadius: '6px', marginBottom: '2px',
-              background: activo(item.href) ? '#1a2a3a' : 'transparent',
-            }}>
+            <div style={itemStyle(item.href)}>
               <item.icon size={16} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
-              <span style={{
-                fontSize: '13px',
-                color: activo(item.href) ? '#58a6ff' : '#8b949e',
-                fontWeight: activo(item.href) ? 500 : 400,
-              }}>{item.label}</span>
+              <span style={labelStyle(item.href)}>{item.label}</span>
             </div>
           </Link>
         ))}

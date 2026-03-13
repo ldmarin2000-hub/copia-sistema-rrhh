@@ -25,7 +25,7 @@ export default function Login() {
       setError('Email o contraseña incorrectos')
       setLoading(false)
     } else {
-      router.push('/empresas')
+      router.push('/dashboard')
     }
   }
 
