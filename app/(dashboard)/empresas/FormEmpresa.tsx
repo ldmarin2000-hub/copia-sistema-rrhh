@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { X } from 'lucide-react'
+import { validarCuit, formatearCuit } from '@/lib/validaciones'
 
 type Empresa = {
   id: number
@@ -36,6 +37,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
   const [provincia, setProvincia] = useState(empresaEditar?.provincia || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [cuitValido, setCuitValido] = useState<boolean | null>(null)
 
   const input = (value: string, onChange: (v: string) => void, placeholder: string) => (
     <input
@@ -53,6 +55,13 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
   async function guardar() {
     setLoading(true)
     setError('')
+
+    if (!validarCuit(cuit)) {
+      setError('El CUIT ingresado no es válido')
+      setLoading(false)
+      return
+    }
+    
     const supabase = createClient()
 
     if (editando) {
@@ -104,9 +113,51 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
               {input(codigo, setCodigo, 'Ej: CONST01')}
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>CUIT *</label>
-              {input(cuit, setCuit, 'Ej: 30-12345678-9')}
+              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+                CUIT *
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  value={cuit}
+                  onChange={(e) => {
+                    const valor = e.target.value
+                    setCuit(valor)
+                    const limpio = valor.replace(/[^0-9]/g, '')
+                    if (limpio.length === 11) {
+                      const valido = validarCuit(valor)
+                      setCuitValido(valido)
+                      if (valido) setCuit(formatearCuit(valor))
+                    } else {
+                      setCuitValido(null)
+                    }
+                  }}
+                  placeholder="Ej: 30-12345678-9"
+                  style={{
+                    width: '100%', padding: '7px 10px', borderRadius: '6px',
+                    background: '#0d1117',
+                    border: `0.5px solid ${cuitValido === false ? '#f85149' : cuitValido === true ? '#3fb950' : '#30363d'}`,
+                    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+                  }}
+                />
+                {cuitValido !== null && (
+                  <span style={{
+                    position: 'absolute', right: '10px', top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: cuitValido ? '#3fb950' : '#f85149',
+                    fontSize: '14px',
+                  }}>
+                    {cuitValido ? '✓' : '✗'}
+                  </span>
+                )}
+              </div>
+              {cuitValido === false && (
+                <span style={{ fontSize: '11px', color: '#f85149', marginTop: '3px', display: 'block' }}>
+                  CUIT inválido
+                </span>
+              )}
             </div>
+
+
           </div>
 
           <div>
