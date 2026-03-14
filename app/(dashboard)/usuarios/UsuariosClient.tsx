@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
+import ModalPermisos from './ModalPermisos'
 
 type Usuario = {
   id: string
@@ -13,7 +14,36 @@ type Usuario = {
   created_at: string
 }
 
-export default function UsuariosClient({ usuarios }: { usuarios: Usuario[] }) {
+type Empresa = {
+  id: number
+  razon_social: string
+}
+
+type Rol = {
+  id: number
+  codigo: string
+  descripcion: string
+}
+
+type Permiso = {
+  id: number
+  id_usuario: string
+  id_empresa: number
+  id_rol: number
+  empresas: { razon_social: string }
+  roles: { descripcion: string }
+}
+
+
+
+export default function UsuariosClient({
+  usuarios, empresas, roles, permisos
+}: {
+  usuarios: Usuario[]
+  empresas: Empresa[]
+  roles: Rol[]
+  permisos: Permiso[]
+}) {
   const router = useRouter()
   const [mostrarForm, setMostrarForm] = useState(false)
   const [email, setEmail] = useState('')
@@ -22,6 +52,7 @@ export default function UsuariosClient({ usuarios }: { usuarios: Usuario[] }) {
   const [esSuperadmin, setEsSuperadmin] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [usuarioPermisos, setUsuarioPermisos] = useState<Usuario | null>(null)
 
   async function crearUsuario() {
     setLoading(true)
@@ -53,6 +84,15 @@ export default function UsuariosClient({ usuarios }: { usuarios: Usuario[] }) {
   return (
     <>
       {/* Modal nuevo usuario */}
+      {usuarioPermisos && (
+        <ModalPermisos
+          usuario={usuarioPermisos}
+          empresas={empresas}
+          roles={roles}
+          permisos={permisos.filter(p => p.id_usuario === usuarioPermisos.id)}
+          onCerrar={() => setUsuarioPermisos(null)}
+        />
+      )}
       {mostrarForm && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
@@ -214,13 +254,25 @@ export default function UsuariosClient({ usuarios }: { usuarios: Usuario[] }) {
                   )}
                 </td>
                 <td style={{ padding: '10px 16px' }}>
-                  <span style={{
-                    background: usuario.activo ? '#1a3a2a' : '#3a1a1a',
-                    color: usuario.activo ? '#3fb950' : '#f85149',
-                    fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                  }}>
-                    {usuario.activo ? 'Activo' : 'Inactivo'}
-                  </span>
+                  {usuario.es_superadmin ? (
+                    <span style={{
+                      background: '#2a1a3a', color: '#bc8cff',
+                      fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
+                    }}>
+                      Superadmin
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => setUsuarioPermisos(usuario)}
+                      style={{
+                        background: 'transparent', border: '0.5px solid #30363d',
+                        color: '#58a6ff', cursor: 'pointer', fontSize: '12px',
+                        padding: '4px 10px', borderRadius: '4px',
+                      }}
+    >
+                      Ver permisos
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
