@@ -24,8 +24,8 @@ const administracion = [
 
 const maestras = [
   { href: '/convenios',      label: 'Convenios' },
-  { href: '/categorias',     label: 'Categorías' },
   { href: '/tipos-empleado', label: 'Tipos de empleado' },
+  { href: '/categorias',     label: 'Categorías' },
   { href: '/obras',          label: 'Obras' },
   { href: '/adicionales',    label: 'Adicionales' },
   { href: '/plantillas',     label: 'Plantillas jornada' },
