@@ -24,6 +24,7 @@ type Obra = {
   fecha_fin?: string
   activo: boolean
   empresas: { razon_social: string }
+  cp: string
 }
 
 const ESTADOS = ['Activa', 'Pausada', 'Finalizada', 'Cancelada']
@@ -63,6 +64,7 @@ export default function ObrasClient({ obras }: { obras: Obra[] }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [cp, setCp] = useState('')
+  const [fechaFin, setFechaFin] = useState(editando?.fecha_fin || '')
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -92,6 +94,7 @@ export default function ObrasClient({ obras }: { obras: Obra[] }) {
     setError('')
     setMostrarForm(true)
     setCp('')
+    setFechaFin('')
   }
 
   function abrirEditar(obra: Obra) {
@@ -107,6 +110,8 @@ export default function ObrasClient({ obras }: { obras: Obra[] }) {
     setLongitud(obra.longitud || null)
     setError('')
     setMostrarForm(true)
+    setFechaFin(obra.fecha_fin || '')
+    setCp(obra.cp || '')
   }
 
   function cerrar() {
@@ -156,9 +161,9 @@ async function buscarDireccion() {
     const datos = {
       codigo, nombre, direccion, cp, localidad, provincia,
       estado, fecha_inicio: fechaInicio || null,
+      fecha_fin: fechaFin || null,
       latitud, longitud,
     }
-
     if (editando) {
       const { error } = await supabase
         .from('obras').update(datos).eq('id', editando.id)
@@ -234,14 +239,27 @@ async function buscarDireccion() {
                 <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Edificio Norte" style={inputStyle} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Dirección</label>
-                  <input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle y número" style={inputStyle} />
-                </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha inicio</label>
                   <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha fin</label>
+                  <input
+                    type="date"
+                    value={fechaFin}
+                    onChange={(e) => {
+                      const valor = e.target.value
+                      setFechaFin(valor)
+                      if (valor) {
+                        setEstado('Finalizada')
+                      } else {
+                        setEstado('Activa')
+                      }
+                    }}
+                    style={inputStyle}
+                  />
                 </div>
               </div>
 

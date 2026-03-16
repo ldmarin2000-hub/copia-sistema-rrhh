@@ -49,6 +49,7 @@ export default function CategoriasClient({
   const [sueldoBasico, setSueldoBasico] = useState('0')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [activo, setActivo] = useState(true)
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -76,6 +77,7 @@ export default function CategoriasClient({
     setSueldoBasico('0')
     setError('')
     setMostrarForm(true)
+    setActivo(true)
   }
 
   function abrirEditar(cat: Categoria) {
@@ -87,6 +89,7 @@ export default function CategoriasClient({
     setSueldoBasico(String(cat.sueldo_basico))
     setError('')
     setMostrarForm(true)
+    setActivo(cat.activo)
   }
 
   function cerrar() {
@@ -106,6 +109,7 @@ export default function CategoriasClient({
       id_convenio: parseInt(idConvenio),
       id_tipo_empleado: parseInt(idTipo),
       sueldo_basico: parseFloat(sueldoBasico) || 0,
+      activo,
     }
 
     if (editando) {
@@ -214,6 +218,18 @@ export default function CategoriasClient({
                     <option key={t.id} value={t.id}>{t.descripcion}</option>
                   ))}
                 </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  id="activo"
+                  checked={activo}
+                  onChange={(e) => setActivo(e.target.checked)}
+                />
+                <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+                  Categoría activa
+                </label>
               </div>
 
               {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}

@@ -24,6 +24,7 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
   const [descripcion, setDescripcion] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [activo, setActivo] = useState(editando?.activo ?? true)
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -40,6 +41,7 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
     setDescripcion('')
     setError('')
     setMostrarForm(true)
+    setActivo(true)
   }
 
   function abrirEditar(convenio: Convenio) {
@@ -48,6 +50,7 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
     setDescripcion(convenio.descripcion)
     setError('')
     setMostrarForm(true)
+    setActivo(convenio.activo)
   }
 
   function cerrar() {
@@ -64,13 +67,13 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
     if (editando) {
       const { error } = await supabase
         .from('convenios')
-        .update({ codigo, descripcion })
+        .update({ codigo, descripcion, activo })
         .eq('id', editando.id)
       if (error) { setError(error.message); setLoading(false); return }
     } else {
       const { error } = await supabase
         .from('convenios')
-        .insert({ id_empresa: empresaActiva.id, codigo, descripcion })
+        .insert({ id_empresa: empresaActiva.id, codigo, descripcion, activo })
       if (error) { setError(error.message); setLoading(false); return }
     }
 
@@ -143,6 +146,18 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
                 />
               </div>
               {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="checkbox"
+                id="activo"
+                checked={activo}
+                onChange={(e) => setActivo(e.target.checked)}
+              />
+              <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+                Convenio activo
+              </label>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>

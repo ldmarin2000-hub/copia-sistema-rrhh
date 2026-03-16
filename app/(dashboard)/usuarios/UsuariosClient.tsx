@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
+import { X } from 'lucide-react'
 import ModalPermisos from './ModalPermisos'
 
 type Usuario = {
@@ -34,8 +35,6 @@ type Permiso = {
   roles: { descripcion: string }
 }
 
-
-
 export default function UsuariosClient({
   usuarios, empresas, roles, permisos
 }: {
@@ -45,6 +44,8 @@ export default function UsuariosClient({
   permisos: Permiso[]
 }) {
   const router = useRouter()
+
+  // Nuevo usuario
   const [mostrarForm, setMostrarForm] = useState(false)
   const [email, setEmail] = useState('')
   const [nombre, setNombre] = useState('')
@@ -52,7 +53,58 @@ export default function UsuariosClient({
   const [esSuperadmin, setEsSuperadmin] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Permisos
   const [usuarioPermisos, setUsuarioPermisos] = useState<Usuario | null>(null)
+
+  // Editar usuario
+  const [usuarioEditar, setUsuarioEditar] = useState<Usuario | null>(null)
+  const [editNombre, setEditNombre] = useState('')
+  const [editActivo, setEditActivo] = useState(true)
+  const [editPassword, setEditPassword] = useState('')
+  const [loadingEdit, setLoadingEdit] = useState(false)
+  const [errorEdit, setErrorEdit] = useState('')
+
+  const inputStyle = {
+    width: '100%', padding: '7px 10px', borderRadius: '6px',
+    background: '#0d1117', border: '0.5px solid #30363d',
+    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+  }
+
+  function abrirEditar(usuario: Usuario) {
+    setUsuarioEditar(usuario)
+    setEditNombre(usuario.nombre)
+    setEditActivo(usuario.activo)
+    setEditPassword('')
+    setErrorEdit('')
+  }
+
+  async function guardarEdicion() {
+    if (!usuarioEditar) return
+    setLoadingEdit(true)
+    setErrorEdit('')
+
+    const res = await fetch(`/api/usuarios/${usuarioEditar.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: editNombre,
+        activo: editActivo,
+        password: editPassword || null,
+      })
+    })
+
+    const data = await res.json()
+    if (data.error) {
+      setErrorEdit(data.error)
+      setLoadingEdit(false)
+      return
+    }
+
+    setUsuarioEditar(null)
+    router.refresh()
+    setLoadingEdit(false)
+  }
 
   async function crearUsuario() {
     setLoading(true)
@@ -65,7 +117,6 @@ export default function UsuariosClient({
     })
 
     const data = await res.json()
-
     if (data.error) {
       setError(data.error)
       setLoading(false)
@@ -83,7 +134,7 @@ export default function UsuariosClient({
 
   return (
     <>
-      {/* Modal nuevo usuario */}
+      {/* Modal permisos */}
       {usuarioPermisos && (
         <ModalPermisos
           usuario={usuarioPermisos}
@@ -93,6 +144,8 @@ export default function UsuariosClient({
           onCerrar={() => setUsuarioPermisos(null)}
         />
       )}
+
+      {/* Modal nuevo usuario */}
       {mostrarForm && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
@@ -102,94 +155,102 @@ export default function UsuariosClient({
             background: '#161b22', border: '0.5px solid #30363d',
             borderRadius: '10px', width: '100%', maxWidth: '420px', padding: '24px',
           }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: '0 0 20px' }}>
-              Nuevo usuario
-            </h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+                Nuevo usuario
+              </h2>
+              <button onClick={() => { setMostrarForm(false); setError('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+                <X size={18} />
+              </button>
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nombre *</label>
-                <input
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  placeholder="Nombre completo"
-                  style={{
-                    width: '100%', padding: '7px 10px', borderRadius: '6px',
-                    background: '#0d1117', border: '0.5px solid #30363d',
-                    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
-                  }}
-                />
+                <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" style={inputStyle} />
               </div>
-
               <div>
                 <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Email *</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="usuario@email.com"
-                  style={{
-                    width: '100%', padding: '7px 10px', borderRadius: '6px',
-                    background: '#0d1117', border: '0.5px solid #30363d',
-                    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
-                  }}
-                />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="usuario@email.com" style={inputStyle} />
               </div>
-
               <div>
                 <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Contraseña *</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  style={{
-                    width: '100%', padding: '7px 10px', borderRadius: '6px',
-                    background: '#0d1117', border: '0.5px solid #30363d',
-                    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
-                  }}
-                />
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" style={inputStyle} />
               </div>
-
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input
-                  type="checkbox"
-                  id="superadmin"
-                  checked={esSuperadmin}
-                  onChange={(e) => setEsSuperadmin(e.target.checked)}
-                />
-                <label htmlFor="superadmin" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
-                  Es Superadmin
-                </label>
+                <input type="checkbox" id="superadmin" checked={esSuperadmin} onChange={(e) => setEsSuperadmin(e.target.checked)} />
+                <label htmlFor="superadmin" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Es Superadmin</label>
               </div>
-
-              {error && (
-                <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>
-              )}
+              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-              <button
-                onClick={() => { setMostrarForm(false); setError('') }}
-                style={{
-                  background: 'transparent', border: '0.5px solid #30363d',
-                  color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
-                  fontSize: '13px', cursor: 'pointer',
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={crearUsuario}
-                disabled={loading || !email || !nombre || !password}
-                style={{
-                  background: '#2563eb', color: 'white', border: 'none',
-                  borderRadius: '6px', padding: '7px 16px',
-                  fontSize: '13px', cursor: 'pointer',
-                  opacity: loading ? 0.6 : 1,
-                }}
-              >
+              <button onClick={() => { setMostrarForm(false); setError('') }} style={{
+                background: 'transparent', border: '0.5px solid #30363d',
+                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                fontSize: '13px', cursor: 'pointer',
+              }}>Cancelar</button>
+              <button onClick={crearUsuario} disabled={loading || !email || !nombre || !password} style={{
+                background: '#2563eb', color: 'white', border: 'none',
+                borderRadius: '6px', padding: '7px 16px',
+                fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1,
+              }}>
                 {loading ? 'Creando...' : 'Crear usuario'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal editar usuario */}
+      {usuarioEditar && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
+        }}>
+          <div style={{
+            background: '#161b22', border: '0.5px solid #30363d',
+            borderRadius: '10px', width: '100%', maxWidth: '420px', padding: '24px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+                Editar usuario
+              </h2>
+              <button onClick={() => setUsuarioEditar(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nombre</label>
+                <input value={editNombre} onChange={(e) => setEditNombre(e.target.value)} style={inputStyle} />
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+                  Nueva contraseña — dejá vacío para no cambiar
+                </label>
+                <input type="password" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} placeholder="••••••••" style={inputStyle} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="editActivo" checked={editActivo} onChange={(e) => setEditActivo(e.target.checked)} />
+                <label htmlFor="editActivo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Usuario activo</label>
+              </div>
+              {errorEdit && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{errorEdit}</p>}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
+              <button onClick={() => setUsuarioEditar(null)} style={{
+                background: 'transparent', border: '0.5px solid #30363d',
+                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                fontSize: '13px', cursor: 'pointer',
+              }}>Cancelar</button>
+              <button onClick={guardarEdicion} disabled={loadingEdit || !editNombre} style={{
+                background: '#2563eb', color: 'white', border: 'none',
+                borderRadius: '6px', padding: '7px 16px',
+                fontSize: '13px', cursor: 'pointer', opacity: loadingEdit ? 0.6 : 1,
+              }}>
+                {loadingEdit ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
           </div>
@@ -199,21 +260,16 @@ export default function UsuariosClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
-            Usuarios
-          </h1>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Usuarios</h1>
           <span style={{ fontSize: '12px', color: '#8b949e' }}>
             {usuarios.length} usuario{usuarios.length !== 1 ? 's' : ''} registrado{usuarios.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <button
-          onClick={() => setMostrarForm(true)}
-          style={{
-            background: '#2563eb', color: 'white', border: 'none',
-            borderRadius: '6px', padding: '7px 16px',
-            fontSize: '13px', cursor: 'pointer',
-          }}
-        >
+        <button onClick={() => setMostrarForm(true)} style={{
+          background: '#2563eb', color: 'white', border: 'none',
+          borderRadius: '6px', padding: '7px 16px',
+          fontSize: '13px', cursor: 'pointer',
+        }}>
           + Nuevo usuario
         </button>
       </div>
@@ -226,7 +282,7 @@ export default function UsuariosClient({
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
             <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-              {['Nombre', 'Email', 'Rol', 'Estado'].map((col) => (
+              {['Nombre', 'Email', 'Permisos', 'Estado', ''].map((col) => (
                 <th key={col} style={{
                   textAlign: 'left', padding: '10px 16px',
                   color: '#8b949e', fontWeight: 500,
@@ -246,33 +302,30 @@ export default function UsuariosClient({
                     <span style={{
                       background: '#2a1a3a', color: '#bc8cff',
                       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                    }}>
-                      Superadmin
-                    </span>
+                    }}>Superadmin</span>
                   ) : (
-                    <span style={{ color: '#8b949e', fontSize: '12px' }}>Ver permisos</span>
+                    <button onClick={() => setUsuarioPermisos(usuario)} style={{
+                      background: 'transparent', border: '0.5px solid #30363d',
+                      color: '#58a6ff', cursor: 'pointer', fontSize: '12px',
+                      padding: '4px 10px', borderRadius: '4px',
+                    }}>Ver permisos</button>
                   )}
                 </td>
                 <td style={{ padding: '10px 16px' }}>
-                  {usuario.es_superadmin ? (
-                    <span style={{
-                      background: '#2a1a3a', color: '#bc8cff',
-                      fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                    }}>
-                      Superadmin
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => setUsuarioPermisos(usuario)}
-                      style={{
-                        background: 'transparent', border: '0.5px solid #30363d',
-                        color: '#58a6ff', cursor: 'pointer', fontSize: '12px',
-                        padding: '4px 10px', borderRadius: '4px',
-                      }}
-    >
-                      Ver permisos
-                    </button>
-                  )}
+                  <span style={{
+                    background: usuario.activo ? '#1a3a2a' : '#3a1a1a',
+                    color: usuario.activo ? '#3fb950' : '#f85149',
+                    fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
+                  }}>
+                    {usuario.activo ? 'Activo' : 'Inactivo'}
+                  </span>
+                </td>
+                <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                  <button onClick={() => abrirEditar(usuario)} style={{
+                    background: 'transparent', border: 'none',
+                    color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                    padding: '4px 8px', borderRadius: '4px',
+                  }}>Editar</button>
                 </td>
               </tr>
             ))}

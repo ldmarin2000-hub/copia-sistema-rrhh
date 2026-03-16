@@ -32,6 +32,7 @@ export default function TiposEmpleadoClient({ tipos }: { tipos: TipoEmpleado[] }
   const [tipoLiquidacion, setTipoLiquidacion] = useState('jornal')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [activo, setActivo] = useState(true)
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -54,6 +55,7 @@ export default function TiposEmpleadoClient({ tipos }: { tipos: TipoEmpleado[] }
     setTipoLiquidacion('jornal')
     setError('')
     setMostrarForm(true)
+    setActivo(true)
   }
 
   function abrirEditar(tipo: TipoEmpleado) {
@@ -63,6 +65,7 @@ export default function TiposEmpleadoClient({ tipos }: { tipos: TipoEmpleado[] }
     setTipoLiquidacion(tipo.tipo_liquidacion)
     setError('')
     setMostrarForm(true)
+    setActivo(tipo.activo)
   }
 
   function cerrar() {
@@ -79,13 +82,13 @@ export default function TiposEmpleadoClient({ tipos }: { tipos: TipoEmpleado[] }
     if (editando) {
       const { error } = await supabase
         .from('tipos_empleado')
-        .update({ codigo, descripcion, tipo_liquidacion: tipoLiquidacion })
+        .update({ codigo, descripcion, tipo_liquidacion: tipoLiquidacion, activo })
         .eq('id', editando.id)
       if (error) { setError(error.message); setLoading(false); return }
     } else {
       const { error } = await supabase
         .from('tipos_empleado')
-        .insert({ id_empresa: empresaActiva.id, codigo, descripcion, tipo_liquidacion: tipoLiquidacion })
+        .insert({ id_empresa: empresaActiva.id, codigo, descripcion, tipo_liquidacion: tipoLiquidacion, activo })
       if (error) { setError(error.message); setLoading(false); return }
     }
 
@@ -181,6 +184,19 @@ export default function TiposEmpleadoClient({ tipos }: { tipos: TipoEmpleado[] }
                   style={inputStyle}
                 />
               </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  id="activo"
+                  checked={activo}
+                  onChange={(e) => setActivo(e.target.checked)}
+                />
+                <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+                  Tipo activo
+                </label>
+              </div>
+
 
               {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>

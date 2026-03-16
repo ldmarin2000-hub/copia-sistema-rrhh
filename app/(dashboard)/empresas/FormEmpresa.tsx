@@ -49,6 +49,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
   const [error, setError] = useState('')
   const [cuitValido, setCuitValido] = useState<boolean | null>(null)
   const [buscandoDireccion, setBuscandoDireccion] = useState(false)
+  const [activo, setActivo] = useState(empresaEditar?.activo ?? true)
 
   const input = (value: string, onChange: (v: string) => void, placeholder: string) => (
     <input
@@ -125,6 +126,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
       direccion, cp, localidad, provincia,
       fecha_inicio: fechaInicio || null,
       latitud, longitud,
+      activo,
     }
 
     if (editando) {
@@ -311,6 +313,18 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
           {error && (
             <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>
           )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <input
+            type="checkbox"
+            id="activo"
+            checked={activo}
+            onChange={(e) => setActivo(e.target.checked)}
+          />
+          <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+            Empresa activa
+          </label>
         </div>
 
         {/* Footer */}
