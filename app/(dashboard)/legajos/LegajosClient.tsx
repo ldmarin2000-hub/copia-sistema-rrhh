@@ -47,7 +47,7 @@ type Obra = {
   nombre: string
 }
 
-const ESTADOS = ['Activo', 'Baja', 'Suspendido', 'Inactivo']
+const ESTADOS = ['Pre-Alta', 'Activo', 'Baja', 'Suspendido', 'Inactivo']
 const SEXOS = ['Masculino', 'Femenino', 'Otro']
 const TIPOS_DOC = ['DNI', 'Pasaporte']
 
@@ -57,6 +57,7 @@ const badgeEstado = (estado: string) => {
     Baja:       { bg: '#3a1a1a', color: '#f85149' },
     Suspendido: { bg: '#3a2f1a', color: '#d29922' },
     Inactivo:   { bg: '#21262d', color: '#8b949e' },
+    'Pre-Alta': { bg: '#1a2a3a', color: '#58a6ff' },
   }
   const c = colores[estado] || colores.Inactivo
   return (
