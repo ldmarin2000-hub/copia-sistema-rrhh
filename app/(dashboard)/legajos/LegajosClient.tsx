@@ -7,6 +7,7 @@ import { Search } from 'lucide-react'
 import Link from 'next/link'
 import FormLegajo from './FormLegajo'
 import { formatFecha } from '@/lib/fecha'
+import { createClient } from '@/lib/supabase-browser'
 
 type Legajo = {
   id: number
@@ -79,6 +80,7 @@ export default function LegajosClient({
   const [legajoEditar, setLegajoEditar] = useState<Legajo | null>(null)
   const [busqueda, setBusqueda] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
+  const router = useRouter()
 
   const legajosFiltrados = legajos
     .filter(l => l.id_empresa === empresaActiva?.id)
@@ -107,6 +109,29 @@ export default function LegajosClient({
   function cerrar() {
     setMostrarForm(false)
     setLegajoEditar(null)
+  }
+
+  async function eliminar(legajo: Legajo) {
+    if (!confirm(`¿Eliminar el legajo de ${legajo.apellido}, ${legajo.nombre}?\nEsta acción no se puede deshacer.`)) return
+
+    const supabase = createClient()
+
+    const { error } = await supabase
+      .from('legajos')
+      .delete()
+      .eq('id', legajo.id)
+
+    if (error) {
+      alert(traducirErrorEliminar(error.message))
+    } else {
+      router.refresh()
+    }
+  }
+
+  function traducirErrorEliminar(mensaje: string): string {
+    if (mensaje.includes('foreign key'))
+      return 'No se puede eliminar: el empleado tiene novedades, vacaciones u otros registros asociados.'
+    return 'No se puede eliminar. Intentá de nuevo.'
   }
 
   if (!empresaActiva) {
@@ -234,7 +259,13 @@ export default function LegajosClient({
                       color: '#8b949e', cursor: 'pointer', fontSize: '12px',
                       padding: '4px 8px', borderRadius: '4px',
                     }}>Editar</button>
+                    <button onClick={() => eliminar(legajo)} style={{
+                      background: 'transparent', border: 'none',
+                      color: '#f85149', cursor: 'pointer', fontSize: '12px',
+                      padding: '4px 8px', borderRadius: '4px',
+                    }}>Eliminar</button>
                   </td>
+                  
                 </tr>
               ))}
             </tbody>
