@@ -65,6 +65,10 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [cuilValido, setCuilValido] = useState<boolean | null>(editando ? true : null)
+  const [mostrarModalBaja, setMostrarModalBaja] = useState(false)
+  const [fechaEgreso, setFechaEgreso] = useState(new Date().toISOString().split('T')[0])
+  const [motivoBaja, setMotivoBaja] = useState('Renuncia')
+  const [observacionBaja, setObservacionBaja] = useState('')
 
   const [nroLegajo, setNroLegajo] = useState(legajoEditar ? String(legajoEditar.nro_legajo) : '')
   const [apellido, setApellido] = useState(legajoEditar?.apellido || '')
@@ -159,6 +163,18 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
       if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
 
+    if (estado === 'Baja' && editando && legajoEditar?.estado !== 'Baja') {
+      await supabase
+        .from('legajos_historial_laboral')
+        .update({
+          fecha_egreso: fechaEgreso,
+          motivo: motivoBaja,
+          observacion: observacionBaja || null,
+        })
+        .eq('id_legajo', legajoEditar.id)
+        .is('fecha_egreso', null)
+    }
+
     router.refresh()
     if (onGuardado) onGuardado()
     onCerrar()
@@ -166,225 +182,321 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
-      display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-      zIndex: 50, overflowY: 'auto', paddingTop: '20px', paddingBottom: '20px',
-    }}>
-      <div style={{
-        background: '#161b22', border: '0.5px solid #30363d',
-        borderRadius: '10px', width: '100%', maxWidth: '620px', padding: '24px',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div>
-            <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
-              {editando ? `Editar — ${legajoEditar.apellido}, ${legajoEditar.nombre}` : 'Nuevo legajo'}
+    <>
+      {/* Modal baja */}
+      {mostrarModalBaja && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+        }}>
+          <div style={{
+            background: '#161b22', border: '0.5px solid #f85149',
+            borderRadius: '10px', width: '100%', maxWidth: '440px', padding: '24px',
+          }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#f85149', margin: '0 0 4px' }}>
+              Registrar baja
             </h2>
-            <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva?.razon_social}</span>
-          </div>
-          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
-            <X size={18} />
-          </button>
-        </div>
+            <p style={{ fontSize: '13px', color: '#8b949e', margin: '0 0 20px' }}>
+              Completá los datos del egreso del empleado.
+            </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-          {/* Identificación */}
-          <div>
-            <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Identificación</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-              <div>
-                <label style={labelStyle}>Nro Legajo *</label>
-                <input value={nroLegajo} onChange={(e) => setNroLegajo(e.target.value)} placeholder="Ej: 1" style={inputStyle} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={labelStyle}>Fecha egreso *</label>
+                  <input
+                    type="date"
+                    value={fechaEgreso}
+                    onChange={(e) => setFechaEgreso(e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Motivo *</label>
+                  <select
+                    value={motivoBaja}
+                    onChange={(e) => setMotivoBaja(e.target.value)}
+                    style={selectStyle}
+                  >
+                    {['Renuncia', 'Despido', 'Fin de Obra', 'Suspension', 'Otro'].map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div>
-                <label style={labelStyle}>Código externo</label>
-                <input value={codigoExterno} onChange={(e) => setCodigoExterno(e.target.value)} placeholder="Sistema sueldos" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Estado</label>
-                <select value={estado} onChange={(e) => setEstado(e.target.value)} style={selectStyle}>
-                  {ESTADOS.map(e => <option key={e} value={e}>{e}</option>)}
-                </select>
+                <label style={labelStyle}>Observación</label>
+                <textarea
+                  value={observacionBaja}
+                  onChange={(e) => setObservacionBaja(e.target.value)}
+                  placeholder="Detalle adicional..."
+                  rows={3}
+                  style={{ ...inputStyle, resize: 'vertical' as const }}
+                />
               </div>
             </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
+              <button
+                onClick={() => {
+                  setMostrarModalBaja(false)
+                  setEstado(editando ? legajoEditar!.estado : 'Activo')
+                }}
+                style={{
+                  background: 'transparent', border: '0.5px solid #30363d',
+                  color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                  fontSize: '13px', cursor: 'pointer',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => setMostrarModalBaja(false)}
+                disabled={!fechaEgreso || !motivoBaja}
+                style={{
+                  background: '#f85149', color: 'white', border: 'none',
+                  borderRadius: '6px', padding: '7px 16px',
+                  fontSize: '13px', cursor: 'pointer',
+                }}
+              >
+                Confirmar baja
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Formulario principal */}
+      <div style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        zIndex: 50, overflowY: 'auto', paddingTop: '20px', paddingBottom: '20px',
+      }}>
+        <div style={{
+          background: '#161b22', border: '0.5px solid #30363d',
+          borderRadius: '10px', width: '100%', maxWidth: '620px', padding: '24px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+                {editando ? `Editar — ${legajoEditar.apellido}, ${legajoEditar.nombre}` : 'Nuevo legajo'}
+              </h2>
+              <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva?.razon_social}</span>
+            </div>
+            <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <X size={18} />
+            </button>
           </div>
 
-          {/* Datos personales */}
-          <div>
-            <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos personales</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={labelStyle}>Apellido *</label>
-                  <input value={apellido} onChange={(e) => setApellido(e.target.value)} style={inputStyle} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Nombre *</label>
-                  <input value={nombre} onChange={(e) => setNombre(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={labelStyle}>CUIL *</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      value={cuil}
-                      onChange={(e) => {
-                        const valor = e.target.value
-                        setCuil(valor)
-                        const limpio = valor.replace(/[^0-9]/g, '')
-                        if (limpio.length === 11) {
-                          const valido = validarCuit(valor)
-                          setCuilValido(valido)
-                          if (valido) setCuil(formatearCuit(valor))
-                        } else {
-                          setCuilValido(null)
-                        }
-                      }}
-                      placeholder="Ej: 20-12345678-9"
-                      style={{
-                        ...inputStyle,
-                        border: `0.5px solid ${cuilValido === false ? '#f85149' : cuilValido === true ? '#3fb950' : '#30363d'}`,
-                      }}
-                    />
-                    {cuilValido !== null && (
-                      <span style={{
-                        position: 'absolute', right: '10px', top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: cuilValido ? '#3fb950' : '#f85149',
-                      }}>
-                        {cuilValido ? '✓' : '✗'}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label style={labelStyle}>Fecha nacimiento</label>
-                  <input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-
+            {/* Identificación */}
+            <div>
+              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Identificación</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={labelStyle}>Sexo</label>
-                  <select value={sexo} onChange={(e) => setSexo(e.target.value)} style={selectStyle}>
-                    {SEXOS.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
+                  <label style={labelStyle}>Nro Legajo *</label>
+                  <input value={nroLegajo} onChange={(e) => setNroLegajo(e.target.value)} placeholder="Ej: 1" style={inputStyle} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Tipo documento</label>
-                  <select value={tipoDocumento} onChange={(e) => setTipoDocumento(e.target.value)} style={selectStyle}>
-                    {TIPOS_DOC.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
+                  <label style={labelStyle}>Código externo</label>
+                  <input value={codigoExterno} onChange={(e) => setCodigoExterno(e.target.value)} placeholder="Sistema sueldos" style={inputStyle} />
                 </div>
                 <div>
-                  <label style={labelStyle}>Nro documento</label>
-                  <input value={nroDocumento} onChange={(e) => setNroDocumento(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={labelStyle}>Nacionalidad</label>
-                  <input value={nacionalidad} onChange={(e) => setNacionalidad(e.target.value)} style={inputStyle} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Teléfono</label>
-                  <input value={telefono} onChange={(e) => setTelefono(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Domicilio */}
-          <div>
-            <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Domicilio</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={labelStyle}>Dirección</label>
-                  <input value={direccion} onChange={(e) => setDireccion(e.target.value)} style={inputStyle} />
-                </div>
-                <div>
-                  <label style={labelStyle}>CP</label>
-                  <input value={cp} onChange={(e) => setCp(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={labelStyle}>Localidad</label>
-                  <input value={localidad} onChange={(e) => setLocalidad(e.target.value)} style={inputStyle} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Provincia</label>
-                  <input value={provincia} onChange={(e) => setProvincia(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Datos laborales */}
-          <div>
-            <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos laborales</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={labelStyle}>Fecha ingreso *</label>
-                  <input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} style={inputStyle} />
-                </div>
-                <div>
-                  <label style={labelStyle}>CBU</label>
-                  <input value={cbu} onChange={(e) => setCbu(e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={labelStyle}>Categoría</label>
-                  <select value={idCategoria} onChange={(e) => setIdCategoria(e.target.value)} style={selectStyle}>
-                    <option value="">Sin categoría</option>
-                    {categoriasFiltradas.map(c => (
-                      <option key={c.id} value={c.id}>{c.descripcion}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>Obra actual</label>
-                  <select value={idObra} onChange={(e) => setIdObra(e.target.value)} style={selectStyle}>
-                    <option value="">Sin obra</option>
-                    {obrasFiltradas.map(o => (
-                      <option key={o.id} value={o.id}>{o.nombre}</option>
-                    ))}
+                  <label style={labelStyle}>Estado</label>
+                  <select
+                    value={estado}
+                    onChange={(e) => {
+                      const nuevoEstado = e.target.value
+                      if (nuevoEstado === 'Baja' && estado !== 'Baja') {
+                        setMostrarModalBaja(true)
+                      }
+                      setEstado(nuevoEstado)
+                    }}
+                    style={selectStyle}
+                  >
+                    {ESTADOS.map(e => <option key={e} value={e}>{e}</option>)}
                   </select>
                 </div>
               </div>
             </div>
+
+            {/* Datos personales */}
+            <div>
+              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos personales</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Apellido *</label>
+                    <input value={apellido} onChange={(e) => setApellido(e.target.value)} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Nombre *</label>
+                    <input value={nombre} onChange={(e) => setNombre(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>CUIL *</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        value={cuil}
+                        onChange={(e) => {
+                          const valor = e.target.value
+                          setCuil(valor)
+                          const limpio = valor.replace(/[^0-9]/g, '')
+                          if (limpio.length === 11) {
+                            const valido = validarCuit(valor)
+                            setCuilValido(valido)
+                            if (valido) setCuil(formatearCuit(valor))
+                          } else {
+                            setCuilValido(null)
+                          }
+                        }}
+                        placeholder="Ej: 20-12345678-9"
+                        style={{
+                          ...inputStyle,
+                          border: `0.5px solid ${cuilValido === false ? '#f85149' : cuilValido === true ? '#3fb950' : '#30363d'}`,
+                        }}
+                      />
+                      {cuilValido !== null && (
+                        <span style={{
+                          position: 'absolute', right: '10px', top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: cuilValido ? '#3fb950' : '#f85149',
+                        }}>
+                          {cuilValido ? '✓' : '✗'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Fecha nacimiento</label>
+                    <input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Sexo</label>
+                    <select value={sexo} onChange={(e) => setSexo(e.target.value)} style={selectStyle}>
+                      {SEXOS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Tipo documento</label>
+                    <select value={tipoDocumento} onChange={(e) => setTipoDocumento(e.target.value)} style={selectStyle}>
+                      {TIPOS_DOC.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Nro documento</label>
+                    <input value={nroDocumento} onChange={(e) => setNroDocumento(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Nacionalidad</label>
+                    <input value={nacionalidad} onChange={(e) => setNacionalidad(e.target.value)} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Teléfono</label>
+                    <input value={telefono} onChange={(e) => setTelefono(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Domicilio */}
+            <div>
+              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Domicilio</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Dirección</label>
+                    <input value={direccion} onChange={(e) => setDireccion(e.target.value)} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>CP</label>
+                    <input value={cp} onChange={(e) => setCp(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Localidad</label>
+                    <input value={localidad} onChange={(e) => setLocalidad(e.target.value)} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Provincia</label>
+                    <input value={provincia} onChange={(e) => setProvincia(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Datos laborales */}
+            <div>
+              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos laborales</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Fecha ingreso *</label>
+                    <input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>CBU</label>
+                    <input value={cbu} onChange={(e) => setCbu(e.target.value)} style={inputStyle} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={labelStyle}>Categoría</label>
+                    <select value={idCategoria} onChange={(e) => setIdCategoria(e.target.value)} style={selectStyle}>
+                      <option value="">Sin categoría</option>
+                      {categoriasFiltradas.map(c => (
+                        <option key={c.id} value={c.id}>{c.descripcion}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Obra actual</label>
+                    <select value={idObra} onChange={(e) => setIdObra(e.target.value)} style={selectStyle}>
+                      <option value="">Sin obra</option>
+                      {obrasFiltradas.map(o => (
+                        <option key={o.id} value={o.id}>{o.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
           </div>
 
-          {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-          <button onClick={onCerrar} style={{
-            background: 'transparent', border: '0.5px solid #30363d',
-            color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
-            fontSize: '13px', cursor: 'pointer',
-          }}>Cancelar</button>
-          <button
-            onClick={guardar}
-            disabled={loading || !nroLegajo || !apellido || !nombre || !cuil || !fechaIngreso}
-            style={{
-              background: '#2563eb', color: 'white', border: 'none',
-              borderRadius: '6px', padding: '7px 16px',
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
+            <button onClick={onCerrar} style={{
+              background: 'transparent', border: '0.5px solid #30363d',
+              color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
               fontSize: '13px', cursor: 'pointer',
-              opacity: loading ? 0.6 : 1,
-            }}
-          >
-            {loading ? 'Guardando...' : editando ? 'Guardar cambios' : 'Crear legajo'}
-          </button>
+            }}>Cancelar</button>
+            <button
+              onClick={guardar}
+              disabled={loading || !nroLegajo || !apellido || !nombre || !cuil || !fechaIngreso}
+              style={{
+                background: '#2563eb', color: 'white', border: 'none',
+                borderRadius: '6px', padding: '7px 16px',
+                fontSize: '13px', cursor: 'pointer',
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              {loading ? 'Guardando...' : editando ? 'Guardar cambios' : 'Crear legajo'}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
