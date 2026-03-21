@@ -185,6 +185,17 @@ export default function ConsultaClient({
     return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
+  function getDiaSemana(fecha: string): string {
+  const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+  const d = new Date(fecha + 'T00:00:00')
+  return dias[d.getDay()]
+}
+
+function esFinDeSemana(fecha: string): boolean {
+  const d = new Date(fecha + 'T00:00:00')
+  return d.getDay() === 0 || d.getDay() === 6
+}
+
   return (
     <div>
       {/* Título */}
@@ -292,14 +303,23 @@ export default function ConsultaClient({
                       background: '#161b22', minWidth: '180px',
                       borderRight: '0.5px solid #30363d',
                     }}>Empleado</th>
+
                     {dias.map(dia => (
                       <th key={dia} style={{
-                        textAlign: 'center', padding: '10px 8px',
-                        color: '#8b949e', fontWeight: 500, minWidth: '40px',
+                        textAlign: 'center', padding: '8px 4px',
+                        color: esFinDeSemana(dia) ? '#d29922' : '#8b949e',
+                        fontWeight: 500, minWidth: '40px',
+                        background: esFinDeSemana(dia) ? 'rgba(210,153,34,0.05)' : 'transparent',
                       }}>
-                        {new Date(dia + 'T00:00:00').getDate()}
+                        <div style={{ fontSize: '13px' }}>
+                          {new Date(dia + 'T00:00:00').getDate()}
+                        </div>
+                        <div style={{ fontSize: '10px', opacity: 0.7 }}>
+                          {getDiaSemana(dia)}
+                        </div>
                       </th>
                     ))}
+
                     <th style={{
                       textAlign: 'center', padding: '10px 12px',
                       color: '#58a6ff', fontWeight: 500,
@@ -334,10 +354,8 @@ export default function ConsultaClient({
                             padding: '8px 4px', textAlign: 'center',
                             background: ausente
                               ? 'rgba(248,81,73,0.1)'
-                              : !tieneDato
-                              ? 'transparent'
-                              : horas === 0
-                              ? 'transparent'
+                              : esFinDeSemana(dia)
+                              ? 'rgba(210,153,34,0.03)'
                               : 'transparent',
                           }}>
                             {ausente ? (
@@ -352,6 +370,7 @@ export default function ConsultaClient({
                           </td>
                         )
                       })}
+                        
                       <td style={{
                         padding: '8px 12px', textAlign: 'center',
                         color: '#58a6ff', fontWeight: 500,

@@ -262,6 +262,12 @@ export default function NovedadesClient({
     return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
+  function getDiaSemana(fecha: string): string {
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+    const d = new Date(fecha + 'T00:00:00')
+    return dias[d.getDay()]
+  }
+
   return (
     <div>
       {/* Título */}
@@ -296,17 +302,28 @@ export default function NovedadesClient({
 
         <div>
           <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha *</label>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => { setFecha(e.target.value); setFilas([]) }}
-            style={{
-              padding: '7px 10px', borderRadius: '6px',
-              background: '#0d1117', border: '0.5px solid #30363d',
-              color: '#e6edf3', fontSize: '13px',
-            }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <input
+              type="date"
+              value={fecha}
+              onChange={(e) => { setFecha(e.target.value); setFilas([]) }}
+              style={{
+                padding: '7px 10px', borderRadius: '6px',
+                background: '#0d1117', border: '0.5px solid #30363d',
+                color: '#e6edf3', fontSize: '13px',
+              }}
+            />
+            {fecha && (
+              <span style={{
+                fontSize: '13px', fontWeight: 500,
+                color: ['Sábado', 'Domingo'].includes(getDiaSemana(fecha)) ? '#d29922' : '#8b949e',
+              }}>
+                {getDiaSemana(fecha)}
+              </span>
+            )}
+          </div>
         </div>
+        
 
         <button
           onClick={cargarEmpleados}
