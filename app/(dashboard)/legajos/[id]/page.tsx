@@ -18,6 +18,11 @@ export default async function FichaLegajo({
     { data: obras },
     { data: ausencias },
     { data: tiposAusencia },
+    { data: vacaciones } = await supabase
+      .from('vacaciones_periodo')
+      .select('*')
+      .eq('id_legajo', id)
+      .order('fecha_desde', { ascending: false }),
   ] = await Promise.all([
     supabase.from('legajos')
       .select('*, categorias(descripcion), obras(nombre)')
@@ -55,6 +60,7 @@ export default async function FichaLegajo({
       obras={obras || []}
       ausencias={ausencias || []}
       tiposAusencia={tiposAusencia || []}
+      vacaciones={vacaciones || []}
     />
   )
 }

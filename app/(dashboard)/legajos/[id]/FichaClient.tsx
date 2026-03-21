@@ -2,11 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, User, Clock, FileText, Calendar, Pencil } from 'lucide-react'
+import { ArrowLeft, User, Clock, FileText, Calendar, Pencil, Umbrella } from 'lucide-react'
 import Link from 'next/link'
 import { formatFecha } from '@/lib/fecha'
 import FormLegajo from '../FormLegajo'
 import AusenciasTab from './AusenciasTab'
+import VacacionesTab from './VacacionesTab'
+
+
 
 
 
@@ -36,6 +39,7 @@ type Legajo = {
   activo: boolean
   categorias?: { descripcion: string }
   obras?: { nombre: string }
+  
 }
 
 type HistoricoLaboral = {
@@ -93,6 +97,7 @@ const badgeEstado = (estado: string) => {
 const tabs = [
   { id: 'datos',     label: 'Datos',      icon: User },
   { id: 'ausencias', label: 'Ausencias',  icon: Calendar },
+  { id: 'vacaciones', label: 'Vacaciones', icon: Umbrella },
   { id: 'historial', label: 'Historial',  icon: Clock },
   { id: 'documentos',label: 'Documentos', icon: FileText },
   { id: 'novedades', label: 'Novedades',  icon: Calendar },
@@ -100,7 +105,7 @@ const tabs = [
 
 export default function FichaClient({
   legajo, historico_laboral, historico_categorias,
-  historico_obras, categorias, obras, ausencias, tiposAusencia
+  historico_obras, categorias, obras, ausencias, tiposAusencia, vacaciones
 }: {
   legajo: Legajo
   historico_laboral: HistoricoLaboral[]
@@ -110,6 +115,7 @@ export default function FichaClient({
   obras: Obra[]
   ausencias: any[]
   tiposAusencia: any[]
+   vacaciones: any[]
 }) {
   const [tabActiva, setTabActiva] = useState('datos')
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -246,6 +252,14 @@ export default function FichaClient({
           idEmpresa={legajo.id_empresa}
           ausencias={ausencias}
           tiposAusencia={tiposAusencia}
+        />
+      )}
+      
+      {tabActiva === 'vacaciones' && (
+        <VacacionesTab
+          idLegajo={legajo.id}
+          idEmpresa={legajo.id_empresa}
+          vacaciones={vacaciones}
         />
       )}
 
