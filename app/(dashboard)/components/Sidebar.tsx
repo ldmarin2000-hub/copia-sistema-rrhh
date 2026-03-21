@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   UserCog,
   BarChart2,
+  BriefcaseMedical,
 } from 'lucide-react'
 
 const administracion = [
@@ -37,6 +38,7 @@ const maestras = [
 
 const gestion = [
   { href: '/legajos',    label: 'Legajos',    icon: Users },
+  { href: '/ausencias', label: 'Ausencias', icon: BriefcaseMedical },
   { href: '/novedades',  label: 'Novedades',  icon: Calendar },
   { href: '/novedades/consulta', label: 'Consulta novedades', icon: BarChart2 },
   { href: '/vacaciones', label: 'Vacaciones', icon: Umbrella },
