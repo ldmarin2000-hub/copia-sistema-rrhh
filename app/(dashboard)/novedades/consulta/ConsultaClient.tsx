@@ -45,6 +45,7 @@ const TIPOS_HORA = [
   { value: 'hs_nocturnas',label: 'Nocturnas' },
 ]
 
+
 export default function ConsultaClient({
   obras, adicionales
 }: {
@@ -68,6 +69,7 @@ export default function ConsultaClient({
   const [novedadesAdicionales, setNovedadesAdicionales] = useState<NovedadAdicional[]>([])
   const [cargando, setCargando] = useState(false)
   const [buscado, setBuscado] = useState(false)
+  const [ausenciasPeriodo, setAusenciasPeriodo] = useState<any[]>([])
 
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
   const adicionalesFiltrados = adicionales.filter(a => a.id_empresa === empresaActiva?.id)
@@ -76,6 +78,20 @@ export default function ConsultaClient({
     padding: '7px 10px', borderRadius: '6px',
     background: '#0d1117', border: '0.5px solid #30363d',
     color: '#e6edf3', fontSize: '13px',
+  }
+
+
+  function getInfoAusencia(idLegajo: number, fecha: string): { codigo: string, pierdePresentismo: boolean } | null {
+    const ausencia = ausenciasPeriodo.find(a =>
+      a.id_legajo === idLegajo &&
+      a.fecha_desde <= fecha &&
+      a.fecha_hasta >= fecha
+    )
+    if (!ausencia) return null
+    return {
+      codigo: ausencia.tipos_ausencia?.codigo || 'AUS',
+      pierdePresentismo: ausencia.tipos_ausencia?.pierde_presentismo ?? true,
+    }
   }
 
   // Calcular rango de fechas
@@ -120,6 +136,16 @@ export default function ConsultaClient({
 
     const { data } = await query
     const resultado = data || []
+    // Traer ausencias por período que se superpongan con el rango
+  const { data: ausencias } = await supabase
+    .from('ausencias_periodo')
+    .select('*, tipos_ausencia(codigo, descripcion, pierde_presentismo)')
+    .eq('id_empresa', empresaActiva.id)
+    .lte('fecha_desde', hasta)
+    .gte('fecha_hasta', desde)
+
+
+  setAusenciasPeriodo(ausencias || [])
 
     // Si filtra por adicional, traer solo los que tienen ese adicional
     if (idAdicional) {
@@ -152,6 +178,15 @@ export default function ConsultaClient({
   ).sort((a, b) => a[1].apellido.localeCompare(b[1].apellido))
 
   const dias = getDias()
+
+  function getCodigoAusencia(idLegajo: number, fecha: string): string | null {
+    const ausencia = ausenciasPeriodo.find(a =>
+      a.id_legajo === idLegajo &&
+      a.fecha_desde <= fecha &&
+      a.fecha_hasta >= fecha
+    )
+    return ausencia?.tipos_ausencia?.codigo || null
+  }
 
   // Obtener valor de horas para una celda
   function getHoras(idLegajo: number, fecha: string): number {
@@ -349,26 +384,37 @@ function esFinDeSemana(fecha: string): boolean {
                         const horas = getHoras(idLegajo, dia)
                         const ausente = isAusente(idLegajo, dia)
                         const tieneDato = tieneDatos(idLegajo, dia)
-                        return (
-                          <td key={dia} style={{
-                            padding: '8px 4px', textAlign: 'center',
-                            background: ausente
-                              ? 'rgba(248,81,73,0.1)'
-                              : esFinDeSemana(dia)
-                              ? 'rgba(210,153,34,0.03)'
-                              : 'transparent',
-                          }}>
-                            {ausente ? (
-                              <span style={{ color: '#f85149', fontSize: '11px' }}>A</span>
-                            ) : tieneDato ? (
-                              <span style={{ color: horas > 0 ? '#e6edf3' : '#484f58' }}>
-                                {horas > 0 ? horas : '—'}
-                              </span>
-                            ) : (
-                              <span style={{ color: '#30363d' }}>·</span>
-                            )}
-                          </td>
-                        )
+                        const infoAusencia = getInfoAusencia(idLegajo, dia)
+
+                      return (
+                        <td key={dia} style={{
+                          padding: '8px 4px', textAlign: 'center',
+                          background: (ausente || infoAusencia)
+                            ? infoAusencia?.pierdePresentismo === false
+                              ? 'rgba(63,185,80,0.08)'
+                              : 'rgba(248,81,73,0.1)'
+                            : esFinDeSemana(dia)
+                            ? 'rgba(210,153,34,0.03)'
+                            : 'transparent',
+                        }}>
+                          {infoAusencia ? (
+                            <span style={{
+                              fontSize: '11px', fontWeight: 500,
+                              color: infoAusencia.pierdePresentismo ? '#f85149' : '#3fb950',
+                            }}>
+                              {infoAusencia.codigo}
+                            </span>
+                          ) : ausente ? (
+                            <span style={{ color: '#f85149', fontSize: '11px', fontWeight: 500 }}>A</span>
+                          ) : tieneDato ? (
+                            <span style={{ color: horas > 0 ? '#e6edf3' : '#484f58' }}>
+                              {horas > 0 ? horas : '—'}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#30363d' }}>·</span>
+                          )}
+                        </td>
+                      )
                       })}
                         
                       <td style={{

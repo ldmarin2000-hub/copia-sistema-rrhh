@@ -9,6 +9,7 @@ import { X } from 'lucide-react'
 type TipoAusencia = {
   id: number
   id_empresa?: number
+  codigo?: string
   descripcion: string
   pierde_presentismo: boolean
   requiere_certificado: boolean
@@ -28,6 +29,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
   const [activo, setActivo] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [codigo, setCodigo] = useState('')
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -60,6 +62,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     setActivo(true)
     setError('')
     setMostrarForm(true)
+    setCodigo('')
   }
 
   function abrirEditar(t: TipoAusencia) {
@@ -73,6 +76,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     setActivo(t.activo)
     setError('')
     setMostrarForm(true)
+    setCodigo(t.codigo || '')
   }
 
   function cerrar() {
@@ -87,6 +91,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     const supabase = createClient()
 
     const datos = {
+      codigo,
       descripcion,
       pierde_presentismo: pierdePresentismo,
       requiere_certificado: requiereCertificado,
@@ -153,6 +158,18 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
               </button>
             </div>
 
+            <div>
+              <label style={labelStyle}>Código *</label>
+              <input
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+                placeholder="Ej: EC"
+                maxLength={10}
+                style={inputStyle}
+              />
+            </div>
+
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={labelStyle}>Descripción *</label>
@@ -200,7 +217,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
             <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-              {['Descripción', 'Presentismo', 'Certificado', 'Remunerada', 'Origen', 'Estado'].map(col => (
+              {['Código', 'Descripción', 'Presentismo', 'Certificado', 'Remunerada', 'Origen', 'Estado'].map(col => (
                 <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
               ))}
               <th style={{ padding: '10px 16px' }}></th>
@@ -209,6 +226,12 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
           <tbody>
             {tiposFiltrados.map((t, i) => (
               <tr key={t.id} style={{ borderBottom: i < tiposFiltrados.length - 1 ? '0.5px solid #21262d' : 'none' }}>
+                                <td style={{ padding: '10px 16px' }}>
+                  <span style={{
+                    background: '#21262d', color: '#e6edf3',
+                    fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
+                  }}>{t.codigo || '—'}</span>
+                </td>
                 <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{t.descripcion}</td>
                 <td style={{ padding: '10px 16px' }}>{badge(t.pierde_presentismo, 'Pierde', 'No pierde')}</td>
                 <td style={{ padding: '10px 16px' }}>{badge(t.requiere_certificado, 'Sí', 'No')}</td>
@@ -235,6 +258,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
                     </>
                   )}
                 </td>
+
               </tr>
             ))}
           </tbody>
