@@ -16,31 +16,31 @@ export default async function FichaLegajo({
     { data: historico_obras },
     { data: categorias },
     { data: obras },
+    { data: ausencias },
+    { data: tiposAusencia },
   ] = await Promise.all([
     supabase.from('legajos')
       .select('*, categorias(descripcion), obras(nombre)')
-      .eq('id', id)
-      .single(),
+      .eq('id', id).single(),
     supabase.from('legajos_historial_laboral')
-      .select('*')
-      .eq('id_legajo', id)
+      .select('*').eq('id_legajo', id)
       .order('fecha_ingreso', { ascending: false }),
     supabase.from('legajos_historico_categorias')
-      .select('*, categorias(descripcion)')
-      .eq('id_legajo', id)
+      .select('*, categorias(descripcion)').eq('id_legajo', id)
       .order('fecha_desde', { ascending: false }),
     supabase.from('legajos_historico_obras')
-      .select('*, obras(nombre)')
-      .eq('id_legajo', id)
+      .select('*, obras(nombre)').eq('id_legajo', id)
       .order('fecha_desde', { ascending: false }),
     supabase.from('categorias')
-      .select('id, id_empresa, descripcion')
-      .eq('activo', true)
-      .order('descripcion'),
+      .select('id, id_empresa, descripcion').eq('activo', true).order('descripcion'),
     supabase.from('obras')
-      .select('id, id_empresa, nombre')
-      .eq('estado', 'Activa')
-      .order('nombre'),
+      .select('id, id_empresa, nombre').eq('estado', 'Activa').order('nombre'),
+    supabase.from('ausencias_periodo')
+      .select('*, tipos_ausencia(descripcion)')
+      .eq('id_legajo', id)
+      .order('fecha_desde', { ascending: false }),
+    supabase.from('tipos_ausencia')
+      .select('id, descripcion').eq('activo', true).order('descripcion'),
   ])
 
   if (!legajo) notFound()
@@ -53,6 +53,8 @@ export default async function FichaLegajo({
       historico_obras={historico_obras || []}
       categorias={categorias || []}
       obras={obras || []}
+      ausencias={ausencias || []}
+      tiposAusencia={tiposAusencia || []}
     />
   )
 }

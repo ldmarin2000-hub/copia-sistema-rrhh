@@ -6,6 +6,7 @@ import { ArrowLeft, User, Clock, FileText, Calendar, Pencil } from 'lucide-react
 import Link from 'next/link'
 import { formatFecha } from '@/lib/fecha'
 import FormLegajo from '../FormLegajo'
+import AusenciasTab from './AusenciasTab'
 
 
 
@@ -90,15 +91,16 @@ const badgeEstado = (estado: string) => {
 }
 
 const tabs = [
-  { id: 'datos',     label: 'Datos',     icon: User },
-  { id: 'historial', label: 'Historial', icon: Clock },
-  { id: 'documentos',label: 'Documentos',icon: FileText },
-  { id: 'novedades', label: 'Novedades', icon: Calendar },
+  { id: 'datos',     label: 'Datos',      icon: User },
+  { id: 'ausencias', label: 'Ausencias',  icon: Calendar },
+  { id: 'historial', label: 'Historial',  icon: Clock },
+  { id: 'documentos',label: 'Documentos', icon: FileText },
+  { id: 'novedades', label: 'Novedades',  icon: Calendar },
 ]
 
 export default function FichaClient({
   legajo, historico_laboral, historico_categorias,
-  historico_obras, categorias, obras
+  historico_obras, categorias, obras, ausencias, tiposAusencia
 }: {
   legajo: Legajo
   historico_laboral: HistoricoLaboral[]
@@ -106,6 +108,8 @@ export default function FichaClient({
   historico_obras: HistoricoObra[]
   categorias: Categoria[]
   obras: Obra[]
+  ausencias: any[]
+  tiposAusencia: any[]
 }) {
   const [tabActiva, setTabActiva] = useState('datos')
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -234,6 +238,15 @@ export default function FichaClient({
             </div>
           </div>
         </div>
+      )}
+
+      {tabActiva === 'ausencias' && (
+        <AusenciasTab
+          idLegajo={legajo.id}
+          idEmpresa={legajo.id_empresa}
+          ausencias={ausencias}
+          tiposAusencia={tiposAusencia}
+        />
       )}
 
       {/* Tab: Historial */}
