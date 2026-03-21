@@ -15,6 +15,7 @@ import {
   BookOpen,
   ShieldCheck,
   UserCog,
+  BarChart2,
 } from 'lucide-react'
 
 const administracion = [
@@ -35,6 +36,7 @@ const maestras = [
 const gestion = [
   { href: '/legajos',    label: 'Legajos',    icon: Users },
   { href: '/novedades',  label: 'Novedades',  icon: Calendar },
+  { href: '/novedades/consulta', label: 'Consulta novedades', icon: BarChart2 },
   { href: '/vacaciones', label: 'Vacaciones', icon: Umbrella },
   { href: '/epp',        label: 'EPP y Ropa', icon: HardHat },
 ]
