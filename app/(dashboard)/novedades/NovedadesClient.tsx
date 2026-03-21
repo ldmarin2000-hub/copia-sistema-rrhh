@@ -49,6 +49,8 @@ type FilaNovedad = {
   observaciones: string
   adicionales: AdicionalFila[]
   mostrarAdicionales: boolean
+  ausenciaActiva?: { codigo: string, descripcion: string } | null
+  enVacaciones?: boolean
 }
 
 export default function NovedadesClient({
@@ -71,6 +73,7 @@ export default function NovedadesClient({
 
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
   const adicionalesFiltrados = adicionales.filter(a => a.id_empresa === empresaActiva?.id)
+  
 
   const inputStyle = {
     padding: '6px 8px', borderRadius: '6px',
@@ -96,6 +99,26 @@ export default function NovedadesClient({
       setCargando(false)
       return
     }
+
+// Traer ausencias y vacaciones activas para esa fecha
+    const idsLegajos = empleadosObra.map(e => e.id)
+
+    const { data: ausenciasActivas } = await supabase
+      .from('ausencias_periodo')
+      .select('*, tipos_ausencia(codigo, descripcion)')
+      .eq('id_empresa', empresaActiva.id)
+      .in('id_legajo', idsLegajos)
+      .lte('fecha_desde', fecha)
+      .gte('fecha_hasta', fecha)
+
+    const { data: vacacionesActivas } = await supabase
+      .from('vacaciones_periodo')
+      .select('*')
+      .eq('id_empresa', empresaActiva.id)
+      .in('id_legajo', idsLegajos)
+      .lte('fecha_desde', fecha)
+      .gte('fecha_hasta', fecha)
+
 
     // Traer novedades existentes
     const { data: existentes } = await supabase
@@ -125,8 +148,12 @@ export default function NovedadesClient({
               id_adicional: a.id_adicional,
               descripcion: a.adicionales?.descripcion || '',
               cantidad: String(a.cantidad),
+              
             }))
         : []
+
+      const ausenciaDelDia = ausenciasActivas?.find(a => a.id_legajo === emp.id)
+      const vacacionDelDia = vacacionesActivas?.find(v => v.id_legajo === emp.id)
 
       return {
         id_legajo: emp.id,
@@ -141,6 +168,9 @@ export default function NovedadesClient({
         observaciones: existente ? (existente.observaciones || '') : '',
         adicionales: adicionalesDelEmpleado,
         mostrarAdicionales: false,
+          ausenciaActiva: ausenciaDelDia
+         ? { codigo: ausenciaDelDia.tipos_ausencia.codigo, descripcion: ausenciaDelDia.tipos_ausencia.descripcion }: null,
+         enVacaciones: !!vacacionDelDia,
       }
     })
 
@@ -360,136 +390,139 @@ export default function NovedadesClient({
                 </tr>
               </thead>
               <tbody>
-                {filas.map((fila, i) => (
-                  <>
-                    <tr key={fila.id_legajo} style={{
-                      borderBottom: fila.mostrarAdicionales ? 'none' : (i < filas.length - 1 ? '0.5px solid #21262d' : 'none'),
-                      background: fila.ausente ? 'rgba(248, 81, 73, 0.05)' : 'transparent',
-                    }}>
-                      <td style={{ padding: '8px 16px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ color: '#e6edf3', fontWeight: 500 }}>
-                            {fila.apellido}, {fila.nombre}
-                          </span>
-                          <span style={{ color: '#484f58', fontSize: '11px' }}>
-                            #{String(fila.nro_legajo).padStart(4, '0')}
-                          </span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '8px', textAlign: 'center' }}>
-                        <input type="number" value={fila.hs_normales}
-                          onChange={(e) => actualizarFila(i, 'hs_normales', e.target.value)}
-                          disabled={fila.ausente} min="0" max="24" step="0.5"
-                          style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
-                      </td>
-                      <td style={{ padding: '8px', textAlign: 'center' }}>
-                        <input type="number" value={fila.hs_extra_50}
-                          onChange={(e) => actualizarFila(i, 'hs_extra_50', e.target.value)}
-                          disabled={fila.ausente} min="0" max="24" step="0.5"
-                          style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
-                      </td>
-                      <td style={{ padding: '8px', textAlign: 'center' }}>
-                        <input type="number" value={fila.hs_extra_100}
-                          onChange={(e) => actualizarFila(i, 'hs_extra_100', e.target.value)}
-                          disabled={fila.ausente} min="0" max="24" step="0.5"
-                          style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
-                      </td>
-                      <td style={{ padding: '8px', textAlign: 'center' }}>
-                        <input type="number" value={fila.hs_nocturnas}
-                          onChange={(e) => actualizarFila(i, 'hs_nocturnas', e.target.value)}
-                          disabled={fila.ausente} min="0" max="24" step="0.5"
-                          style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
-                      </td>
-                      <td style={{ padding: '8px', textAlign: 'center' }}>
-                        <input type="checkbox" checked={fila.ausente}
-                          onChange={(e) => actualizarFila(i, 'ausente', e.target.checked)} />
-                      </td>
-                      <td style={{ padding: '8px' }}>
-                        <input value={fila.observaciones}
-                          onChange={(e) => actualizarFila(i, 'observaciones', e.target.value)}
-                          placeholder="Opcional..."
-                          style={{ ...inputStyle, width: '100%', textAlign: 'left' }} />
-                      </td>
-                      <td style={{ padding: '8px', textAlign: 'center' }}>
-                        <button
-                          onClick={() => actualizarFila(i, 'mostrarAdicionales', !fila.mostrarAdicionales)}
-                          style={{
-                            background: fila.adicionales.length > 0 ? '#1a2a3a' : 'transparent',
-                            border: '0.5px solid #30363d',
-                            color: fila.adicionales.length > 0 ? '#58a6ff' : '#8b949e',
-                            borderRadius: '4px', padding: '3px 8px',
-                            fontSize: '11px', cursor: 'pointer',
-                            whiteSpace: 'nowrap' as const,
-                          }}
-                        >
-                          {fila.adicionales.length > 0 ? `${fila.adicionales.length} adic.` : '+ Adic.'}
-                        </button>
-                      </td>
-                    </tr>
+  {filas.map((fila, i) => (
+    <>
+      <tr key={fila.id_legajo} style={{
+        borderBottom: fila.mostrarAdicionales ? 'none' : (i < filas.length - 1 ? '0.5px solid #21262d' : 'none'),
+        background: fila.ausente ? 'rgba(248, 81, 73, 0.05)' : 'transparent',
+      }}>
+        {/* Empleado */}
+        <td style={{ padding: '8px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div>
+              <span style={{ color: '#e6edf3', fontWeight: 500 }}>
+                {fila.apellido}, {fila.nombre}
+              </span>
+              <span style={{ color: '#484f58', fontSize: '11px', marginLeft: '6px' }}>
+                #{String(fila.nro_legajo).padStart(4, '0')}
+              </span>
+            </div>
+            {fila.enVacaciones && (
+              <span style={{
+                background: '#1a2a3a', color: '#58a6ff',
+                fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
+              }}>VAC</span>
+            )}
+            {fila.ausenciaActiva && (
+              <span style={{
+                background: '#3a1a1a', color: '#f85149',
+                fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
+              }} title={fila.ausenciaActiva.descripcion}>
+                {fila.ausenciaActiva.codigo}
+              </span>
+            )}
+          </div>
+        </td>
 
-                    {/* Fila de adicionales expandible */}
-                    {fila.mostrarAdicionales && (
-                      <tr key={`adicionales-${fila.id_legajo}`} style={{
-                        borderBottom: i < filas.length - 1 ? '0.5px solid #21262d' : 'none',
-                        background: '#0d1117',
-                      }}>
-                        <td colSpan={8} style={{ padding: '8px 16px 12px 32px' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {/* Horas */}
+        <td style={{ padding: '8px', textAlign: 'center' }}>
+          <input type="number" value={fila.hs_normales}
+            onChange={(e) => actualizarFila(i, 'hs_normales', e.target.value)}
+            disabled={fila.ausente} min="0" max="24" step="0.5"
+            style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
+        </td>
+        <td style={{ padding: '8px', textAlign: 'center' }}>
+          <input type="number" value={fila.hs_extra_50}
+            onChange={(e) => actualizarFila(i, 'hs_extra_50', e.target.value)}
+            disabled={fila.ausente} min="0" max="24" step="0.5"
+            style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
+        </td>
+        <td style={{ padding: '8px', textAlign: 'center' }}>
+          <input type="number" value={fila.hs_extra_100}
+            onChange={(e) => actualizarFila(i, 'hs_extra_100', e.target.value)}
+            disabled={fila.ausente} min="0" max="24" step="0.5"
+            style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
+        </td>
+        <td style={{ padding: '8px', textAlign: 'center' }}>
+          <input type="number" value={fila.hs_nocturnas}
+            onChange={(e) => actualizarFila(i, 'hs_nocturnas', e.target.value)}
+            disabled={fila.ausente} min="0" max="24" step="0.5"
+            style={{ ...inputStyle, opacity: fila.ausente ? 0.3 : 1 }} />
+        </td>
+        <td style={{ padding: '8px', textAlign: 'center' }}>
+          <input type="checkbox" checked={fila.ausente}
+            onChange={(e) => actualizarFila(i, 'ausente', e.target.checked)} />
+        </td>
+        <td style={{ padding: '8px' }}>
+          <input value={fila.observaciones}
+            onChange={(e) => actualizarFila(i, 'observaciones', e.target.value)}
+            placeholder="Opcional..."
+            style={{ ...inputStyle, width: '100%', textAlign: 'left' }} />
+        </td>
+        <td style={{ padding: '8px', textAlign: 'center' }}>
+          <button
+            onClick={() => actualizarFila(i, 'mostrarAdicionales', !fila.mostrarAdicionales)}
+            style={{
+              background: fila.adicionales.length > 0 ? '#1a2a3a' : 'transparent',
+              border: '0.5px solid #30363d',
+              color: fila.adicionales.length > 0 ? '#58a6ff' : '#8b949e',
+              borderRadius: '4px', padding: '3px 8px',
+              fontSize: '11px', cursor: 'pointer',
+              whiteSpace: 'nowrap' as const,
+            }}
+          >
+            {fila.adicionales.length > 0 ? `${fila.adicionales.length} adic.` : '+ Adic.'}
+          </button>
+        </td>
+      </tr>
 
-                            {/* Adicionales ya agregados */}
-                            {fila.adicionales.map(adic => (
-                              <div key={adic.id_adicional} style={{
-                                display: 'flex', alignItems: 'center', gap: '8px',
-                              }}>
-                                <span style={{ fontSize: '12px', color: '#e6edf3', flex: 1 }}>{adic.descripcion}</span>
-                                <input
-                                  type="number"
-                                  value={adic.cantidad}
-                                  onChange={(e) => actualizarCantidadAdicional(i, adic.id_adicional, e.target.value)}
-                                  min="0" step="0.5"
-                                  style={{ ...inputStyle, width: '60px' }}
-                                />
-                                <button
-                                  onClick={() => quitarAdicional(i, adic.id_adicional)}
-                                  style={{
-                                    background: 'transparent', border: 'none',
-                                    color: '#f85149', cursor: 'pointer', fontSize: '14px',
-                                    padding: '2px 6px',
-                                  }}
-                                >×</button>
-                              </div>
-                            ))}
-
-                            {/* Selector para agregar nuevo adicional */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <select
-                                defaultValue=""
-                                onChange={(e) => {
-                                  agregarAdicional(i, e.target.value)
-                                  e.target.value = ''
-                                }}
-                                style={{
-                                  padding: '5px 8px', borderRadius: '6px',
-                                  background: '#161b22', border: '0.5px solid #30363d',
-                                  color: '#8b949e', fontSize: '12px',
-                                }}
-                              >
-                                <option value="">+ Agregar adicional...</option>
-                                {adicionalesFiltrados
-                                  .filter(a => !fila.adicionales.find(fa => fa.id_adicional === a.id))
-                                  .map(a => (
-                                    <option key={a.id} value={a.id}>{a.descripcion}</option>
-                                  ))
-                                }
-                              </select>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-              </tbody>
+      {/* Fila adicionales */}
+      {fila.mostrarAdicionales && (
+        <tr key={`adicionales-${fila.id_legajo}`} style={{
+          borderBottom: i < filas.length - 1 ? '0.5px solid #21262d' : 'none',
+          background: '#0d1117',
+        }}>
+          <td colSpan={8} style={{ padding: '8px 16px 12px 32px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {fila.adicionales.map(adic => (
+                <div key={adic.id_adicional} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#e6edf3', flex: 1 }}>{adic.descripcion}</span>
+                  <input
+                    type="number" value={adic.cantidad}
+                    onChange={(e) => actualizarCantidadAdicional(i, adic.id_adicional, e.target.value)}
+                    min="0" step="0.5"
+                    style={{ ...inputStyle, width: '60px' }}
+                  />
+                  <button onClick={() => quitarAdicional(i, adic.id_adicional)} style={{
+                    background: 'transparent', border: 'none',
+                    color: '#f85149', cursor: 'pointer', fontSize: '14px', padding: '2px 6px',
+                  }}>×</button>
+                </div>
+              ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <select
+                  defaultValue=""
+                  onChange={(e) => { agregarAdicional(i, e.target.value); e.target.value = '' }}
+                  style={{
+                    padding: '5px 8px', borderRadius: '6px',
+                    background: '#161b22', border: '0.5px solid #30363d',
+                    color: '#8b949e', fontSize: '12px',
+                  }}
+                >
+                  <option value="">+ Agregar adicional...</option>
+                  {adicionalesFiltrados
+                    .filter(a => !fila.adicionales.find(fa => fa.id_adicional === a.id))
+                    .map(a => <option key={a.id} value={a.id}>{a.descripcion}</option>)
+                  }
+                </select>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  ))}
+</tbody>
             </table>
           </div>
 
