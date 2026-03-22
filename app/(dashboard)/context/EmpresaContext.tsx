@@ -7,29 +7,39 @@ type Empresa = {
   razon_social: string
 }
 
+type RolCodigo = 'SUPERADMIN' | 'ADMIN' | 'RRHH_ADMIN' | 'JEFE_OBRA'
+
 type EmpresaContextType = {
   empresaActiva: Empresa | null
   setEmpresaActiva: (empresa: Empresa) => void
+  rol: RolCodigo | null
+  esSuperadmin: boolean
 }
 
 const EmpresaContext = createContext<EmpresaContextType>({
   empresaActiva: null,
   setEmpresaActiva: () => {},
+  rol: null,
+  esSuperadmin: false,
 })
 
 export function EmpresaProvider({
   children,
   empresas,
   inicial,
+  rol,
+  esSuperadmin,
 }: {
   children: ReactNode
   empresas: Empresa[]
   inicial: Empresa | null
+  rol: RolCodigo | null
+  esSuperadmin: boolean
 }) {
   const [empresaActiva, setEmpresaActiva] = useState<Empresa | null>(inicial)
 
   return (
-    <EmpresaContext.Provider value={{ empresaActiva, setEmpresaActiva }}>
+    <EmpresaContext.Provider value={{ empresaActiva, setEmpresaActiva, rol, esSuperadmin }}>
       {children}
     </EmpresaContext.Provider>
   )
