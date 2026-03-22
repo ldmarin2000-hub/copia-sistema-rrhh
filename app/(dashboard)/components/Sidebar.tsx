@@ -33,7 +33,7 @@ const maestras = [
   { href: '/tipos-ausencia', label: 'Tipos de ausencia' },
   { href: '/feriados',       label: 'Feriados' },
   { href: '/plantillas-jornada',     label: 'Plantillas jornada' },
-  { href: '/epp-catalogo',   label: 'EPP catálogo' },
+  { href: '/epp',   label: 'EPP catálogo' },
 ]
 
 const gestion = [
