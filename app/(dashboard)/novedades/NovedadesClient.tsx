@@ -14,6 +14,8 @@ type Legajo = {
   apellido: string
   nombre: string
   id_obra?: number
+  id_categoria?: number
+  id_plantilla?: number
 }
 
 type Obra = {
@@ -53,12 +55,32 @@ type FilaNovedad = {
   enVacaciones?: boolean
 }
 
+type Plantilla = {
+  id: number
+  lunes: number
+  martes: number
+  miercoles: number
+  jueves: number
+  viernes: number
+  sabado: number
+  domingo: number
+}
+
+type Categoria = {
+  id: number
+  id_plantilla?: number
+}
+
+
+
 export default function NovedadesClient({
-  legajos, obras, adicionales
+  legajos, obras, adicionales, plantillas, categorias
 }: {
   legajos: Legajo[]
   obras: Obra[]
   adicionales: Adicional[]
+  plantillas: Plantilla[]
+  categorias: Categoria[]
 }) {
   const router = useRouter()
   const { empresaActiva } = useEmpresa()
@@ -82,6 +104,24 @@ export default function NovedadesClient({
     textAlign: 'center' as const,
   }
 
+  function getHorasPlantilla(emp: Legajo, diaSemana: number): string {
+    // Buscar plantilla del legajo o de su categoría
+    let plantillaId = emp.id_plantilla
+    if (!plantillaId && emp.id_categoria) {
+      const cat = categorias.find(c => c.id === emp.id_categoria)
+      plantillaId = cat?.id_plantilla
+    }
+
+    if (!plantillaId) return '8' // default
+
+    const plantilla = plantillas.find(p => p.id === plantillaId)
+    if (!plantilla) return '8'
+
+    const dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado']
+    return String(plantilla[dias[diaSemana] as keyof Plantilla] || 0)
+  }
+
+
   async function cargarEmpleados() {
     if (!idObra || !fecha || !empresaActiva) return
     setCargando(true)
@@ -100,7 +140,6 @@ export default function NovedadesClient({
       return
     }
 
-// Traer ausencias y vacaciones activas para esa fecha
     const idsLegajos = empleadosObra.map(e => e.id)
 
     const { data: ausenciasActivas } = await supabase
@@ -119,8 +158,6 @@ export default function NovedadesClient({
       .lte('fecha_desde', fecha)
       .gte('fecha_hasta', fecha)
 
-
-    // Traer novedades existentes
     const { data: existentes } = await supabase
       .from('novedades_diarias')
       .select('*')
@@ -128,7 +165,6 @@ export default function NovedadesClient({
       .eq('id_obra', parseInt(idObra))
       .eq('fecha', fecha)
 
-    // Traer adicionales de esas novedades
     const idsNovedades = existentes?.map(n => n.id) || []
     const { data: adicionalesExistentes } = idsNovedades.length > 0
       ? await supabase
@@ -137,10 +173,14 @@ export default function NovedadesClient({
           .in('id_novedad', idsNovedades)
       : { data: [] }
 
+    const diaSemana = new Date(fecha + 'T00:00:00').getDay()
+
     const nuevasFilas: FilaNovedad[] = empleadosObra.map(emp => {
       const existente = existentes?.find(n => n.id_legajo === emp.id)
+      const ausenciaDelDia = ausenciasActivas?.find(a => a.id_legajo === emp.id)
+      const vacacionDelDia = vacacionesActivas?.find(v => v.id_legajo === emp.id)
+      const tieneAusenciaAutomatica = !existente && (!!ausenciaDelDia || !!vacacionDelDia)
 
-      // Traer adicionales de esta novedad específica
       const adicionalesDelEmpleado: AdicionalFila[] = existente
         ? (adicionalesExistentes || [])
             .filter((a: any) => a.id_novedad === existente.id)
@@ -148,51 +188,49 @@ export default function NovedadesClient({
               id_adicional: a.id_adicional,
               descripcion: a.adicionales?.descripcion || '',
               cantidad: String(a.cantidad),
-              
             }))
         : []
-
-      const ausenciaDelDia = ausenciasActivas?.find(a => a.id_legajo === emp.id)
-      const vacacionDelDia = vacacionesActivas?.find(v => v.id_legajo === emp.id)
 
       return {
         id_legajo: emp.id,
         apellido: emp.apellido,
         nombre: emp.nombre,
         nro_legajo: emp.nro_legajo,
-        hs_normales: existente ? String(existente.hs_normales) : '8',
+        hs_normales: existente ? String(existente.hs_normales) : tieneAusenciaAutomatica ? '0' : getHorasPlantilla(emp, diaSemana),
         hs_extra_50: existente ? String(existente.hs_extra_50) : '0',
         hs_extra_100: existente ? String(existente.hs_extra_100) : '0',
         hs_nocturnas: existente ? String(existente.hs_nocturnas) : '0',
-        ausente: existente ? existente.ausente : false,
+        ausente: existente ? existente.ausente : tieneAusenciaAutomatica,
         observaciones: existente ? (existente.observaciones || '') : '',
         adicionales: adicionalesDelEmpleado,
         mostrarAdicionales: false,
-          ausenciaActiva: ausenciaDelDia
-         ? { codigo: ausenciaDelDia.tipos_ausencia.codigo, descripcion: ausenciaDelDia.tipos_ausencia.descripcion }: null,
-         enVacaciones: !!vacacionDelDia,
+        ausenciaActiva: ausenciaDelDia
+          ? { codigo: ausenciaDelDia.tipos_ausencia.codigo, descripcion: ausenciaDelDia.tipos_ausencia.descripcion }
+          : null,
+        enVacaciones: !!vacacionDelDia,
       }
     })
 
     setFilas(nuevasFilas)
     setCargando(false)
   }
+
   function agregarAdicional(indexFila: number, idAdicional: string) {
-    if (!idAdicional) return
-    const adicional = adicionalesFiltrados.find(a => a.id === parseInt(idAdicional))
-    if (!adicional) return
+  if (!idAdicional) return
+  const adicional = adicionalesFiltrados.find(a => a.id === parseInt(idAdicional))
+  if (!adicional) return
 
-    const nuevasFilas = [...filas]
-    const yaExiste = nuevasFilas[indexFila].adicionales.find(a => a.id_adicional === adicional.id)
-    if (yaExiste) return
+  const nuevasFilas = [...filas]
+  const yaExiste = nuevasFilas[indexFila].adicionales.find(a => a.id_adicional === adicional.id)
+  if (yaExiste) return
 
-    nuevasFilas[indexFila].adicionales.push({
-      id_adicional: adicional.id,
-      descripcion: adicional.descripcion,
-      cantidad: '1',
-    })
-    setFilas(nuevasFilas)
-  }
+  nuevasFilas[indexFila].adicionales.push({
+    id_adicional: adicional.id,
+    descripcion: adicional.descripcion,
+    cantidad: '1',
+  })
+  setFilas(nuevasFilas)
+}
 
   function quitarAdicional(indexFila: number, idAdicional: number) {
     const nuevasFilas = [...filas]
