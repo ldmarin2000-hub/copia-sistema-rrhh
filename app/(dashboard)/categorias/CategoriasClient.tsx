@@ -17,6 +17,7 @@ type Categoria = {
   activo: boolean
   convenios: { descripcion: string }
   tipos_empleado: { descripcion: string }
+  id_plantilla?: number
 }
 
 type Convenio = {
@@ -31,12 +32,20 @@ type TipoEmpleado = {
   descripcion: string
 }
 
+type Plantilla = {
+  id: number
+  id_empresa: number
+  nombre: string
+}
+
+
 export default function CategoriasClient({
-  categorias, convenios, tipos
+  categorias, convenios, tipos, plantillas
 }: {
   categorias: Categoria[]
   convenios: Convenio[]
   tipos: TipoEmpleado[]
+  plantillas: Plantilla[]
 }) {
   const router = useRouter()
   const { empresaActiva } = useEmpresa()
@@ -50,6 +59,7 @@ export default function CategoriasClient({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [activo, setActivo] = useState(true)
+  const [idPlantilla, setIdPlantilla] = useState('')
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -78,6 +88,7 @@ export default function CategoriasClient({
     setError('')
     setMostrarForm(true)
     setActivo(true)
+    const [idPlantilla, setIdPlantilla] = useState('')
   }
 
   function abrirEditar(cat: Categoria) {
@@ -90,6 +101,7 @@ export default function CategoriasClient({
     setError('')
     setMostrarForm(true)
     setActivo(cat.activo)
+    setIdPlantilla(cat.id_plantilla ? String(cat.id_plantilla) : '')
   }
 
   function cerrar() {
@@ -110,6 +122,7 @@ export default function CategoriasClient({
       id_tipo_empleado: parseInt(idTipo),
       sueldo_basico: parseFloat(sueldoBasico) || 0,
       activo,
+      id_plantilla: idPlantilla ? parseInt(idPlantilla) : null,
     }
 
     if (editando) {
@@ -216,6 +229,16 @@ export default function CategoriasClient({
                   <option value="">Seleccionar...</option>
                   {tiposFiltrados.map(t => (
                     <option key={t.id} value={t.id}>{t.descripcion}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Plantilla de jornada</label>
+                <select value={idPlantilla} onChange={(e) => setIdPlantilla(e.target.value)} style={selectStyle}>
+                  <option value="">Sin plantilla</option>
+                  {plantillas.filter(p => p.id_empresa === empresaActiva?.id).map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
                   ))}
                 </select>
               </div>

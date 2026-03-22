@@ -46,7 +46,12 @@ export default async function FichaLegajo({
       .order('fecha_desde', { ascending: false }),
     supabase.from('tipos_ausencia')
       .select('id, descripcion').eq('activo', true).order('descripcion'),
+    supabase.from('plantillas_jornada')
+      .select('id, id_empresa, nombre')
+      .eq('activo', true)
+      .order('nombre'),
   ])
+  
 
   if (!legajo) notFound()
 

@@ -69,11 +69,12 @@ const badgeEstado = (estado: string) => {
 }
 
 export default function LegajosClient({
-  legajos, categorias, obras
+  legajos, categorias, obras, plantillas
 }: {
   legajos: Legajo[]
   categorias: Categoria[]
   obras: Obra[]
+  plantillas: { id: number, id_empresa: number, nombre: string }[]
 }) {
   const { empresaActiva } = useEmpresa()
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -145,6 +146,7 @@ export default function LegajosClient({
           legajoEditar={legajoEditar}
           categorias={categorias}
           obras={obras}
+          plantillas={plantillas}
           onCerrar={cerrar}
         />
       )}

@@ -31,6 +31,7 @@ type Legajo = {
   cbu?: string
   codigo_externo?: string
   activo: boolean
+  id_plantilla?: number
 }
 
 type Categoria = {
@@ -45,19 +46,29 @@ type Obra = {
   nombre: string
 }
 
+type Plantilla = {
+  id: number
+  id_empresa: number
+  nombre: string
+}
+
 type Props = {
   legajoEditar?: Legajo | null
   categorias: Categoria[]
   obras: Obra[]
+  plantillas: { id: number, id_empresa: number, nombre: string }[]
   onCerrar: () => void
   onGuardado?: () => void
 }
+
 
 const ESTADOS = ['Pre-Alta', 'Activo', 'Baja', 'Suspendido', 'Inactivo']
 const SEXOS = ['Masculino', 'Femenino', 'Otro']
 const TIPOS_DOC = ['DNI', 'Pasaporte']
 
-export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, onGuardado }: Props) {
+
+
+export default function FormLegajo({ legajoEditar, categorias, obras, plantillas, onCerrar, onGuardado }: Props) {
   const router = useRouter()
   const { empresaActiva } = useEmpresa()
   const editando = !!legajoEditar
@@ -84,6 +95,9 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
   const [localidad, setLocalidad] = useState(legajoEditar?.localidad || '')
   const [provincia, setProvincia] = useState(legajoEditar?.provincia || '')
   const [telefono, setTelefono] = useState(legajoEditar?.telefono || '')
+  
+  
+ 
   const [fechaIngreso, setFechaIngreso] = useState(
     legajoEditar?.fecha_ingreso || new Date().toISOString().split('T')[0]
   )
@@ -96,6 +110,8 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
   const [estado, setEstado] = useState(legajoEditar?.estado || 'Activo')
   const [cbu, setCbu] = useState(legajoEditar?.cbu || '')
   const [codigoExterno, setCodigoExterno] = useState(legajoEditar?.codigo_externo || '')
+  const [idPlantilla, setIdPlantilla] = useState(legajoEditar?.id_plantilla ? String(legajoEditar.id_plantilla) : '')
+  
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -115,7 +131,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
 
   const categoriasFiltradas = categorias.filter(c => c.id_empresa === empresaActiva?.id)
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
-
+  
   function traducirError(mensaje: string): string {
     if (mensaje.includes('legajos_id_empresa_nro_legajo_key'))
       return 'Ya existe un legajo con ese número en esta empresa.'
@@ -151,6 +167,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
       estado,
       cbu: cbu || null,
       codigo_externo: codigoExterno || null,
+      id_plantilla: idPlantilla ? parseInt(idPlantilla) : null,
     }
 
     if (editando) {
@@ -174,6 +191,8 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
         .eq('id_legajo', legajoEditar.id)
         .is('fecha_egreso', null)
     }
+
+    
 
     router.refresh()
     if (onGuardado) onGuardado()
@@ -450,6 +469,21 @@ export default function FormLegajo({ legajoEditar, categorias, obras, onCerrar, 
                     <input value={cbu} onChange={(e) => setCbu(e.target.value)} style={inputStyle} />
                   </div>
                 </div>
+
+                <div>
+                  <label style={labelStyle}>Plantilla de jornada</label>
+                  <select value={idPlantilla} onChange={(e) => setIdPlantilla(e.target.value)} style={selectStyle}>
+                    <option value="">Usar la de la categoría</option>
+                    {plantillas
+                      .filter(p => p.id_empresa === empresaActiva?.id)
+                      .map(p => (
+                        <option key={p.id} value={p.id}>{p.nombre}</option>
+                      ))
+                    }
+                  </select>
+                </div>
+
+                
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
                     <label style={labelStyle}>Categoría</label>
