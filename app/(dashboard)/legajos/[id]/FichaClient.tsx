@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, User, Clock, FileText, Calendar, Pencil, Umbrella } from 'lucide-react'
+import { ArrowLeft, User, Clock, FileText, Calendar, Pencil, Umbrella, HardHat } from 'lucide-react'
 import Link from 'next/link'
 import { formatFecha } from '@/lib/fecha'
 import FormLegajo from '../FormLegajo'
 import AusenciasTab from './AusenciasTab'
 import VacacionesTab from './VacacionesTab'
+import EppTab from './EppTab'
 
 
 
@@ -101,11 +102,13 @@ const tabs = [
   { id: 'historial', label: 'Historial',  icon: Clock },
   { id: 'documentos',label: 'Documentos', icon: FileText },
   { id: 'novedades', label: 'Novedades',  icon: Calendar },
+  { id: 'epp', label: 'EPP', icon: HardHat },
 ]
 
 export default function FichaClient({
   legajo, historico_laboral, historico_categorias,
-  historico_obras, categorias, obras, ausencias, tiposAusencia, vacaciones
+  historico_obras, categorias, obras, ausencias, tiposAusencia,
+  vacaciones, plantillas, eppEntregas, eppCatalogo
 }: {
   legajo: Legajo
   historico_laboral: HistoricoLaboral[]
@@ -115,8 +118,11 @@ export default function FichaClient({
   obras: Obra[]
   ausencias: any[]
   tiposAusencia: any[]
-   vacaciones: any[]
-}) {
+  vacaciones: any[]
+  plantillas: any[]
+  eppEntregas: any[]
+  eppCatalogo: any[]
+}){
   const [tabActiva, setTabActiva] = useState('datos')
   const [mostrarForm, setMostrarForm] = useState(false)
 
@@ -385,14 +391,27 @@ export default function FichaClient({
           Módulo de novedades — próximamente
         </div>
       )}
+
+      {tabActiva === 'epp' && (
+        <EppTab
+          idLegajo={legajo.id}
+          idEmpresa={legajo.id_empresa}
+          entregas={eppEntregas}
+          catalogo={eppCatalogo}
+          obras={obras}
+        />
+      )}
+
       {mostrarForm && (
         <FormLegajo
           legajoEditar={legajo}
           categorias={categorias}
           obras={obras}
+          plantillas={plantillas}
           onCerrar={() => setMostrarForm(false)}
         />
       )}
+
     </div>
   )
 }

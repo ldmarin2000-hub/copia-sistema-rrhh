@@ -18,11 +18,10 @@ export default async function FichaLegajo({
     { data: obras },
     { data: ausencias },
     { data: tiposAusencia },
-    { data: vacaciones } = await supabase
-      .from('vacaciones_periodo')
-      .select('*')
-      .eq('id_legajo', id)
-      .order('fecha_desde', { ascending: false }),
+    { data: vacaciones },
+    { data: plantillas },
+    { data: eppEntregas },
+    { data: eppCatalogo },
   ] = await Promise.all([
     supabase.from('legajos')
       .select('*, categorias(descripcion), obras(nombre)')
@@ -46,12 +45,23 @@ export default async function FichaLegajo({
       .order('fecha_desde', { ascending: false }),
     supabase.from('tipos_ausencia')
       .select('id, descripcion').eq('activo', true).order('descripcion'),
+    supabase.from('vacaciones_periodo')
+      .select('*')
+      .eq('id_legajo', id)
+      .order('fecha_desde', { ascending: false }),
     supabase.from('plantillas_jornada')
       .select('id, id_empresa, nombre')
       .eq('activo', true)
       .order('nombre'),
+    supabase.from('epp_entregas')
+      .select('*, epp_catalogo(descripcion, tiene_vencimiento), obras(nombre)')
+      .eq('id_legajo', id)
+      .order('fecha_entrega', { ascending: false }),
+    supabase.from('epp_catalogo')
+      .select('id, descripcion, tiene_vencimiento, meses_renovacion, requiere_talle')
+      .eq('activo', true)
+      .order('descripcion'),
   ])
-  
 
   if (!legajo) notFound()
 
@@ -66,6 +76,9 @@ export default async function FichaLegajo({
       ausencias={ausencias || []}
       tiposAusencia={tiposAusencia || []}
       vacaciones={vacaciones || []}
+      plantillas={plantillas || []}
+      eppEntregas={eppEntregas || []}
+      eppCatalogo={eppCatalogo || []}
     />
   )
 }
