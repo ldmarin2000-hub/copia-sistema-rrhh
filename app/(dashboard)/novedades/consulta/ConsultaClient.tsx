@@ -70,6 +70,7 @@ export default function ConsultaClient({
   const [cargando, setCargando] = useState(false)
   const [buscado, setBuscado] = useState(false)
   const [ausenciasPeriodo, setAusenciasPeriodo] = useState<any[]>([])
+  const [vacacionesPeriodo, setVacacionesPeriodo] = useState<any[]>([])
 
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
   const adicionalesFiltrados = adicionales.filter(a => a.id_empresa === empresaActiva?.id)
@@ -92,6 +93,14 @@ export default function ConsultaClient({
       codigo: ausencia.tipos_ausencia?.codigo || 'AUS',
       pierdePresentismo: ausencia.tipos_ausencia?.pierde_presentismo ?? true,
     }
+  }
+
+  function estaEnVacaciones(idLegajo: number, fecha: string): boolean {
+    return vacacionesPeriodo.some(v =>
+      v.id_legajo === idLegajo &&
+      v.fecha_desde <= fecha &&
+      v.fecha_hasta >= fecha
+    )
   }
 
   // Calcular rango de fechas
@@ -137,15 +146,23 @@ export default function ConsultaClient({
     const { data } = await query
     const resultado = data || []
     // Traer ausencias por período que se superpongan con el rango
-  const { data: ausencias } = await supabase
-    .from('ausencias_periodo')
-    .select('*, tipos_ausencia(codigo, descripcion, pierde_presentismo)')
-    .eq('id_empresa', empresaActiva.id)
-    .lte('fecha_desde', hasta)
-    .gte('fecha_hasta', desde)
+    const { data: ausencias } = await supabase
+      .from('ausencias_periodo')
+      .select('*, tipos_ausencia(codigo, descripcion, pierde_presentismo)')
+      .eq('id_empresa', empresaActiva.id)
+      .lte('fecha_desde', hasta)
+      .gte('fecha_hasta', desde)
 
+      setAusenciasPeriodo(ausencias || [])
 
-  setAusenciasPeriodo(ausencias || [])
+    const { data: vacacionesPeriodo } = await supabase
+      .from('vacaciones_periodo')
+      .select('*')
+      .eq('id_empresa', empresaActiva.id)
+      .lte('fecha_desde', hasta)
+      .gte('fecha_hasta', desde)
+
+    setVacacionesPeriodo(vacacionesPeriodo || [])
 
     // Si filtra por adicional, traer solo los que tienen ese adicional
     if (idAdicional) {
@@ -171,6 +188,8 @@ export default function ConsultaClient({
     setCargando(false)
     setBuscado(true)
   }
+
+
 
   // Agrupar novedades por empleado
   const empleados = Array.from(
@@ -385,11 +404,14 @@ function esFinDeSemana(fecha: string): boolean {
                         const ausente = isAusente(idLegajo, dia)
                         const tieneDato = tieneDatos(idLegajo, dia)
                         const infoAusencia = getInfoAusencia(idLegajo, dia)
+                        const enVacaciones = estaEnVacaciones(idLegajo, dia)
 
                       return (
                         <td key={dia} style={{
                           padding: '8px 4px', textAlign: 'center',
-                          background: (ausente || infoAusencia)
+                          background: enVacaciones
+                            ? 'rgba(88,166,255,0.08)'
+                            : (ausente || infoAusencia)
                             ? infoAusencia?.pierdePresentismo === false
                               ? 'rgba(63,185,80,0.08)'
                               : 'rgba(248,81,73,0.1)'
@@ -397,7 +419,9 @@ function esFinDeSemana(fecha: string): boolean {
                             ? 'rgba(210,153,34,0.03)'
                             : 'transparent',
                         }}>
-                          {infoAusencia ? (
+                          {enVacaciones ? (
+                            <span style={{ color: '#58a6ff', fontSize: '11px', fontWeight: 500 }}>VAC</span>
+                          ) : infoAusencia ? (
                             <span style={{
                               fontSize: '11px', fontWeight: 500,
                               color: infoAusencia.pierdePresentismo ? '#f85149' : '#3fb950',
@@ -415,6 +439,7 @@ function esFinDeSemana(fecha: string): boolean {
                           )}
                         </td>
                       )
+                      
                       })}
                         
                       <td style={{

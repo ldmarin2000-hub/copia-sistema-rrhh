@@ -32,7 +32,7 @@ const maestras = [
   { href: '/adicionales',    label: 'Adicionales' },
   { href: '/tipos-ausencia', label: 'Tipos de ausencia' },
   { href: '/feriados',       label: 'Feriados' },
-  { href: '/plantillas',     label: 'Plantillas jornada' },
+  { href: '/plantillas-jornada',     label: 'Plantillas jornada' },
   { href: '/epp-catalogo',   label: 'EPP catálogo' },
 ]
 
