@@ -42,6 +42,9 @@ export default async function Dashboard() {
     { count: novedadesHoy },
     { count: ausenciasHoy },
     { data: eppPorVencer },
+    { data: eppVencidos },
+    { data: stockTodos },
+    { count: remitosSinFirmar },
     { data: vacacionesHoy },
     { data: ultimasNovedades },
   ] = await Promise.all([
@@ -66,6 +69,20 @@ export default async function Dashboard() {
       .gte('fecha_vencimiento', hoy)
       .order('fecha_vencimiento')
       .limit(5),
+    supabase.from('epp_entregas')
+      .select('*, epp_catalogo(descripcion), legajos(apellido, nombre, nro_legajo, id_empresa)')
+      .in('id_empresa', idEmpresas)
+      .eq('devuelto', false)
+      .lt('fecha_vencimiento', hoy)
+      .order('fecha_vencimiento')
+      .limit(6),
+    supabase.from('epp_stock')
+      .select('*, epp_catalogo(descripcion)')
+      .in('id_empresa', idEmpresas),
+    supabase.from('epp_detalle_entregas')
+      .select('*', { count: 'exact', head: true })
+      .in('id_empresa', idEmpresas)
+      .eq('firmado', false),
     supabase.from('vacaciones_periodo')
       .select('*, legajos(apellido, nombre, id_empresa)')
       .in('id_empresa', idEmpresas)
@@ -85,6 +102,9 @@ export default async function Dashboard() {
       novedadesHoy={novedadesHoy || 0}
       ausenciasHoy={ausenciasHoy || 0}
       eppPorVencer={eppPorVencer || []}
+      eppVencidos={eppVencidos || []}
+      stockTodos={stockTodos || []}
+      remitosSinFirmar={remitosSinFirmar || 0}
       vacacionesHoy={vacacionesHoy || []}
       ultimasNovedades={ultimasNovedades || []}
     />

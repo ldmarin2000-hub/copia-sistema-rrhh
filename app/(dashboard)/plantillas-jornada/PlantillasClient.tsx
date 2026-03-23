@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
-import { X } from 'lucide-react'
+import { X, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 type Plantilla = {
   id: number
@@ -77,7 +77,36 @@ export default function PlantillasClient({
     color: '#e6edf3', fontSize: '13px',
   }
 
+  const [busqueda, setBusqueda] = useState('')
+  type SortCol = 'nombre' | 'convenio' | 'total'
+  const [sortCol, setSortCol] = useState<SortCol>('nombre')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  function toggleSort(col: SortCol) {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortCol(col); setSortDir('asc') }
+  }
+  const sortIcon = (col: SortCol) => sortCol === col
+    ? (sortDir === 'asc' ? <ChevronUp size={12} style={{ marginLeft: '4px' }} /> : <ChevronDown size={12} style={{ marginLeft: '4px' }} />)
+    : <ChevronsUpDown size={12} style={{ marginLeft: '4px', opacity: 0.4 }} />
+
+  const b = busqueda.toLowerCase()
   const plantillasFiltradas = plantillas.filter(p => p.id_empresa === empresaActiva?.id)
+    .filter(p =>
+      p.nombre.toLowerCase().includes(b) ||
+      (p.convenios?.descripcion || '').toLowerCase().includes(b)
+    )
+    .sort((a, z) => {
+      const getVal = (x: typeof a) => {
+        if (sortCol === 'convenio') return (x.convenios?.descripcion || '').toLowerCase()
+        if (sortCol === 'total') {
+          const t = x.lunes + x.martes + x.miercoles + x.jueves + x.viernes + x.sabado + x.domingo
+          return String(t).padStart(6, '0')
+        }
+        return x.nombre.toLowerCase()
+      }
+      const va = getVal(a), vz = getVal(z)
+      return sortDir === 'asc' ? va.localeCompare(vz) : vz.localeCompare(va)
+    })
   const conveniosFiltrados = convenios.filter(c => c.id_empresa === empresaActiva?.id)
 
   const totalHoras = Object.values(horas).reduce((sum, h) => sum + (parseFloat(h) || 0), 0)
@@ -264,6 +293,21 @@ export default function PlantillasClient({
         }}>+ Nueva plantilla</button>
       </div>
 
+      {/* Buscar */}
+      <div style={{ position: 'relative', marginBottom: '16px' }}>
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <input
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por nombre o convenio..."
+          style={{
+            width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
+            background: '#161b22', border: '0.5px solid #30363d',
+            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+          }}
+        />
+      </div>
+
       {/* Tabla */}
       {plantillasFiltradas.length === 0 ? (
         <div style={{
@@ -278,14 +322,20 @@ export default function PlantillasClient({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Nombre</th>
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Convenio</th>
+                <th onClick={() => toggleSort('nombre')} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>Nombre{sortIcon('nombre')}</span>
+                </th>
+                <th onClick={() => toggleSort('convenio')} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>Convenio{sortIcon('convenio')}</span>
+                </th>
                 {DIAS.map(d => (
                   <th key={d.key} style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>
                     {d.label.substring(0, 3)}
                   </th>
                 ))}
-                <th style={{ textAlign: 'center', padding: '10px 8px', color: '#58a6ff', fontWeight: 500 }}>Total</th>
+                <th onClick={() => toggleSort('total')} style={{ textAlign: 'center', padding: '10px 8px', color: '#58a6ff', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>Total{sortIcon('total')}</span>
+                </th>
                 <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>

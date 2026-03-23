@@ -3,11 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useEmpresa } from '../context/EmpresaContext'
-import { Search } from 'lucide-react'
+import { Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import Link from 'next/link'
 import FormLegajo from './FormLegajo'
 import { formatFecha } from '@/lib/fecha'
 import { createClient } from '@/lib/supabase-browser'
+
+type SortCol = 'nro_legajo' | 'apellido' | 'cuil' | 'categoria' | 'obra' | 'fecha_ingreso' | 'estado'
 
 type Legajo = {
   id: number
@@ -80,8 +82,19 @@ export default function LegajosClient({
   const [mostrarForm, setMostrarForm] = useState(false)
   const [legajoEditar, setLegajoEditar] = useState<Legajo | null>(null)
   const [busqueda, setBusqueda] = useState('')
-  const [filtroEstado, setFiltroEstado] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('Activo')
+  const [sortCol, setSortCol] = useState<SortCol>('nro_legajo')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const router = useRouter()
+
+  function toggleSort(col: SortCol) {
+    if (sortCol === col) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortCol(col)
+      setSortDir('asc')
+    }
+  }
 
   const legajosFiltrados = legajos
     .filter(l => l.id_empresa === empresaActiva?.id)
@@ -95,6 +108,22 @@ export default function LegajosClient({
         l.cuil.includes(b) ||
         String(l.nro_legajo).includes(b)
       )
+    })
+    .sort((a, b) => {
+      let valA: string | number = ''
+      let valB: string | number = ''
+      switch (sortCol) {
+        case 'nro_legajo':    valA = a.nro_legajo;                          valB = b.nro_legajo; break
+        case 'apellido':      valA = `${a.apellido} ${a.nombre}`.toLowerCase(); valB = `${b.apellido} ${b.nombre}`.toLowerCase(); break
+        case 'cuil':          valA = a.cuil;                                valB = b.cuil; break
+        case 'categoria':     valA = a.categorias?.descripcion?.toLowerCase() || ''; valB = b.categorias?.descripcion?.toLowerCase() || ''; break
+        case 'obra':          valA = a.obras?.nombre?.toLowerCase() || '';  valB = b.obras?.nombre?.toLowerCase() || ''; break
+        case 'fecha_ingreso': valA = a.fecha_ingreso;                       valB = b.fecha_ingreso; break
+        case 'estado':        valA = a.estado;                              valB = b.estado; break
+      }
+      if (valA < valB) return sortDir === 'asc' ? -1 : 1
+      if (valA > valB) return sortDir === 'asc' ? 1 : -1
+      return 0
     })
 
   function abrirNuevo() {
@@ -217,12 +246,29 @@ export default function LegajosClient({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                {['Legajo', 'Apellido y Nombre', 'CUIL', 'Categoría', 'Obra', 'Ingreso', 'Estado'].map(col => (
-                  <th key={col} style={{
-                    textAlign: 'left', padding: '10px 16px',
-                    color: '#8b949e', fontWeight: 500,
-                  }}>{col}</th>
-                ))}
+                {([
+                  { label: 'Legajo',          col: 'nro_legajo' },
+                  { label: 'Apellido y Nombre', col: 'apellido' },
+                  { label: 'CUIL',            col: 'cuil' },
+                  { label: 'Categoría',       col: 'categoria' },
+                  { label: 'Obra',            col: 'obra' },
+                  { label: 'Ingreso',         col: 'fecha_ingreso' },
+                  { label: 'Estado',          col: 'estado' },
+                ] as { label: string, col: SortCol }[]).map(({ label, col }) => {
+                  const activo = sortCol === col
+                  const Icono = activo ? (sortDir === 'asc' ? ChevronUp : ChevronDown) : ChevronsUpDown
+                  return (
+                    <th key={col} onClick={() => toggleSort(col)} style={{
+                      textAlign: 'left', padding: '10px 16px',
+                      color: activo ? '#e6edf3' : '#8b949e', fontWeight: 500,
+                      cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                    }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {label} <Icono size={12} />
+                      </span>
+                    </th>
+                  )
+                })}
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
@@ -232,10 +278,12 @@ export default function LegajosClient({
                   borderBottom: i < legajosFiltrados.length - 1 ? '0.5px solid #21262d' : 'none',
                 }}>
                   <td style={{ padding: '10px 16px' }}>
-                    <span style={{
-                      background: '#21262d', color: '#e6edf3',
-                      fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                    }}>{String(legajo.nro_legajo).padStart(4, '0')}</span>
+                    <Link href={`/legajos/${legajo.id}`} style={{ textDecoration: 'none' }}>
+                      <span style={{
+                        background: '#21262d', color: '#e6edf3',
+                        fontSize: '11px', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer',
+                      }}>{String(legajo.nro_legajo).padStart(4, '0')}</span>
+                    </Link>
                   </td>
                   <td style={{ padding: '10px 16px' }}>
                     <Link href={`/legajos/${legajo.id}`} style={{ textDecoration: 'none' }}>
@@ -256,6 +304,12 @@ export default function LegajosClient({
                   </td>
                   <td style={{ padding: '10px 16px' }}>{badgeEstado(legajo.estado)}</td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                    <Link href={`/legajos/${legajo.id}`} style={{
+                      background: 'transparent', border: '0.5px solid #30363d',
+                      color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                      padding: '3px 10px', borderRadius: '4px', textDecoration: 'none',
+                      marginRight: '4px', display: 'inline-block',
+                    }}>Ver ficha</Link>
                     <button onClick={() => abrirEditar(legajo)} style={{
                       background: 'transparent', border: 'none',
                       color: '#8b949e', cursor: 'pointer', fontSize: '12px',

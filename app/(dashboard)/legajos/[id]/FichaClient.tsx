@@ -9,6 +9,7 @@ import FormLegajo from '../FormLegajo'
 import AusenciasTab from './AusenciasTab'
 import VacacionesTab from './VacacionesTab'
 import EppTab from './EppTab'
+import DocumentosLegajoTab from './DocumentosLegajoTab'
 
 
 
@@ -108,7 +109,7 @@ const tabs = [
 export default function FichaClient({
   legajo, historico_laboral, historico_categorias,
   historico_obras, categorias, obras, ausencias, tiposAusencia,
-  vacaciones, plantillas, eppEntregas, eppCatalogo
+  vacaciones, plantillas, eppEntregas, eppCatalogo, eppTalles, eppHabitual, documentos
 }: {
   legajo: Legajo
   historico_laboral: HistoricoLaboral[]
@@ -122,6 +123,9 @@ export default function FichaClient({
   plantillas: any[]
   eppEntregas: any[]
   eppCatalogo: any[]
+  eppTalles: any[]
+  eppHabitual: any[]
+  documentos: any[]
 }){
   const [tabActiva, setTabActiva] = useState('datos')
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -372,13 +376,10 @@ export default function FichaClient({
 
       {/* Tab: Documentos */}
       {tabActiva === 'documentos' && (
-        <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
-          borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
-        }}>
-          Módulo de documentos — próximamente
-        </div>
+        <DocumentosLegajoTab
+          idLegajo={legajo.id}
+          documentosIniciales={documentos}
+        />
       )}
 
       {/* Tab: Novedades */}
@@ -398,6 +399,8 @@ export default function FichaClient({
           idEmpresa={legajo.id_empresa}
           entregas={eppEntregas}
           catalogo={eppCatalogo}
+          talles={eppTalles}
+          habitual={eppHabitual}
           obras={obras}
         />
       )}

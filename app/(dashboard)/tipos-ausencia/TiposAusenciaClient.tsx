@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
-import { X } from 'lucide-react'
+import { X, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 type TipoAusencia = {
   id: number
@@ -48,10 +48,30 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     </div>
   )
 
+  const [busqueda, setBusqueda] = useState('')
+  type SortCol = 'codigo' | 'descripcion'
+  const [sortCol, setSortCol] = useState<SortCol>('descripcion')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  function toggleSort(col: SortCol) {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortCol(col); setSortDir('asc') }
+  }
+  const sortIcon = (col: SortCol) => sortCol === col
+    ? (sortDir === 'asc' ? <ChevronUp size={12} style={{ marginLeft: '4px' }} /> : <ChevronDown size={12} style={{ marginLeft: '4px' }} />)
+    : <ChevronsUpDown size={12} style={{ marginLeft: '4px', opacity: 0.4 }} />
+
   // Mostrar globales + los de la empresa activa
+  const b = busqueda.toLowerCase()
   const tiposFiltrados = tipos.filter(t =>
     t.id_empresa === null || t.id_empresa === undefined || t.id_empresa === empresaActiva?.id
-  )
+  ).filter(t =>
+    (t.codigo || '').toLowerCase().includes(b) ||
+    t.descripcion.toLowerCase().includes(b)
+  ).sort((a, z) => {
+    const va = (sortCol === 'codigo' ? (a.codigo || '') : a.descripcion).toLowerCase()
+    const vz = (sortCol === 'codigo' ? (z.codigo || '') : z.descripcion).toLowerCase()
+    return sortDir === 'asc' ? va.localeCompare(vz) : vz.localeCompare(va)
+  })
 
   function abrirNuevo() {
     setEditando(null)
@@ -200,6 +220,21 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
         </div>
       )}
 
+      {/* Buscar */}
+      <div style={{ position: 'relative', marginBottom: '16px' }}>
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <input
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por código o descripción..."
+          style={{
+            width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
+            background: '#161b22', border: '0.5px solid #30363d',
+            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+          }}
+        />
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Tipos de ausencia</h1>
@@ -217,7 +252,15 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
             <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-              {['Código', 'Descripción', 'Presentismo', 'Certificado', 'Remunerada', 'Origen', 'Estado'].map(col => (
+              {([['Código','codigo'],['Descripción','descripcion']] as [string,SortCol][]).map(([label, col]) => (
+                <th key={col} onClick={() => toggleSort(col)} style={{
+                  textAlign: 'left', padding: '10px 16px',
+                  color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
+                </th>
+              ))}
+              {['Presentismo','Certificado','Remunerada','Origen','Estado'].map(col => (
                 <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
               ))}
               <th style={{ padding: '10px 16px' }}></th>

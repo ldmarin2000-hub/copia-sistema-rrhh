@@ -22,6 +22,9 @@ export default async function FichaLegajo({
     { data: plantillas },
     { data: eppEntregas },
     { data: eppCatalogo },
+    { data: eppTalles },
+    { data: eppHabitual },
+    { data: documentos },
   ] = await Promise.all([
     supabase.from('legajos')
       .select('*, categorias(descripcion), obras(nombre)')
@@ -58,9 +61,21 @@ export default async function FichaLegajo({
       .eq('id_legajo', id)
       .order('fecha_entrega', { ascending: false }),
     supabase.from('epp_catalogo')
-      .select('id, descripcion, tiene_vencimiento, meses_renovacion, requiere_talle')
+      .select('id, descripcion, tiene_vencimiento, meses_renovacion, requiere_talle, controla_stock')
       .eq('activo', true)
       .order('descripcion'),
+    supabase.from('epp_talles')
+      .select('*')
+      .eq('activo', true)
+      .order('talle'),
+    supabase.from('legajo_epp_habitual')
+      .select('*, epp_catalogo(descripcion, requiere_talle)')
+      .eq('id_legajo', id)
+      .order('created_at'),
+    supabase.from('legajo_documentos')
+      .select('*')
+      .eq('id_legajo', id)
+      .order('created_at', { ascending: false }),
   ])
 
   if (!legajo) notFound()
@@ -79,6 +94,9 @@ export default async function FichaLegajo({
       plantillas={plantillas || []}
       eppEntregas={eppEntregas || []}
       eppCatalogo={eppCatalogo || []}
+      eppTalles={eppTalles || []}
+      eppHabitual={eppHabitual || []}
+      documentos={documentos || []}
     />
   )
 }

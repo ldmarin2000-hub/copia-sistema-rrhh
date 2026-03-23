@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
-import { X, MapPin } from 'lucide-react'
+import { X, MapPin, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 
 const MapaObra = dynamic(() => import('./MapaObra'), { ssr: false })
 
@@ -78,7 +79,30 @@ export default function ObrasClient({ obras }: { obras: Obra[] }) {
     color: '#e6edf3', fontSize: '13px',
   }
 
+  const [busqueda, setBusqueda] = useState('')
+  type SortCol = 'codigo' | 'nombre' | 'localidad' | 'estado'
+  const [sortCol, setSortCol] = useState<SortCol>('nombre')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  function toggleSort(col: SortCol) {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortCol(col); setSortDir('asc') }
+  }
+  const sortIcon = (col: SortCol) => sortCol === col
+    ? (sortDir === 'asc' ? <ChevronUp size={12} style={{ marginLeft: '4px' }} /> : <ChevronDown size={12} style={{ marginLeft: '4px' }} />)
+    : <ChevronsUpDown size={12} style={{ marginLeft: '4px', opacity: 0.4 }} />
+
+  const b = busqueda.toLowerCase()
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
+    .filter(o =>
+      o.codigo.toLowerCase().includes(b) ||
+      o.nombre.toLowerCase().includes(b) ||
+      (o.localidad || '').toLowerCase().includes(b)
+    )
+    .sort((a, z) => {
+      const va = (a[sortCol] || '').toLowerCase()
+      const vz = (z[sortCol] || '').toLowerCase()
+      return sortDir === 'asc' ? va.localeCompare(vz) : vz.localeCompare(va)
+    })
 
   function abrirNuevo() {
     setEditando(null)
@@ -354,6 +378,21 @@ async function buscarDireccion() {
         </button>
       </div>
 
+      {/* Buscar */}
+      <div style={{ position: 'relative', marginBottom: '16px' }}>
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <input
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por código, nombre o localidad..."
+          style={{
+            width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
+            background: '#161b22', border: '0.5px solid #30363d',
+            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+          }}
+        />
+      </div>
+
       {/* Tabla */}
       {obrasFiltradas.length === 0 ? (
         <div style={{
@@ -371,12 +410,21 @@ async function buscarDireccion() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                {['Código', 'Nombre', 'Localidad', 'Inicio', 'GPS', 'Estado'].map(col => (
-                  <th key={col} style={{
+                {([['Código','codigo'],['Nombre','nombre'],['Localidad','localidad']] as [string,SortCol][]).map(([label, col]) => (
+                  <th key={col} onClick={() => toggleSort(col)} style={{
                     textAlign: 'left', padding: '10px 16px',
-                    color: '#8b949e', fontWeight: 500,
-                  }}>{col}</th>
+                    color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                  }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
+                  </th>
                 ))}
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Inicio</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>GPS</th>
+                <th onClick={() => toggleSort('estado')} style={{
+                  textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>Estado{sortIcon('estado')}</span>
+                </th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
@@ -405,6 +453,12 @@ async function buscarDireccion() {
                   </td>
                   <td style={{ padding: '10px 16px' }}>{badgeEstado(obra.estado)}</td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                    <Link href={`/obras/${obra.id}`} style={{
+                      background: 'transparent', border: '0.5px solid #30363d',
+                      color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                      padding: '3px 10px', borderRadius: '4px', textDecoration: 'none',
+                      marginRight: '4px', display: 'inline-block',
+                    }}>Ver ficha</Link>
                     <button onClick={() => abrirEditar(obra)} style={{
                       background: 'transparent', border: 'none',
                       color: '#8b949e', cursor: 'pointer', fontSize: '12px',

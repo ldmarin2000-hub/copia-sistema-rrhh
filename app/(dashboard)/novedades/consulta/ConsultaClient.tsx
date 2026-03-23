@@ -71,6 +71,8 @@ export default function ConsultaClient({
   const [buscado, setBuscado] = useState(false)
   const [ausenciasPeriodo, setAusenciasPeriodo] = useState<any[]>([])
   const [vacacionesPeriodo, setVacacionesPeriodo] = useState<any[]>([])
+  const [feriadosPeriodo, setFeriadosPeriodo] = useState<any[]>([])
+  const [feriadosEmpresa, setFeriadosEmpresa] = useState<any[]>([])
 
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
   const adicionalesFiltrados = adicionales.filter(a => a.id_empresa === empresaActiva?.id)
@@ -164,6 +166,29 @@ export default function ConsultaClient({
 
     setVacacionesPeriodo(vacacionesPeriodo || [])
 
+    // Feriados del período
+    const { data: feriadosData } = await supabase
+      .from('feriados')
+      .select('id, fecha, descripcion, tipo')
+      .eq('activo', true)
+      .gte('fecha', desde)
+      .lte('fecha', hasta)
+
+    setFeriadosPeriodo(feriadosData || [])
+
+    // Flag de feriados trabajados por la empresa
+    if (feriadosData && feriadosData.length > 0) {
+      const idsFeriados = feriadosData.map((f: any) => f.id)
+      const { data: ferEmpresa } = await supabase
+        .from('feriados_empresa')
+        .select('id_feriado, trabaja')
+        .eq('id_empresa', empresaActiva.id)
+        .in('id_feriado', idsFeriados)
+      setFeriadosEmpresa(ferEmpresa || [])
+    } else {
+      setFeriadosEmpresa([])
+    }
+
     // Si filtra por adicional, traer solo los que tienen ese adicional
     if (idAdicional) {
       const idsNovedades = resultado.map(n => n.id)
@@ -248,6 +273,15 @@ export default function ConsultaClient({
 function esFinDeSemana(fecha: string): boolean {
   const d = new Date(fecha + 'T00:00:00')
   return d.getDay() === 0 || d.getDay() === 6
+}
+
+function esFeriado(fecha: string): { descripcion: string, tipo: string } | null {
+  const feriado = feriadosPeriodo.find(f => f.fecha === fecha)
+  if (!feriado) return null
+  // Si la empresa trabaja ese día, no es feriado para ellos
+  const excepcion = feriadosEmpresa.find(fe => fe.id_feriado === feriado.id && fe.trabaja === true)
+  if (excepcion) return null
+  return { descripcion: feriado.descripcion, tipo: feriado.tipo }
 }
 
   return (
@@ -358,21 +392,26 @@ function esFinDeSemana(fecha: string): boolean {
                       borderRight: '0.5px solid #30363d',
                     }}>Empleado</th>
 
-                    {dias.map(dia => (
-                      <th key={dia} style={{
-                        textAlign: 'center', padding: '8px 4px',
-                        color: esFinDeSemana(dia) ? '#d29922' : '#8b949e',
-                        fontWeight: 500, minWidth: '40px',
-                        background: esFinDeSemana(dia) ? 'rgba(210,153,34,0.05)' : 'transparent',
-                      }}>
-                        <div style={{ fontSize: '13px' }}>
-                          {new Date(dia + 'T00:00:00').getDate()}
-                        </div>
-                        <div style={{ fontSize: '10px', opacity: 0.7 }}>
-                          {getDiaSemana(dia)}
-                        </div>
-                      </th>
-                    ))}
+                    {dias.map(dia => {
+                      const feriado = esFeriado(dia)
+                      const fds = esFinDeSemana(dia)
+                      const colorHeader = feriado ? '#e07b39' : fds ? '#d29922' : '#8b949e'
+                      const bgHeader = feriado ? 'rgba(224,123,57,0.08)' : fds ? 'rgba(210,153,34,0.05)' : 'transparent'
+                      return (
+                        <th key={dia} title={feriado?.descripcion} style={{
+                          textAlign: 'center', padding: '8px 4px',
+                          color: colorHeader, fontWeight: 500, minWidth: '40px',
+                          background: bgHeader, cursor: feriado ? 'help' : 'default',
+                        }}>
+                          <div style={{ fontSize: '13px' }}>
+                            {new Date(dia + 'T00:00:00').getDate()}
+                          </div>
+                          <div style={{ fontSize: '10px', opacity: 0.7 }}>
+                            {feriado ? 'Fer' : getDiaSemana(dia)}
+                          </div>
+                        </th>
+                      )
+                    })}
 
                     <th style={{
                       textAlign: 'center', padding: '10px 12px',
@@ -405,41 +444,37 @@ function esFinDeSemana(fecha: string): boolean {
                         const tieneDato = tieneDatos(idLegajo, dia)
                         const infoAusencia = getInfoAusencia(idLegajo, dia)
                         const enVacaciones = estaEnVacaciones(idLegajo, dia)
+                        const feriado = esFeriado(dia)
 
-                      return (
-                        <td key={dia} style={{
-                          padding: '8px 4px', textAlign: 'center',
-                          background: enVacaciones
-                            ? 'rgba(88,166,255,0.08)'
-                            : (ausente || infoAusencia)
-                            ? infoAusencia?.pierdePresentismo === false
-                              ? 'rgba(63,185,80,0.08)'
-                              : 'rgba(248,81,73,0.1)'
-                            : esFinDeSemana(dia)
-                            ? 'rgba(210,153,34,0.03)'
-                            : 'transparent',
-                        }}>
-                          {enVacaciones ? (
-                            <span style={{ color: '#58a6ff', fontSize: '11px', fontWeight: 500 }}>VAC</span>
-                          ) : infoAusencia ? (
-                            <span style={{
-                              fontSize: '11px', fontWeight: 500,
-                              color: infoAusencia.pierdePresentismo ? '#f85149' : '#3fb950',
-                            }}>
-                              {infoAusencia.codigo}
-                            </span>
-                          ) : ausente ? (
-                            <span style={{ color: '#f85149', fontSize: '11px', fontWeight: 500 }}>A</span>
-                          ) : tieneDato ? (
-                            <span style={{ color: horas > 0 ? '#e6edf3' : '#484f58' }}>
-                              {horas > 0 ? horas : '—'}
-                            </span>
-                          ) : (
-                            <span style={{ color: '#30363d' }}>·</span>
-                          )}
-                        </td>
-                      )
-                      
+                        // Fondo: vacaciones > ausencia > feriado > finde > normal
+                        let bgCelda = 'transparent'
+                        if (enVacaciones) bgCelda = 'rgba(88,166,255,0.08)'
+                        else if (infoAusencia) bgCelda = infoAusencia.pierdePresentismo === false ? 'rgba(63,185,80,0.08)' : 'rgba(248,81,73,0.1)'
+                        else if (ausente) bgCelda = 'rgba(248,81,73,0.1)'
+                        else if (feriado) bgCelda = 'rgba(224,123,57,0.10)'
+                        else if (esFinDeSemana(dia)) bgCelda = 'rgba(210,153,34,0.03)'
+
+                        return (
+                          <td key={dia} style={{ padding: '8px 4px', textAlign: 'center', background: bgCelda }}>
+                            {enVacaciones ? (
+                              <span style={{ color: '#58a6ff', fontSize: '11px', fontWeight: 500 }}>VAC</span>
+                            ) : infoAusencia ? (
+                              <span style={{ fontSize: '11px', fontWeight: 500, color: infoAusencia.pierdePresentismo ? '#f85149' : '#3fb950' }}>
+                                {infoAusencia.codigo}
+                              </span>
+                            ) : ausente ? (
+                              <span style={{ color: '#f85149', fontSize: '11px', fontWeight: 500 }}>A</span>
+                            ) : feriado ? (
+                              <span style={{ color: '#e07b39', fontSize: '11px', fontWeight: 500 }}>FER</span>
+                            ) : tieneDato ? (
+                              <span style={{ color: horas > 0 ? '#e6edf3' : '#484f58' }}>
+                                {horas > 0 ? horas : '—'}
+                              </span>
+                            ) : (
+                              <span style={{ color: '#30363d' }}>·</span>
+                            )}
+                          </td>
+                        )
                       })}
                         
                       <td style={{

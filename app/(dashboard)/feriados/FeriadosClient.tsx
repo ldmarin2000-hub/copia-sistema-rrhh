@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
-import { X } from 'lucide-react'
+import { X, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
 
 type Feriado = {
@@ -101,9 +101,33 @@ export default function FeriadosClient({
 
   const conveniosFiltrados = convenios.filter(c => c.id_empresa === empresaActiva?.id)
 
+  const [busqueda, setBusqueda] = useState('')
+  type SortCol = 'fecha' | 'descripcion' | 'tipo'
+  const [sortCol, setSortCol] = useState<SortCol>('fecha')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  function toggleSort(col: SortCol) {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortCol(col); setSortDir('asc') }
+  }
+  const sortIcon = (col: SortCol) => sortCol === col
+    ? (sortDir === 'asc' ? <ChevronUp size={12} style={{ marginLeft: '4px' }} /> : <ChevronDown size={12} style={{ marginLeft: '4px' }} />)
+    : <ChevronsUpDown size={12} style={{ marginLeft: '4px', opacity: 0.4 }} />
+
+  const busq = busqueda.toLowerCase()
   const feriadosFiltrados = feriados
     .filter(f => filtroAnio ? f.fecha.startsWith(filtroAnio) : true)
     .filter(f => filtroTipo ? f.tipo === filtroTipo : true)
+    .filter(f =>
+      !busq ||
+      f.descripcion.toLowerCase().includes(busq) ||
+      (f.provincia || '').toLowerCase().includes(busq) ||
+      (f.convenios?.descripcion || '').toLowerCase().includes(busq)
+    )
+    .sort((a, z) => {
+      const va = a[sortCol].toLowerCase()
+      const vz = z[sortCol].toLowerCase()
+      return sortDir === 'asc' ? va.localeCompare(vz) : vz.localeCompare(va)
+    })
 
   const anios = ['2024', '2025', '2026', '2027']
 
@@ -287,6 +311,21 @@ export default function FeriadosClient({
         }}>+ Nuevo feriado</button>
       </div>
 
+      {/* Buscar */}
+      <div style={{ position: 'relative', marginBottom: '12px' }}>
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <input
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por descripción o provincia..."
+          style={{
+            width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
+            background: '#161b22', border: '0.5px solid #30363d',
+            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+          }}
+        />
+      </div>
+
       {/* Filtros */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
         <select value={filtroAnio} onChange={(e) => setFiltroAnio(e.target.value)} style={{
@@ -321,12 +360,19 @@ export default function FeriadosClient({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                {['Fecha', 'Descripción', 'Tipo', 'Provincia / Convenio', 'Estado'].map(col => (
-                  <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
+                {([['Fecha','fecha'],['Descripción','descripcion'],['Tipo','tipo']] as [string,SortCol][]).map(([label, col]) => (
+                  <th key={col} onClick={() => toggleSort(col)} style={{
+                    textAlign: 'left', padding: '10px 16px',
+                    color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                  }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
+                  </th>
                 ))}
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Provincia / Convenio</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
+                <th style={{ textAlign: 'center', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Trabaja</th>
               </tr>
-              <th style={{ textAlign: 'center', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Trabaja</th>
             </thead>
             <tbody>
               {feriadosFiltrados.map((f, i) => (

@@ -92,6 +92,7 @@ export default function NovedadesClient({
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
+  const [feriadoDelDia, setFeriadoDelDia] = useState<{ descripcion: string, tipo: string } | null>(null)
 
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
   const adicionalesFiltrados = adicionales.filter(a => a.id_empresa === empresaActiva?.id)
@@ -138,6 +139,26 @@ export default function NovedadesClient({
       setError('No hay empleados activos asignados a esta obra.')
       setCargando(false)
       return
+    }
+
+    // Verificar si el día es feriado para esta empresa
+    const { data: feriadoData } = await supabase
+      .from('feriados')
+      .select('id, descripcion, tipo')
+      .eq('fecha', fecha)
+      .eq('activo', true)
+      .maybeSingle()
+
+    if (feriadoData) {
+      const { data: excepcion } = await supabase
+        .from('feriados_empresa')
+        .select('trabaja')
+        .eq('id_empresa', empresaActiva.id)
+        .eq('id_feriado', feriadoData.id)
+        .maybeSingle()
+      setFeriadoDelDia(excepcion?.trabaja ? null : { descripcion: feriadoData.descripcion, tipo: feriadoData.tipo })
+    } else {
+      setFeriadoDelDia(null)
     }
 
     const idsLegajos = empleadosObra.map(e => e.id)
@@ -384,9 +405,18 @@ export default function NovedadesClient({
             {fecha && (
               <span style={{
                 fontSize: '13px', fontWeight: 500,
-                color: ['Sábado', 'Domingo'].includes(getDiaSemana(fecha)) ? '#d29922' : '#8b949e',
+                color: feriadoDelDia ? '#e07b39' : ['Sábado', 'Domingo'].includes(getDiaSemana(fecha)) ? '#d29922' : '#8b949e',
               }}>
                 {getDiaSemana(fecha)}
+                {feriadoDelDia && (
+                  <span style={{
+                    marginLeft: '8px', fontSize: '12px', fontWeight: 400,
+                    background: 'rgba(224,123,57,0.15)', color: '#e07b39',
+                    padding: '2px 8px', borderRadius: '4px',
+                  }}>
+                    Feriado: {feriadoDelDia.descripcion}
+                  </span>
+                )}
               </span>
             )}
           </div>
@@ -432,7 +462,13 @@ export default function NovedadesClient({
     <>
       <tr key={fila.id_legajo} style={{
         borderBottom: fila.mostrarAdicionales ? 'none' : (i < filas.length - 1 ? '0.5px solid #21262d' : 'none'),
-        background: fila.ausente ? 'rgba(248, 81, 73, 0.05)' : 'transparent',
+        background: fila.enVacaciones
+          ? 'rgba(88,166,255,0.05)'
+          : fila.ausenciaActiva || fila.ausente
+          ? 'rgba(248,81,73,0.05)'
+          : feriadoDelDia
+          ? 'rgba(224,123,57,0.05)'
+          : 'transparent',
       }}>
         {/* Empleado */}
         <td style={{ padding: '8px 16px' }}>
@@ -445,20 +481,16 @@ export default function NovedadesClient({
                 #{String(fila.nro_legajo).padStart(4, '0')}
               </span>
             </div>
-            {fila.enVacaciones && (
-              <span style={{
-                background: '#1a2a3a', color: '#58a6ff',
-                fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-              }}>VAC</span>
-            )}
-            {fila.ausenciaActiva && (
-              <span style={{
-                background: '#3a1a1a', color: '#f85149',
-                fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-              }} title={fila.ausenciaActiva.descripcion}>
+            {fila.enVacaciones ? (
+              <span style={{ background: '#1a2a3a', color: '#58a6ff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>VAC</span>
+            ) : fila.ausenciaActiva ? (
+              <span style={{ background: '#3a1a1a', color: '#f85149', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}
+                title={fila.ausenciaActiva.descripcion}>
                 {fila.ausenciaActiva.codigo}
               </span>
-            )}
+            ) : feriadoDelDia ? (
+              <span style={{ background: 'rgba(224,123,57,0.15)', color: '#e07b39', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>FER</span>
+            ) : null}
           </div>
         </td>
 

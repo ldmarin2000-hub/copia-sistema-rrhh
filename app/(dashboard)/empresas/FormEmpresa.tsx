@@ -50,6 +50,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
   const [cuitValido, setCuitValido] = useState<boolean | null>(null)
   const [buscandoDireccion, setBuscandoDireccion] = useState(false)
   const [activo, setActivo] = useState(empresaEditar?.activo ?? true)
+  const [permiteEditarEpp, setPermiteEditarEpp] = useState((empresaEditar as any)?.permite_editar_epp ?? false)
 
   const input = (value: string, onChange: (v: string) => void, placeholder: string) => (
     <input
@@ -126,7 +127,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
       direccion, cp, localidad, provincia,
       fecha_inicio: fechaInicio || null,
       latitud, longitud,
-      activo,
+      activo, permite_editar_epp: permiteEditarEpp,
     }
 
     if (editando) {
@@ -315,16 +316,29 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <input
-            type="checkbox"
-            id="activo"
-            checked={activo}
-            onChange={(e) => setActivo(e.target.checked)}
-          />
-          <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
-            Empresa activa
-          </label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="checkbox"
+              id="activo"
+              checked={activo}
+              onChange={(e) => setActivo(e.target.checked)}
+            />
+            <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+              Empresa activa
+            </label>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="checkbox"
+              id="permiteEditarEpp"
+              checked={permiteEditarEpp}
+              onChange={(e) => setPermiteEditarEpp(e.target.checked)}
+            />
+            <label htmlFor="permiteEditarEpp" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+              Permite editar y borrar movimientos de EPP
+            </label>
+          </div>
         </div>
 
         {/* Footer */}

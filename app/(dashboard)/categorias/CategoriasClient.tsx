@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
-import { X } from 'lucide-react'
+import { X, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 type Categoria = {
   id: number
@@ -73,8 +73,37 @@ export default function CategoriasClient({
     color: '#e6edf3', fontSize: '13px',
   }
 
+  const [busqueda, setBusqueda] = useState('')
+  type SortCol = 'codigo' | 'descripcion' | 'convenio' | 'tipo' | 'sueldo_basico'
+  const [sortCol, setSortCol] = useState<SortCol>('descripcion')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  function toggleSort(col: SortCol) {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortCol(col); setSortDir('asc') }
+  }
+  const sortIcon = (col: SortCol) => sortCol === col
+    ? (sortDir === 'asc' ? <ChevronUp size={12} style={{ marginLeft: '4px' }} /> : <ChevronDown size={12} style={{ marginLeft: '4px' }} />)
+    : <ChevronsUpDown size={12} style={{ marginLeft: '4px', opacity: 0.4 }} />
+
   // Filtrar por empresa activa
+  const b = busqueda.toLowerCase()
   const categoriasFiltradas = categorias.filter(c => c.id_empresa === empresaActiva?.id)
+    .filter(c =>
+      c.codigo.toLowerCase().includes(b) ||
+      c.descripcion.toLowerCase().includes(b) ||
+      c.convenios.descripcion.toLowerCase().includes(b) ||
+      c.tipos_empleado.descripcion.toLowerCase().includes(b)
+    )
+    .sort((a, z) => {
+      const getVal = (x: typeof a) => {
+        if (sortCol === 'convenio') return x.convenios.descripcion.toLowerCase()
+        if (sortCol === 'tipo') return x.tipos_empleado.descripcion.toLowerCase()
+        if (sortCol === 'sueldo_basico') return String(x.sueldo_basico).padStart(12, '0')
+        return (x[sortCol as 'codigo' | 'descripcion'] || '').toLowerCase()
+      }
+      const va = getVal(a), vz = getVal(z)
+      return sortDir === 'asc' ? va.localeCompare(vz) : vz.localeCompare(va)
+    })
   const conveniosFiltrados = convenios.filter(c => c.id_empresa === empresaActiva?.id)
   const tiposFiltrados = tipos.filter(t => t.id_empresa === empresaActiva?.id)
 
@@ -298,6 +327,21 @@ export default function CategoriasClient({
         </button>
       </div>
 
+      {/* Buscar */}
+      <div style={{ position: 'relative', marginBottom: '16px' }}>
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <input
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por código, descripción, convenio..."
+          style={{
+            width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
+            background: '#161b22', border: '0.5px solid #30363d',
+            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+          }}
+        />
+      </div>
+
       {/* Tabla */}
       {categoriasFiltradas.length === 0 ? (
         <div style={{
@@ -315,12 +359,15 @@ export default function CategoriasClient({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                {['Código', 'Descripción', 'Convenio', 'Tipo', 'Básico', 'Estado'].map(col => (
-                  <th key={col} style={{
+                {([['Código','codigo'],['Descripción','descripcion'],['Convenio','convenio'],['Tipo','tipo'],['Básico','sueldo_basico']] as [string,SortCol][]).map(([label, col]) => (
+                  <th key={col} onClick={() => toggleSort(col)} style={{
                     textAlign: 'left', padding: '10px 16px',
-                    color: '#8b949e', fontWeight: 500,
-                  }}>{col}</th>
+                    color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                  }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
+                  </th>
                 ))}
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
