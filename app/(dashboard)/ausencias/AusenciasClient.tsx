@@ -12,7 +12,7 @@ type Ausencia = {
   fecha_hasta: string
   observacion?: string
   tipos_ausencia: { descripcion: string }
-  legajos: { apellido: string, nombre: string, nro_legajo: number, id_empresa: number }
+  legajos: { apellido: string, nombre: string, nro_legajo: number, id_empresa: number, id_obra?: number }
 }
 
 type TipoAusencia = {
@@ -26,6 +26,7 @@ type Legajo = {
   apellido: string
   nombre: string
   nro_legajo: number
+  id_obra?: number
 }
 
 export default function AusenciasClient({
@@ -35,7 +36,7 @@ export default function AusenciasClient({
   tiposAusencia: TipoAusencia[]
   legajos: Legajo[]
 }) {
-  const { empresaActiva } = useEmpresa()
+  const { empresaActiva, rol, obrasJefe } = useEmpresa()
   const [filtroLegajo, setFiltroLegajo] = useState('')
   const [filtroTipo, setFiltroTipo] = useState('')
   const [filtroDesde, setFiltroDesde] = useState('')
@@ -53,10 +54,13 @@ export default function AusenciasClient({
     color: '#e6edf3', fontSize: '13px',
   }
 
-  const legajosFiltrados = legajos.filter(l => l.id_empresa === empresaActiva?.id)
+  const legajosFiltrados = legajos
+    .filter(l => l.id_empresa === empresaActiva?.id)
+    .filter(l => rol !== 'JEFE_OBRA' || obrasJefe.includes(l.id_obra ?? -1))
 
   const ausenciasFiltradas = ausencias
     .filter(a => a.legajos.id_empresa === empresaActiva?.id)
+    .filter(a => rol !== 'JEFE_OBRA' || obrasJefe.includes(a.legajos.id_obra ?? -1))
     .filter(a => filtroLegajo ? a.id_legajo === parseInt(filtroLegajo) : true)
     .filter(a => filtroTipo ? a.tipos_ausencia.descripcion === tiposAusencia.find(t => t.id === parseInt(filtroTipo))?.descripcion : true)
     .filter(a => filtroDesde ? a.fecha_hasta >= filtroDesde : true)

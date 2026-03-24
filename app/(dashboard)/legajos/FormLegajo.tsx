@@ -62,7 +62,7 @@ type Props = {
 }
 
 
-const ESTADOS = ['Pre-Alta', 'Activo', 'Baja', 'Suspendido', 'Inactivo']
+const ESTADOS = ['Activo', 'Baja']
 const SEXOS = ['Masculino', 'Femenino', 'Otro']
 const TIPOS_DOC = ['DNI', 'Pasaporte']
 
@@ -161,13 +161,15 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
       nro_documento: nroDocumento || null,
       direccion, cp, localidad, provincia,
       telefono: telefono || null,
-      fecha_ingreso: fechaIngreso,
-      id_categoria: idCategoria ? parseInt(idCategoria) : null,
-      id_obra: idObra ? parseInt(idObra) : null,
-      estado,
       cbu: cbu || null,
       codigo_externo: codigoExterno || null,
       id_plantilla: idPlantilla ? parseInt(idPlantilla) : null,
+      ...(!editando && {
+        fecha_ingreso: fechaIngreso,
+        id_categoria: idCategoria ? parseInt(idCategoria) : null,
+        id_obra: idObra ? parseInt(idObra) : null,
+        estado,
+      }),
     }
 
     if (editando) {
@@ -192,7 +194,8 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
         .is('fecha_egreso', null)
     }
 
-    
+
+
 
     router.refresh()
     if (onGuardado) onGuardado()
@@ -321,22 +324,24 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                   <label style={labelStyle}>Código externo</label>
                   <input value={codigoExterno} onChange={(e) => setCodigoExterno(e.target.value)} placeholder="Sistema sueldos" style={inputStyle} />
                 </div>
-                <div>
-                  <label style={labelStyle}>Estado</label>
-                  <select
-                    value={estado}
-                    onChange={(e) => {
-                      const nuevoEstado = e.target.value
-                      if (nuevoEstado === 'Baja' && estado !== 'Baja') {
-                        setMostrarModalBaja(true)
-                      }
-                      setEstado(nuevoEstado)
-                    }}
-                    style={selectStyle}
-                  >
-                    {ESTADOS.map(e => <option key={e} value={e}>{e}</option>)}
-                  </select>
-                </div>
+                {!editando && (
+                  <div>
+                    <label style={labelStyle}>Estado</label>
+                    <select
+                      value={estado}
+                      onChange={(e) => {
+                        const nuevoEstado = e.target.value
+                        if (nuevoEstado === 'Baja' && estado !== 'Baja') {
+                          setMostrarModalBaja(true)
+                        }
+                        setEstado(nuevoEstado)
+                      }}
+                      style={selectStyle}
+                    >
+                      {ESTADOS.map(e => <option key={e} value={e}>{e}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -460,10 +465,12 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
               <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos laborales</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div>
-                    <label style={labelStyle}>Fecha ingreso *</label>
-                    <input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} style={inputStyle} />
-                  </div>
+                  {!editando && (
+                    <div>
+                      <label style={labelStyle}>Fecha ingreso *</label>
+                      <input type="date" value={fechaIngreso} onChange={(e) => setFechaIngreso(e.target.value)} style={inputStyle} />
+                    </div>
+                  )}
                   <div>
                     <label style={labelStyle}>CBU</label>
                     <input value={cbu} onChange={(e) => setCbu(e.target.value)} style={inputStyle} />
@@ -484,26 +491,28 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                 </div>
 
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div>
-                    <label style={labelStyle}>Categoría</label>
-                    <select value={idCategoria} onChange={(e) => setIdCategoria(e.target.value)} style={selectStyle}>
-                      <option value="">Sin categoría</option>
-                      {categoriasFiltradas.map(c => (
-                        <option key={c.id} value={c.id}>{c.descripcion}</option>
-                      ))}
-                    </select>
+                {!editando && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={labelStyle}>Categoría</label>
+                      <select value={idCategoria} onChange={(e) => setIdCategoria(e.target.value)} style={selectStyle}>
+                        <option value="">Sin categoría</option>
+                        {categoriasFiltradas.map(c => (
+                          <option key={c.id} value={c.id}>{c.descripcion}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Obra actual</label>
+                      <select value={idObra} onChange={(e) => setIdObra(e.target.value)} style={selectStyle}>
+                        <option value="">Sin obra</option>
+                        {obrasFiltradas.map(o => (
+                          <option key={o.id} value={o.id}>{o.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label style={labelStyle}>Obra actual</label>
-                    <select value={idObra} onChange={(e) => setIdObra(e.target.value)} style={selectStyle}>
-                      <option value="">Sin obra</option>
-                      {obrasFiltradas.map(o => (
-                        <option key={o.id} value={o.id}>{o.nombre}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -518,7 +527,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
             }}>Cancelar</button>
             <button
               onClick={guardar}
-              disabled={loading || !nroLegajo || !apellido || !nombre || !cuil || !fechaIngreso}
+              disabled={loading || !nroLegajo || !apellido || !nombre || !cuil || (!editando && !fechaIngreso)}
               style={{
                 background: '#2563eb', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',

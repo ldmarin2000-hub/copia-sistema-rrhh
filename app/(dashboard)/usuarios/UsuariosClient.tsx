@@ -35,13 +35,18 @@ type Permiso = {
   roles: { descripcion: string }
 }
 
+type Obra = { id: number; id_empresa: number; nombre: string }
+type UsuarioObra = { id: number; id_usuario: string; id_obra: number; obras: { nombre: string } }
+
 export default function UsuariosClient({
-  usuarios, empresas, roles, permisos
+  usuarios, empresas, roles, permisos, obras, usuarioObras
 }: {
   usuarios: Usuario[]
   empresas: Empresa[]
   roles: Rol[]
   permisos: Permiso[]
+  obras: Obra[]
+  usuarioObras: UsuarioObra[]
 }) {
   const router = useRouter()
   const [busqueda, setBusqueda] = useState('')
@@ -161,6 +166,8 @@ export default function UsuariosClient({
           empresas={empresas}
           roles={roles}
           permisos={permisos.filter(p => p.id_usuario === usuarioPermisos.id)}
+          obras={obras}
+          usuarioObras={usuarioObras.filter(uo => uo.id_usuario === usuarioPermisos.id)}
           onCerrar={() => setUsuarioPermisos(null)}
         />
       )}

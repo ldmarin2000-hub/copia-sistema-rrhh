@@ -51,17 +51,14 @@ type Obra = {
   nombre: string
 }
 
-const ESTADOS = ['Pre-Alta', 'Activo', 'Baja', 'Suspendido', 'Inactivo']
+const ESTADOS = ['Activo', 'Baja']
 
 const badgeEstado = (estado: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
-    'Pre-Alta':  { bg: '#1a2a3a', color: '#58a6ff' },
-    Activo:      { bg: '#1a3a2a', color: '#3fb950' },
-    Baja:        { bg: '#3a1a1a', color: '#f85149' },
-    Suspendido:  { bg: '#3a2f1a', color: '#d29922' },
-    Inactivo:    { bg: '#21262d', color: '#8b949e' },
+    Activo: { bg: '#1a3a2a', color: '#3fb950' },
+    Baja:   { bg: '#3a1a1a', color: '#f85149' },
   }
-  const c = colores[estado] || colores.Inactivo
+  const c = colores[estado] || { bg: '#21262d', color: '#8b949e' }
   return (
     <span style={{
       background: c.bg, color: c.color,

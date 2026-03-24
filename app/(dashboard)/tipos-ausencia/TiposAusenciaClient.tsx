@@ -14,6 +14,7 @@ type TipoAusencia = {
   pierde_presentismo: boolean
   requiere_certificado: boolean
   remunerada: boolean
+  cuenta_dias_corridos: boolean
   activo: boolean
 }
 
@@ -27,6 +28,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
   const [requiereCertificado, setRequiereCertificado] = useState(false)
   const [remunerada, setRemunerada] = useState(true)
   const [activo, setActivo] = useState(true)
+  const [cuentaDiasCorridos, setCuentaDiasCorridos] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [codigo, setCodigo] = useState('')
@@ -79,6 +81,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     setPierdePresentismo(true)
     setRequiereCertificado(false)
     setRemunerada(true)
+    setCuentaDiasCorridos(false)
     setActivo(true)
     setError('')
     setMostrarForm(true)
@@ -93,6 +96,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     setPierdePresentismo(t.pierde_presentismo)
     setRequiereCertificado(t.requiere_certificado)
     setRemunerada(t.remunerada)
+    setCuentaDiasCorridos(t.cuenta_dias_corridos)
     setActivo(t.activo)
     setError('')
     setMostrarForm(true)
@@ -116,6 +120,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
       pierde_presentismo: pierdePresentismo,
       requiere_certificado: requiereCertificado,
       remunerada,
+      cuenta_dias_corridos: cuentaDiasCorridos,
       activo,
     }
 
@@ -198,6 +203,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
               {checkRow('Pierde presentismo', pierdePresentismo, setPierdePresentismo)}
               {checkRow('Requiere certificado', requiereCertificado, setRequiereCertificado)}
               {checkRow('Remunerada', remunerada, setRemunerada)}
+              {checkRow('Cuenta días corridos (incluye fines de semana)', cuentaDiasCorridos, setCuentaDiasCorridos)}
               {checkRow('Activo', activo, setActivo)}
               {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
@@ -260,7 +266,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
                   <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
                 </th>
               ))}
-              {['Presentismo','Certificado','Remunerada','Origen','Estado'].map(col => (
+              {['Presentismo','Certificado','Remunerada','Días','Origen','Estado'].map(col => (
                 <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
               ))}
               <th style={{ padding: '10px 16px' }}></th>
@@ -279,6 +285,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
                 <td style={{ padding: '10px 16px' }}>{badge(t.pierde_presentismo, 'Pierde', 'No pierde')}</td>
                 <td style={{ padding: '10px 16px' }}>{badge(t.requiere_certificado, 'Sí', 'No')}</td>
                 <td style={{ padding: '10px 16px' }}>{badge(t.remunerada, 'Sí', 'No')}</td>
+                <td style={{ padding: '10px 16px' }}>{badge(t.cuenta_dias_corridos, 'Corridos', 'Hábiles')}</td>
                 <td style={{ padding: '10px 16px' }}>
                   {!t.id_empresa ? (
                     <span style={{ background: '#2a1a3a', color: '#bc8cff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Global</span>

@@ -33,6 +33,7 @@ export default async function DashboardLayout({
 
   let empresas: { id: number, razon_social: string, permite_editar_epp: boolean }[] = []
   let rol: 'SUPERADMIN' | 'ADMIN' | 'RRHH_ADMIN' | 'JEFE_OBRA' | null = null
+  let obrasJefe: number[] = []
 
   if (usuario?.es_superadmin) {
     const { data } = await supabase
@@ -53,6 +54,15 @@ export default async function DashboardLayout({
     if (roles.includes('ADMIN')) rol = 'ADMIN'
     else if (roles.includes('RRHH_ADMIN')) rol = 'RRHH_ADMIN'
     else if (roles.includes('JEFE_OBRA')) rol = 'JEFE_OBRA'
+
+    // Cargar obras asignadas si es jefe de obra
+    if (rol === 'JEFE_OBRA') {
+      const { data: obrasData } = await supabase
+        .from('usuario_obras')
+        .select('id_obra')
+        .eq('id_usuario', user?.id)
+      obrasJefe = (obrasData || []).map((o: any) => o.id_obra)
+    }
   }
 
   const inicial = empresas.length > 0 ? empresas[0] : null
@@ -63,6 +73,7 @@ export default async function DashboardLayout({
       inicial={inicial}
       rol={rol}
       esSuperadmin={usuario?.es_superadmin || false}
+      obrasJefe={obrasJefe}
     >
       <div style={{ minHeight: '100vh', background: '#0d1117' }}>
         <Header

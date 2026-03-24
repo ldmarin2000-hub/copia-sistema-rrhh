@@ -31,9 +31,18 @@ const gestion = [
   { href: '/legajos',    label: 'Legajos',     icon: Users },
   { href: '/novedades',  label: 'Novedades',   icon: Calendar },
   { href: '/novedades/consulta', label: 'Consulta novedades', icon: BarChart2 },
+  { href: '/novedades/exportar', label: 'Exportar novedades', icon: BarChart2 },
   { href: '/ausencias',  label: 'Ausencias',   icon: BriefcaseMedical },
   { href: '/vacaciones', label: 'Vacaciones',  icon: Umbrella },
   { href: '/epp',        label: 'EPP y Ropa',  icon: HardHat },
+]
+
+const jefeObra = [
+  { href: '/personal-obra',       label: 'Personal de Obra',    icon: Users },
+  { href: '/novedades',           label: 'Novedades',            icon: Calendar },
+  { href: '/novedades/consulta',  label: 'Consulta novedades',  icon: BarChart2 },
+  { href: '/ausencias',           label: 'Ausencias',            icon: BriefcaseMedical },
+  { href: '/vacaciones',          label: 'Vacaciones',           icon: Umbrella },
 ]
 
 export default function Sidebar() {
@@ -79,11 +88,9 @@ export default function Sidebar() {
   )
 
   // Filtrar ítems de gestión según rol
-  const gestionFiltrada = gestion.filter(item => {
-    if (esSuperadmin || rol === 'ADMIN' || rol === 'RRHH_ADMIN') return true
-    if (rol === 'JEFE_OBRA') return item.href === '/novedades'
-    return false
-  })
+  const gestionFiltrada = rol === 'JEFE_OBRA'
+    ? jefeObra
+    : gestion.filter(() => esSuperadmin || rol === 'ADMIN' || rol === 'RRHH_ADMIN')
 
   // Mostrar administración solo a SUPERADMIN y ADMIN
   const mostrarAdmin = esSuperadmin || rol === 'ADMIN'

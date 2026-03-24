@@ -16,6 +16,7 @@ type Legajo = {
   id_obra?: number
   id_categoria?: number
   id_plantilla?: number
+  fecha_ingreso?: string
 }
 
 type Obra = {
@@ -83,7 +84,7 @@ export default function NovedadesClient({
   categorias: Categoria[]
 }) {
   const router = useRouter()
-  const { empresaActiva } = useEmpresa()
+  const { empresaActiva, rol, obrasJefe } = useEmpresa()
 
   const [idObra, setIdObra] = useState('')
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0])
@@ -94,7 +95,10 @@ export default function NovedadesClient({
   const [mensaje, setMensaje] = useState('')
   const [feriadoDelDia, setFeriadoDelDia] = useState<{ descripcion: string, tipo: string } | null>(null)
 
-  const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
+  const obrasFiltradas = obras.filter(o =>
+    o.id_empresa === empresaActiva?.id &&
+    (rol !== 'JEFE_OBRA' || obrasJefe.includes(o.id))
+  )
   const adicionalesFiltrados = adicionales.filter(a => a.id_empresa === empresaActiva?.id)
   
 
@@ -131,8 +135,19 @@ export default function NovedadesClient({
 
     const supabase = createClient()
 
+    // Buscar empleados en esta obra en la fecha indicada vía historico
+    const { data: historico } = await supabase
+      .from('legajos_historico_obras')
+      .select('id_legajo')
+      .eq('id_obra', parseInt(idObra))
+      .lte('fecha_desde', fecha)
+      .or(`fecha_hasta.is.null,fecha_hasta.gte.${fecha}`)
+    const idsHistorico = new Set((historico || []).map((h: any) => h.id_legajo))
+
     const empleadosObra = legajos.filter(
-      l => l.id_empresa === empresaActiva.id && l.id_obra === parseInt(idObra)
+      l => l.id_empresa === empresaActiva.id &&
+           (!l.fecha_ingreso || l.fecha_ingreso <= fecha) &&
+           (idsHistorico.has(l.id) || l.id_obra === parseInt(idObra))
     )
 
     if (empleadosObra.length === 0) {
@@ -149,6 +164,7 @@ export default function NovedadesClient({
       .eq('activo', true)
       .maybeSingle()
 
+    let esFeriado = false
     if (feriadoData) {
       const { data: excepcion } = await supabase
         .from('feriados_empresa')
@@ -156,7 +172,8 @@ export default function NovedadesClient({
         .eq('id_empresa', empresaActiva.id)
         .eq('id_feriado', feriadoData.id)
         .maybeSingle()
-      setFeriadoDelDia(excepcion?.trabaja ? null : { descripcion: feriadoData.descripcion, tipo: feriadoData.tipo })
+      esFeriado = !excepcion?.trabaja
+      setFeriadoDelDia(esFeriado ? { descripcion: feriadoData.descripcion, tipo: feriadoData.tipo } : null)
     } else {
       setFeriadoDelDia(null)
     }
@@ -200,7 +217,9 @@ export default function NovedadesClient({
       const existente = existentes?.find(n => n.id_legajo === emp.id)
       const ausenciaDelDia = ausenciasActivas?.find(a => a.id_legajo === emp.id)
       const vacacionDelDia = vacacionesActivas?.find(v => v.id_legajo === emp.id)
-      const tieneAusenciaAutomatica = !existente && (!!ausenciaDelDia || !!vacacionDelDia)
+      const tieneAusenciaOVacacion = !existente && (!!ausenciaDelDia || !!vacacionDelDia)
+      const aplicaFeriado = !existente && esFeriado && !ausenciaDelDia && !vacacionDelDia
+      const tieneAusenciaAutomatica = tieneAusenciaOVacacion || aplicaFeriado
 
       const adicionalesDelEmpleado: AdicionalFila[] = existente
         ? (adicionalesExistentes || [])

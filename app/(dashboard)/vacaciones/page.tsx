@@ -7,10 +7,10 @@ export default async function VacacionesGeneral() {
     { data: legajos },
   ] = await Promise.all([
     supabase.from('vacaciones_periodo')
-      .select('*, legajos(apellido, nombre, nro_legajo, id_empresa)')
+      .select('*, legajos(apellido, nombre, nro_legajo, id_empresa, id_obra)')
       .order('fecha_desde', { ascending: false }),
     supabase.from('legajos')
-      .select('id, id_empresa, apellido, nombre, nro_legajo')
+      .select('id, id_empresa, apellido, nombre, nro_legajo, id_obra')
       .eq('estado', 'Activo')
       .order('apellido'),
   ])

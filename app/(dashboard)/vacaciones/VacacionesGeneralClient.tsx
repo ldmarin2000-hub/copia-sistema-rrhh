@@ -11,7 +11,7 @@ type Vacacion = {
   fecha_desde: string
   fecha_hasta: string
   observacion?: string
-  legajos: { apellido: string, nombre: string, nro_legajo: number, id_empresa: number }
+  legajos: { apellido: string, nombre: string, nro_legajo: number, id_empresa: number, id_obra?: number }
 }
 
 type Legajo = {
@@ -20,6 +20,7 @@ type Legajo = {
   apellido: string
   nombre: string
   nro_legajo: number
+  id_obra?: number
 }
 
 export default function VacacionesGeneralClient({
@@ -28,7 +29,7 @@ export default function VacacionesGeneralClient({
   vacaciones: Vacacion[]
   legajos: Legajo[]
 }) {
-  const { empresaActiva } = useEmpresa()
+  const { empresaActiva, rol, obrasJefe } = useEmpresa()
   const [filtroLegajo, setFiltroLegajo] = useState('')
   const [filtroDesde, setFiltroDesde] = useState('')
   const [filtroHasta, setFiltroHasta] = useState('')
@@ -45,10 +46,13 @@ export default function VacacionesGeneralClient({
     color: '#e6edf3', fontSize: '13px',
   }
 
-  const legajosFiltrados = legajos.filter(l => l.id_empresa === empresaActiva?.id)
+  const legajosFiltrados = legajos
+    .filter(l => l.id_empresa === empresaActiva?.id)
+    .filter(l => rol !== 'JEFE_OBRA' || obrasJefe.includes(l.id_obra ?? -1))
 
   const vacacionesFiltradas = vacaciones
     .filter(v => v.legajos.id_empresa === empresaActiva?.id)
+    .filter(v => rol !== 'JEFE_OBRA' || obrasJefe.includes(v.legajos.id_obra ?? -1))
     .filter(v => filtroLegajo ? v.id_legajo === parseInt(filtroLegajo) : true)
     .filter(v => filtroDesde ? v.fecha_hasta >= filtroDesde : true)
     .filter(v => filtroHasta ? v.fecha_desde <= filtroHasta : true)

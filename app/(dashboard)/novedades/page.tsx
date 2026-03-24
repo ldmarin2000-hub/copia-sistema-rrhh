@@ -10,7 +10,7 @@ export default async function Novedades() {
     { data: categorias },
   ] = await Promise.all([
     supabase.from('legajos')
-      .select('id, id_empresa, nro_legajo, apellido, nombre, id_obra, id_categoria, id_plantilla')
+      .select('id, id_empresa, nro_legajo, apellido, nombre, id_obra, id_categoria, id_plantilla, fecha_ingreso')
       .eq('estado', 'Activo')
       .order('apellido'),
     supabase.from('obras')
