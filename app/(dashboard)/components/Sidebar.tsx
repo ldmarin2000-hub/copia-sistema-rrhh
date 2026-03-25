@@ -6,7 +6,7 @@ import { useState } from 'react'
 import {
   LayoutDashboard, Building2, Users, Calendar, Umbrella,
   HardHat, ChevronDown, ChevronRight, BookOpen, ShieldCheck,
-  UserCog, BarChart2, BriefcaseMedical,
+  UserCog, BarChart2, BriefcaseMedical, Download,
 } from 'lucide-react'
 import { useEmpresa } from '../context/EmpresaContext'
 
@@ -16,46 +16,55 @@ const administracion = [
 ]
 
 const maestras = [
-  { href: '/convenios',       label: 'Convenios' },
-  { href: '/tipos-empleado',  label: 'Tipos de empleado' },
-  { href: '/categorias',      label: 'Categorías' },
-  { href: '/obras',           label: 'Obras' },
-  { href: '/adicionales',     label: 'Adicionales' },
+  { href: '/convenios',          label: 'Convenios' },
+  { href: '/tipos-empleado',     label: 'Tipos de empleado' },
+  { href: '/categorias',         label: 'Categorías' },
+  { href: '/obras',              label: 'Obras' },
+  { href: '/adicionales',        label: 'Adicionales' },
   { href: '/plantillas-jornada', label: 'Plantillas jornada' },
-  { href: '/tipos-ausencia',  label: 'Tipos de ausencia' },
-  { href: '/feriados',        label: 'Feriados' },
-  { href: '/epp-catalogo',    label: 'EPP catálogo' },
+  { href: '/tipos-ausencia',     label: 'Tipos de ausencia' },
+  { href: '/feriados',           label: 'Feriados' },
+  { href: '/epp-catalogo',       label: 'EPP catálogo' },
 ]
+
+const novedadesSubmenu = [
+  { href: '/novedades/consulta', label: 'Consulta',  icon: BarChart2 },
+  { href: '/novedades/exportar', label: 'Exportar',  icon: Download },
+]
+
+
 
 const gestion = [
-  { href: '/legajos',    label: 'Legajos',     icon: Users },
-  { href: '/novedades',  label: 'Novedades',   icon: Calendar },
-  { href: '/novedades/consulta', label: 'Consulta novedades', icon: BarChart2 },
-  { href: '/novedades/exportar', label: 'Exportar novedades', icon: BarChart2 },
-  { href: '/ausencias',  label: 'Ausencias',   icon: BriefcaseMedical },
-  { href: '/vacaciones', label: 'Vacaciones',  icon: Umbrella },
-  { href: '/epp',        label: 'EPP y Ropa',  icon: HardHat },
+  { href: '/legajos',    label: 'Legajos',    icon: Users },
+  { href: '/ausencias',  label: 'Ausencias',  icon: BriefcaseMedical },
+  { href: '/vacaciones', label: 'Vacaciones', icon: Umbrella },
+  { href: '/epp',        label: 'EPP y Ropa', icon: HardHat },
 ]
 
+const novedadesSubmenuJefe = [
+  { href: '/novedades/consulta', label: 'Consulta',  icon: BarChart2 },
+]
+
+
 const jefeObra = [
-  { href: '/personal-obra',       label: 'Personal de Obra',    icon: Users },
-  { href: '/novedades',           label: 'Novedades',            icon: Calendar },
-  { href: '/novedades/consulta',  label: 'Consulta novedades',  icon: BarChart2 },
-  { href: '/ausencias',           label: 'Ausencias',            icon: BriefcaseMedical },
-  { href: '/vacaciones',          label: 'Vacaciones',           icon: Umbrella },
+  { href: '/personal-obra', label: 'Personal de Obra', icon: Users },
+  { href: '/ausencias',     label: 'Ausencias',         icon: BriefcaseMedical },
+  { href: '/vacaciones',    label: 'Vacaciones',         icon: Umbrella },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
   const { rol, esSuperadmin } = useEmpresa()
 
+  const enNovedades = pathname.startsWith('/novedades')
   const adminAbierta = administracion.some(i => pathname.startsWith(i.href))
   const maestrasAbiertas = maestras.some(i => pathname.startsWith(i.href))
 
   const [adminOpen, setAdminOpen] = useState(adminAbierta)
   const [maestrasOpen, setMaestrasOpen] = useState(maestrasAbiertas)
+  const [novedadesOpen, setNovedadesOpen] = useState(enNovedades)
 
-  const activo = (href: string) => pathname.startsWith(href)
+  const activo = (href: string) => pathname === href
 
   const itemStyle = (href: string) => ({
     display: 'flex', alignItems: 'center', gap: '10px',
@@ -87,15 +96,14 @@ export default function Sidebar() {
     </div>
   )
 
-  // Filtrar ítems de gestión según rol
-  const gestionFiltrada = rol === 'JEFE_OBRA'
+  const esJefe = rol === 'JEFE_OBRA'
+  const gestionFiltrada = esJefe
     ? jefeObra
     : gestion.filter(() => esSuperadmin || rol === 'ADMIN' || rol === 'RRHH_ADMIN')
 
-  // Mostrar administración solo a SUPERADMIN y ADMIN
-  const mostrarAdmin = esSuperadmin || rol === 'ADMIN'
+  const submenuNovedades = esJefe ? novedadesSubmenuJefe : novedadesSubmenu
 
-  // Mostrar maestras solo a SUPERADMIN, ADMIN y RRHH_ADMIN
+  const mostrarAdmin = esSuperadmin || rol === 'ADMIN'
   const mostrarMaestras = esSuperadmin || rol === 'ADMIN' || rol === 'RRHH_ADMIN'
 
   return (
@@ -115,7 +123,7 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Administración — solo SUPERADMIN y ADMIN */}
+      {/* Administración */}
       {mostrarAdmin && (
         <div style={{ padding: '0 12px', marginBottom: '4px' }}>
           {seccionHeader(
@@ -139,7 +147,7 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Maestras — solo SUPERADMIN, ADMIN y RRHH_ADMIN */}
+      {/* Maestras */}
       {mostrarMaestras && (
         <div style={{ padding: '0 12px', marginBottom: '4px' }}>
           {seccionHeader(
@@ -169,7 +177,48 @@ export default function Sidebar() {
         </span>
       </div>
       <div style={{ padding: '0 12px' }}>
-        {gestionFiltrada.map((item) => (
+
+        {/* Primer ítem (Legajos / Personal de Obra) */}
+        {gestionFiltrada.slice(0, 1).map((item) => (
+          <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+            <div style={itemStyle(item.href)}>
+              <item.icon size={16} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
+              <span style={labelStyle(item.href)}>{item.label}</span>
+            </div>
+          </Link>
+        ))}
+
+        {/* Novedades con submenu */}
+        <div style={{ marginBottom: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', borderRadius: '6px', background: activo('/novedades') ? '#1a2a3a' : 'transparent' }}>
+            <Link href="/novedades" style={{ textDecoration: 'none', flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 10px' }}>
+                <Calendar size={16} color={activo('/novedades') ? '#58a6ff' : '#8b949e'} />
+                <span style={labelStyle('/novedades')}>Novedades</span>
+              </div>
+            </Link>
+            <div onClick={() => setNovedadesOpen(!novedadesOpen)} style={{ padding: '7px 8px', cursor: 'pointer' }}>
+              {novedadesOpen
+                ? <ChevronDown size={14} color="#8b949e" />
+                : <ChevronRight size={14} color="#8b949e" />}
+            </div>
+          </div>
+          {novedadesOpen && (
+            <div style={{ paddingLeft: '16px', marginTop: '2px' }}>
+              {submenuNovedades.map((item) => (
+                <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+                  <div style={itemStyle(item.href)}>
+                    <item.icon size={14} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
+                    <span style={labelStyle(item.href)}>{item.label}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Resto de gestión */}
+        {gestionFiltrada.slice(1).map((item) => (
           <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
             <div style={itemStyle(item.href)}>
               <item.icon size={16} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />

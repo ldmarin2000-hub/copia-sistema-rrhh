@@ -143,22 +143,39 @@ export default function LegajosClient({
 
     const supabase = createClient()
 
+    const [
+      { count: cNovedades },
+      { count: cAusencias },
+      { count: cVacaciones },
+      { count: cEpp },
+    ] = await Promise.all([
+      supabase.from('novedades_diarias').select('*', { count: 'exact', head: true }).eq('id_legajo', legajo.id),
+      supabase.from('ausencias_periodo').select('*', { count: 'exact', head: true }).eq('id_legajo', legajo.id),
+      supabase.from('vacaciones_periodo').select('*', { count: 'exact', head: true }).eq('id_legajo', legajo.id),
+      supabase.from('epp_entregas').select('*', { count: 'exact', head: true }).eq('id_legajo', legajo.id),
+    ])
+
+    const bloqueantes: string[] = []
+    if (cNovedades) bloqueantes.push(`${cNovedades} novedad${cNovedades !== 1 ? 'es' : ''}`)
+    if (cAusencias) bloqueantes.push(`${cAusencias} ausencia${cAusencias !== 1 ? 's' : ''}`)
+    if (cVacaciones) bloqueantes.push(`${cVacaciones} registro${cVacaciones !== 1 ? 's' : ''} de vacaciones`)
+    if (cEpp) bloqueantes.push(`${cEpp} entrega${cEpp !== 1 ? 's' : ''} de EPP/ropa`)
+
+    if (bloqueantes.length > 0) {
+      alert(`No se puede eliminar el legajo de ${legajo.apellido}, ${legajo.nombre}.\n\nTiene registros asociados:\n• ${bloqueantes.join('\n• ')}`)
+      return
+    }
+
     const { error } = await supabase
       .from('legajos')
       .delete()
       .eq('id', legajo.id)
 
     if (error) {
-      alert(traducirErrorEliminar(error.message))
+      alert('No se puede eliminar. Intentá de nuevo.')
     } else {
       router.refresh()
     }
-  }
-
-  function traducirErrorEliminar(mensaje: string): string {
-    if (mensaje.includes('foreign key'))
-      return 'No se puede eliminar: el empleado tiene novedades, vacaciones u otros registros asociados.'
-    return 'No se puede eliminar. Intentá de nuevo.'
   }
 
   if (!empresaActiva) {

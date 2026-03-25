@@ -136,18 +136,32 @@ export default function NovedadesClient({
     const supabase = createClient()
 
     // Buscar empleados en esta obra en la fecha indicada vía historico
-    const { data: historico } = await supabase
-      .from('legajos_historico_obras')
-      .select('id_legajo')
-      .eq('id_obra', parseInt(idObra))
-      .lte('fecha_desde', fecha)
-      .or(`fecha_hasta.is.null,fecha_hasta.gte.${fecha}`)
-    const idsHistorico = new Set((historico || []).map((h: any) => h.id_legajo))
+    const legajosEmpresa = legajos.filter(l => l.id_empresa === empresaActiva.id)
 
-    const empleadosObra = legajos.filter(
-      l => l.id_empresa === empresaActiva.id &&
-           (!l.fecha_ingreso || l.fecha_ingreso <= fecha) &&
-           (idsHistorico.has(l.id) || l.id_obra === parseInt(idObra))
+    const [{ data: historico }, { data: historicoAlguno }] = await Promise.all([
+      supabase
+        .from('legajos_historico_obras')
+        .select('id_legajo')
+        .eq('id_obra', parseInt(idObra))
+        .lte('fecha_desde', fecha)
+        .or(`fecha_hasta.is.null,fecha_hasta.gte.${fecha}`),
+      supabase
+        .from('legajos_historico_obras')
+        .select('id_legajo')
+        .in('id_legajo', legajosEmpresa.map(l => l.id)),
+    ])
+
+    const idsHistorico = new Set((historico || []).map((h: any) => h.id_legajo))
+    // Legajos que tienen algún registro en historico → se gobiernan por historico (fechas exactas)
+    // Legajos sin ningún historico → datos legacy, se usa id_obra directamente
+    const idsConHistorico = new Set((historicoAlguno || []).map((h: any) => h.id_legajo))
+
+    const empleadosObra = legajosEmpresa.filter(
+      l => (!l.fecha_ingreso || l.fecha_ingreso <= fecha) &&
+           (
+             idsHistorico.has(l.id) ||
+             (!idsConHistorico.has(l.id) && l.id_obra === parseInt(idObra))
+           )
     )
 
     if (empleadosObra.length === 0) {
