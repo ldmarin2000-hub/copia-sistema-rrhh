@@ -407,14 +407,16 @@ export default function AusenciasClient({
                     <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(a.fecha_hasta)}</td>
                     <td style={{ padding: '10px 16px', color: '#58a6ff', fontWeight: 500 }}>{dias}</td>
                     <td style={{ padding: '10px 16px', color: '#8b949e' }}>{a.observacion || '—'}</td>
-                    <td style={{ padding: '10px 16px', whiteSpace: 'nowrap' }}>
-                      {a.certificado_path && (
+                    <td style={{ padding: '10px 16px', whiteSpace: 'nowrap', textAlign: 'right' }}>
+                      {a.certificado_path ? (
                         <button
                           onClick={() => verCertificado(a.certificado_path!)}
                           style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#58a6ff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
                         >
                           Cert.
                         </button>
+                      ) : (
+                        <span style={{ display: 'inline-block', width: '51px', marginRight: '6px' }} />
                       )}
                       <button
                         onClick={() => abrirEditar(a)}
