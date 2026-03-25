@@ -23,6 +23,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
   const [ausencias, setAusencias] = useState<any[]>([])
   const [vacaciones, setVacaciones] = useState<any[]>([])
   const [feriados, setFeriados] = useState<any[]>([])
+  const [historicoObras, setHistoricoObras] = useState<any[]>([])
   const [plantilla, setPlantilla] = useState<Record<string, number> | null>(null)
   const [cargando, setCargando] = useState(false)
 
@@ -58,19 +59,22 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
       { data: vacData },
       { data: ferData },
       { data: legData },
+      { data: histObrasData },
     ] = await Promise.all([
       supabase.from('adicionales').select('id, codigo, descripcion').eq('id_empresa', idEmpresa).eq('activo', true).order('descripcion'),
-      supabase.from('novedades_diarias').select('*').eq('id_legajo', idLegajo).gte('fecha', desde).lte('fecha', hasta).order('fecha'),
+      supabase.from('novedades_diarias').select('*, obras(nombre)').eq('id_legajo', idLegajo).gte('fecha', desde).lte('fecha', hasta).order('fecha'),
       supabase.from('ausencias_periodo').select('*, tipos_ausencia(id, codigo, descripcion, cuenta_dias_corridos)').eq('id_legajo', idLegajo).lte('fecha_desde', hasta).gte('fecha_hasta', desde),
       supabase.from('vacaciones_periodo').select('*').eq('id_legajo', idLegajo).lte('fecha_desde', hasta).gte('fecha_hasta', desde),
       supabase.from('feriados').select('id, fecha, descripcion').eq('activo', true).gte('fecha', desde).lte('fecha', hasta),
       supabase.from('legajos').select('id_plantilla, id_categoria, categorias(id_plantilla)').eq('id', idLegajo).single(),
+      supabase.from('legajos_historico_obras').select('id_obra, fecha_desde, fecha_hasta').eq('id_legajo', idLegajo).lte('fecha_desde', hasta).or(`fecha_hasta.is.null,fecha_hasta.gte.${desde}`).order('fecha_desde'),
     ])
 
     setAdicionales(adicsData || [])
     setNovedades(novsData || [])
     setAusencias(ausData || [])
     setVacaciones(vacData || [])
+    setHistoricoObras(histObrasData || [])
 
     // Filtrar feriados donde la empresa tiene excepción "trabaja = true"
     const feriadosBase = ferData || []
@@ -113,7 +117,22 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
 
   const dias = getDias()
   const feriadosFechas = new Set(feriados.map((f: any) => f.fecha))
-  const novByFecha = new Map(novedades.map((n: any) => [n.fecha, n]))
+
+  // Agrupar novedades por obra
+  const obraIds: number[] = [...new Set(novedades.map((n: any) => n.id_obra).filter(Boolean))]
+  const obraNombres = new Map<number, string>(
+    novedades.filter((n: any) => n.id_obra && n.obras?.nombre).map((n: any) => [n.id_obra, n.obras.nombre])
+  )
+
+  // Devuelve el id_obra donde estaba el legajo en una fecha (por novedad o por historico)
+  function getObraIdParaFecha(fecha: string): number | null {
+    const nov = novedades.find((n: any) => n.fecha === fecha)
+    if (nov?.id_obra) return nov.id_obra
+    const hist = historicoObras.find((h: any) =>
+      h.fecha_desde <= fecha && (h.fecha_hasta === null || h.fecha_hasta >= fecha)
+    )
+    return hist?.id_obra ?? null
+  }
 
   function getAusencia(fecha: string) {
     return ausencias.find((a: any) => a.fecha_desde <= fecha && a.fecha_hasta >= fecha)
@@ -154,11 +173,6 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
     }).length
   }
 
-  // Solo mostrar adicionales que tienen al menos un valor en el período
-  const adicionalesConDatos = adicionales.filter(a =>
-    novedadesAdicionales.some(na => na.id_adicional === a.id)
-  )
-
   const FILAS_HORAS = [
     { key: 'hs_normales',  label: 'Hs. Normales' },
     { key: 'hs_extra_50',  label: 'Hs. Extra 50%' },
@@ -166,16 +180,16 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
     { key: 'hs_nocturnas', label: 'Hs. Nocturnas' },
   ]
 
-  // Total por fila de horas
-  function totalHoras(key: string) {
-    return novedades.reduce((sum: number, n: any) => sum + (n[key] || 0), 0)
+  // Total por fila de horas (filtrado por obra)
+  function totalHoras(key: string, novsObra: any[]) {
+    return novsObra.reduce((sum: number, n: any) => sum + (n[key] || 0), 0)
   }
 
-  const totalVacaciones = dias.filter(d => enVacaciones(d)).length
-
-  // Total por adicional
-  function totalAdicional(idAdicional: number) {
-    return novedadesAdicionales.filter((na: any) => na.id_adicional === idAdicional).reduce((s: number, na: any) => s + na.cantidad, 0)
+  // Total por adicional (filtrado por obra)
+  function totalAdicional(idAdicional: number, idsNovObra: Set<number>) {
+    return novedadesAdicionales
+      .filter((na: any) => na.id_adicional === idAdicional && idsNovObra.has(na.id_novedad))
+      .reduce((s: number, na: any) => s + na.cantidad, 0)
   }
 
   const hayDatos = novedades.length > 0 || ausencias.length > 0 || vacaciones.length > 0 || feriados.length > 0
@@ -234,173 +248,203 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
       )}
 
       {!cargando && hayDatos && (
-        <div style={{ overflowX: 'auto', borderRadius: '8px', border: '0.5px solid #30363d' }}>
-          <table style={{ borderCollapse: 'collapse', fontSize: '13px', width: '100%', minWidth: `${140 + dias.length * 38 + 55}px` }}>
-            <thead>
-              <tr style={{ background: '#0d1117' }}>
-                {/* Columna etiqueta */}
-                <th style={{ textAlign: 'left', padding: '10px 14px', fontSize: '12px', color: '#8b949e', fontWeight: 500, minWidth: '140px', position: 'sticky', left: 0, background: '#0d1117', zIndex: 2, borderBottom: '2px solid #30363d' }}>
-                  {periodoLabel}
-                </th>
-                {/* Días */}
-                {dias.map(fecha => {
-                  const dow = new Date(fecha + 'T00:00:00').getDay()
-                  const dia = fecha.slice(8)
-                  const esFeriado = feriadosFechas.has(fecha)
-                  const feriado = feriados.find((f: any) => f.fecha === fecha)
-                  return (
-                    <th key={fecha} style={thDia(fecha)} title={esFeriado ? feriado?.descripcion : undefined}>
-                      <div>{DIAS_SEMANA[dow]}</div>
-                      <div style={{ fontWeight: 600, fontSize: '12px' }}>{parseInt(dia)}</div>
-                      {esFeriado && <div style={{ fontSize: '9px', color: '#d29922' }}>F</div>}
-                    </th>
-                  )
-                })}
-                {/* Total */}
-                <th style={{ padding: '10px 8px', fontSize: '12px', color: '#8b949e', fontWeight: 500, textAlign: 'center', minWidth: '55px', position: 'sticky', right: 0, background: '#0d1117', zIndex: 2, borderBottom: '2px solid #30363d', borderLeft: '0.5px solid #30363d' }}>
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Filas de horas */}
-              {FILAS_HORAS.map((fila, fi) => {
-                const total = totalHoras(fila.key)
-                if (total === 0 && fila.key !== 'hs_normales') return null
-                return (
-                  <tr key={fila.key} style={{ background: fi % 2 === 0 ? 'transparent' : '#0a0d1240' }}>
-                    <td style={{ padding: '7px 14px', color: '#8b949e', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: fi % 2 === 0 ? '#161b22' : '#0f131a', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
-                      {fila.label}
-                    </td>
-                    {dias.map(fecha => {
-                      const nov = novByFecha.get(fecha)
-                      const val = nov?.[fila.key] || 0
-                      const ausencia = getAusencia(fecha)
-                      const vac = enVacaciones(fecha)
-                      const celda = ausencia ? null : vac ? null : val > 0 ? val : null
-                      return (
-                        <td key={fecha} style={tdDia(fecha, celda, fila.key !== 'hs_normales' && val > 0 ? '#58a6ff' : undefined)}>
-                          {celda !== null ? celda : <span style={{ color: '#21262d' }}>—</span>}
-                        </td>
-                      )
-                    })}
-                    <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: total > 0 ? '#e6edf3' : '#484f58', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: fi % 2 === 0 ? '#161b22' : '#0f131a' }}>
-                      {total > 0 ? total : '—'}
-                    </td>
-                  </tr>
-                )
-              })}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {(obraIds.length > 0 ? obraIds : [null]).map(idObra => {
+            const novsObra = idObra !== null
+              ? novedades.filter((n: any) => n.id_obra === idObra)
+              : novedades
+            const idsNovObra = new Set<number>(novsObra.map((n: any) => n.id))
+            const novByFecha = new Map(novsObra.map((n: any) => [n.fecha, n]))
+            const obraNombre = idObra !== null ? (obraNombres.get(idObra) || `Obra #${idObra}`) : null
+            const adicionalesConDatosObra = adicionales.filter(a =>
+              novedadesAdicionales.some(na => na.id_adicional === a.id && idsNovObra.has(na.id_novedad))
+            )
 
-              {/* Filas de adicionales */}
-              {adicionalesConDatos.map((adic, ai) => {
-                const total = totalAdicional(adic.id)
-                return (
-                  <tr key={adic.id} style={{ background: '#1a2a3a20' }}>
-                    <td style={{ padding: '7px 14px', color: '#58a6ff', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#0d1420', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
-                      {adic.descripcion}
-                    </td>
-                    {dias.map(fecha => {
-                      const nov = novByFecha.get(fecha)
-                      const adicsNov = nov ? novedadesAdicionales.filter((na: any) => na.id_novedad === nov.id && na.id_adicional === adic.id) : []
-                      const val = adicsNov.reduce((s: number, na: any) => s + na.cantidad, 0)
-                      return (
-                        <td key={fecha} style={{ ...tdDia(fecha, val > 0 ? val : null, '#58a6ff'), background: '#0d1420' }}>
-                          {val > 0 ? <span style={{ color: '#58a6ff' }}>{val}</span> : <span style={{ color: '#21262d' }}>—</span>}
-                        </td>
-                      )
-                    })}
-                    <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#58a6ff', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#0d1420' }}>
-                      {total}
-                    </td>
-                  </tr>
-                )
-              })}
+            return (
+              <div key={idObra ?? 'sin-obra'}>
+                {obraNombre && (
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#58a6ff', marginBottom: '8px', paddingLeft: '2px' }}>
+                    {obraNombre}
+                  </div>
+                )}
+                <div style={{ overflowX: 'auto', borderRadius: '8px', border: '0.5px solid #30363d' }}>
+                  <table style={{ borderCollapse: 'collapse', fontSize: '13px', width: '100%', minWidth: `${140 + dias.length * 38 + 55}px` }}>
+                    <thead>
+                      <tr style={{ background: '#0d1117' }}>
+                        <th style={{ textAlign: 'left', padding: '10px 14px', fontSize: '12px', color: '#8b949e', fontWeight: 500, minWidth: '140px', position: 'sticky', left: 0, background: '#0d1117', zIndex: 2, borderBottom: '2px solid #30363d' }}>
+                          {periodoLabel}
+                        </th>
+                        {dias.map(fecha => {
+                          const dow = new Date(fecha + 'T00:00:00').getDay()
+                          const dia = fecha.slice(8)
+                          const esFeriado = feriadosFechas.has(fecha)
+                          const feriado = feriados.find((f: any) => f.fecha === fecha)
+                          return (
+                            <th key={fecha} style={thDia(fecha)} title={esFeriado ? feriado?.descripcion : undefined}>
+                              <div>{DIAS_SEMANA[dow]}</div>
+                              <div style={{ fontWeight: 600, fontSize: '12px' }}>{parseInt(dia)}</div>
+                              {esFeriado && <div style={{ fontSize: '9px', color: '#d29922' }}>F</div>}
+                            </th>
+                          )
+                        })}
+                        <th style={{ padding: '10px 8px', fontSize: '12px', color: '#8b949e', fontWeight: 500, textAlign: 'center', minWidth: '55px', position: 'sticky', right: 0, background: '#0d1117', zIndex: 2, borderBottom: '2px solid #30363d', borderLeft: '0.5px solid #30363d' }}>
+                          Total
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Filas de horas */}
+                      {FILAS_HORAS.map((fila, fi) => {
+                        const total = totalHoras(fila.key, novsObra)
+                        if (total === 0 && fila.key !== 'hs_normales') return null
+                        return (
+                          <tr key={fila.key} style={{ background: fi % 2 === 0 ? 'transparent' : '#0a0d1240' }}>
+                            <td style={{ padding: '7px 14px', color: '#8b949e', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: fi % 2 === 0 ? '#161b22' : '#0f131a', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
+                              {fila.label}
+                            </td>
+                            {dias.map(fecha => {
+                              const nov = novByFecha.get(fecha)
+                              const val = nov?.[fila.key] || 0
+                              const ausencia = getAusencia(fecha)
+                              const vac = enVacaciones(fecha)
+                              const celda = ausencia ? null : vac ? null : val > 0 ? val : null
+                              return (
+                                <td key={fecha} style={tdDia(fecha, celda, fila.key !== 'hs_normales' && val > 0 ? '#58a6ff' : undefined)}>
+                                  {celda !== null ? celda : <span style={{ color: '#21262d' }}>—</span>}
+                                </td>
+                              )
+                            })}
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: total > 0 ? '#e6edf3' : '#484f58', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: fi % 2 === 0 ? '#161b22' : '#0f131a' }}>
+                              {total > 0 ? total : '—'}
+                            </td>
+                          </tr>
+                        )
+                      })}
 
-              {/* Filas por tipo de ausencia */}
-              {tiposEnPeriodo.map(tipo => {
-                const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
-                const total = countDiasTipo(tipo.id, cuentaCorridos)
-                return (
-                  <tr key={`aus-${tipo.id}`}>
-                    <td style={{ padding: '7px 14px', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#1a0a0a', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
-                      <span style={{ color: '#f85149' }}>{tipo.descripcion}</span>
-                      <span style={{ color: '#484f58', fontSize: '10px', marginLeft: '5px' }}>
-                        {cuentaCorridos ? 'corridos' : 'hábiles'}
-                      </span>
-                    </td>
-                    {dias.map(fecha => {
-                      const aus = getAusenciaTipo(fecha, tipo.id)
-                      const cuenta = aus ? (cuentaCorridos ? true : esDiaLaboral(fecha)) : false
-                      return (
-                        <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: aus ? '#3a1a1a40' : '#1a0a0a', borderBottom: '0.5px solid #21262d' }}>
-                          {aus ? (
-                            <span style={{
-                              fontSize: '10px', fontWeight: 600,
-                              color: cuenta ? '#f85149' : '#4a2020',
-                              background: cuenta ? '#3a1a1a' : '#1f1010',
-                              padding: '1px 5px', borderRadius: '3px',
-                            }}>
-                              {tipo.codigo || 'AUS'}
-                            </span>
-                          ) : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>}
-                        </td>
-                      )
-                    })}
-                    <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#f85149', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#1a0a0a' }}>
-                      {total}d
-                    </td>
-                  </tr>
-                )
-              })}
+                      {/* Filas de adicionales */}
+                      {adicionalesConDatosObra.map((adic) => {
+                        const total = totalAdicional(adic.id, idsNovObra)
+                        return (
+                          <tr key={adic.id} style={{ background: '#1a2a3a20' }}>
+                            <td style={{ padding: '7px 14px', color: '#58a6ff', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#0d1420', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
+                              {adic.descripcion}
+                            </td>
+                            {dias.map(fecha => {
+                              const nov = novByFecha.get(fecha)
+                              const adicsNov = nov ? novedadesAdicionales.filter((na: any) => na.id_novedad === nov.id && na.id_adicional === adic.id) : []
+                              const val = adicsNov.reduce((s: number, na: any) => s + na.cantidad, 0)
+                              return (
+                                <td key={fecha} style={{ ...tdDia(fecha, val > 0 ? val : null, '#58a6ff'), background: '#0d1420' }}>
+                                  {val > 0 ? <span style={{ color: '#58a6ff' }}>{val}</span> : <span style={{ color: '#21262d' }}>—</span>}
+                                </td>
+                              )
+                            })}
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#58a6ff', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#0d1420' }}>
+                              {total}
+                            </td>
+                          </tr>
+                        )
+                      })}
 
-              {/* Fila feriados */}
-              {feriados.length > 0 && (
-                <tr>
-                  <td style={{ padding: '7px 14px', color: '#d29922', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#1a1500', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
-                    Feriados
-                  </td>
-                  {dias.map(fecha => {
-                    const feriado = feriados.find((f: any) => f.fecha === fecha)
-                    const ausencia = getAusencia(fecha)
-                    const vac = enVacaciones(fecha)
-                    const cuenta = feriado && !ausencia && !vac
-                    return (
-                      <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: feriado ? '#2a200040' : '#1a1500', borderBottom: '0.5px solid #21262d' }} title={feriado?.descripcion}>
-                        {feriado ? (
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? '#d29922' : '#3a2a00', background: cuenta ? '#2a2000' : '#1a1500', padding: '1px 5px', borderRadius: '3px' }}>FER</span>
-                        ) : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>}
-                      </td>
-                    )
-                  })}
-                  <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#d29922', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#1a1500' }}>
-                    {dias.filter(d => feriados.find((f: any) => f.fecha === d) && !getAusencia(d) && !enVacaciones(d)).length}d
-                  </td>
-                </tr>
-              )}
+                      {/* Filas por tipo de ausencia — solo días que corresponden a esta obra */}
+                      {tiposEnPeriodo.map(tipo => {
+                        const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
+                        const diasTipoObra = dias.filter(d => {
+                          if (!getAusenciaTipo(d, tipo.id)) return false
+                          return getObraIdParaFecha(d) === idObra
+                        })
+                        if (diasTipoObra.length === 0) return null
+                        const totalAus = diasTipoObra.filter(d => cuentaCorridos ? true : esDiaLaboral(d)).length
+                        return (
+                          <tr key={`aus-${tipo.id}`}>
+                            <td style={{ padding: '7px 14px', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#1a0a0a', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
+                              <span style={{ color: '#f85149' }}>{tipo.descripcion}</span>
+                              <span style={{ color: '#484f58', fontSize: '10px', marginLeft: '5px' }}>
+                                {cuentaCorridos ? 'corridos' : 'hábiles'}
+                              </span>
+                            </td>
+                            {dias.map(fecha => {
+                              const aus = getAusenciaTipo(fecha, tipo.id)
+                              const esEstaObra = getObraIdParaFecha(fecha) === idObra
+                              const cuenta = aus && esEstaObra ? (cuentaCorridos ? true : esDiaLaboral(fecha)) : false
+                              return (
+                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: aus && esEstaObra ? '#3a1a1a40' : '#1a0a0a', borderBottom: '0.5px solid #21262d' }}>
+                                  {aus && esEstaObra ? (
+                                    <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? '#f85149' : '#4a2020', background: cuenta ? '#3a1a1a' : '#1f1010', padding: '1px 5px', borderRadius: '3px' }}>
+                                      {tipo.codigo || 'AUS'}
+                                    </span>
+                                  ) : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>}
+                                </td>
+                              )
+                            })}
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#f85149', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#1a0a0a' }}>
+                              {totalAus}d
+                            </td>
+                          </tr>
+                        )
+                      })}
 
-              {/* Fila vacaciones */}
-              {totalVacaciones > 0 && (
-                <tr>
-                  <td style={{ padding: '7px 14px', color: '#3fb950', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#0a1a0a', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
-                    Vacaciones
-                  </td>
-                  {dias.map(fecha => {
-                    const vac = enVacaciones(fecha)
-                    return (
-                      <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: vac ? '#1a3a2a40' : '#0a1a0a', borderBottom: '0.5px solid #21262d' }}>
-                        {vac ? (
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#3fb950', background: '#1a3a2a', padding: '1px 5px', borderRadius: '3px' }}>VAC</span>
-                        ) : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>}
-                      </td>
-                    )
-                  })}
-                  <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#3fb950', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#0a1a0a' }}>
-                    {totalVacaciones}d
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      {/* Fila feriados — solo días que corresponden a esta obra */}
+                      {(() => {
+                        const feriadosObra = feriados.filter(f => getObraIdParaFecha(f.fecha) === idObra)
+                        if (feriadosObra.length === 0) return null
+                        return (
+                          <tr>
+                            <td style={{ padding: '7px 14px', color: '#d29922', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#1a1500', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
+                              Feriados
+                            </td>
+                            {dias.map(fecha => {
+                              const feriado = feriados.find((f: any) => f.fecha === fecha)
+                              const esEstaObra = getObraIdParaFecha(fecha) === idObra
+                              const ausencia = getAusencia(fecha)
+                              const vac = enVacaciones(fecha)
+                              const cuenta = feriado && esEstaObra && !ausencia && !vac
+                              return (
+                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: feriado && esEstaObra ? '#2a200040' : '#1a1500', borderBottom: '0.5px solid #21262d' }} title={feriado?.descripcion}>
+                                  {feriado && esEstaObra ? (
+                                    <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? '#d29922' : '#3a2a00', background: cuenta ? '#2a2000' : '#1a1500', padding: '1px 5px', borderRadius: '3px' }}>FER</span>
+                                  ) : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>}
+                                </td>
+                              )
+                            })}
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#d29922', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#1a1500' }}>
+                              {feriadosObra.filter(f => !getAusencia(f.fecha) && !enVacaciones(f.fecha)).length}d
+                            </td>
+                          </tr>
+                        )
+                      })()}
+
+                      {/* Fila vacaciones — solo días que corresponden a esta obra */}
+                      {(() => {
+                        const vacObra = dias.filter(d => enVacaciones(d) && getObraIdParaFecha(d) === idObra)
+                        if (vacObra.length === 0) return null
+                        return (
+                          <tr>
+                            <td style={{ padding: '7px 14px', color: '#3fb950', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#0a1a0a', zIndex: 1, borderBottom: '0.5px solid #21262d' }}>
+                              Vacaciones
+                            </td>
+                            {dias.map(fecha => {
+                              const vac = enVacaciones(fecha) && getObraIdParaFecha(fecha) === idObra
+                              return (
+                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: vac ? '#1a3a2a40' : '#0a1a0a', borderBottom: '0.5px solid #21262d' }}>
+                                  {vac ? (
+                                    <span style={{ fontSize: '10px', fontWeight: 600, color: '#3fb950', background: '#1a3a2a', padding: '1px 5px', borderRadius: '3px' }}>VAC</span>
+                                  ) : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>}
+                                </td>
+                              )
+                            })}
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#3fb950', fontSize: '13px', borderBottom: '0.5px solid #21262d', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: '#0a1a0a' }}>
+                              {vacObra.length}d
+                            </td>
+                          </tr>
+                        )
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 
