@@ -177,21 +177,21 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
         .from('legajos').update(datos).eq('id', legajoEditar.id)
       if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
-      const { error } = await supabase
-        .from('legajos').insert({ ...datos, id_empresa: empresaActiva.id })
+      const { data: nuevo, error } = await supabase
+        .from('legajos').insert({ ...datos, id_empresa: empresaActiva.id }).select('id').single()
       if (error) { setError(traducirError(error.message)); setLoading(false); return }
-    }
 
-    if (estado === 'Baja' && editando && legajoEditar?.estado !== 'Baja') {
-      await supabase
-        .from('legajos_historial_laboral')
-        .update({
-          fecha_egreso: fechaEgreso,
-          motivo: motivoBaja,
-          observacion: observacionBaja || null,
-        })
-        .eq('id_legajo', legajoEditar.id)
-        .is('fecha_egreso', null)
+      if (estado === 'Baja' && nuevo?.id) {
+        await supabase
+          .from('legajos_historial_laboral')
+          .update({
+            fecha_egreso: fechaEgreso,
+            motivo: motivoBaja,
+            observacion: observacionBaja || null,
+          })
+          .eq('id_legajo', nuevo.id)
+          .is('fecha_egreso', null)
+      }
     }
 
 
@@ -527,7 +527,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
             }}>Cancelar</button>
             <button
               onClick={guardar}
-              disabled={loading || !nroLegajo || !apellido || !nombre || !cuil || (!editando && !fechaIngreso)}
+              disabled={loading || !nroLegajo || !apellido || !nombre || !cuil || cuilValido === false || (!editando && !fechaIngreso)}
               style={{
                 background: '#2563eb', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',

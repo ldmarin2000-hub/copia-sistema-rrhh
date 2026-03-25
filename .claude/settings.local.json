@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"D:/App/sistema-rrhh/app/\\(dashboard\\)\" -maxdepth 2 -type f -name \"*Client.tsx\" -o -type f -name \"*Form*.tsx\")",
+      "Bash(find \"D:/App/sistema-rrhh/app/\\(dashboard\\)/legajos\" -type f -name \"*.tsx\")"
+    ]
+  }
+}

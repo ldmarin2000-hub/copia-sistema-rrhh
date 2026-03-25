@@ -351,22 +351,22 @@ export default function NovedadesClient({
 
       if (error) { errores++; continue }
 
-      // Guardar adicionales si hay
-      if (fila.adicionales.length > 0 && novedad) {
-        // Borrar adicionales anteriores y recargar
+      // Guardar adicionales: siempre borrar los anteriores y reinsertar
+      if (novedad) {
         await supabase
           .from('novedades_adicionales')
           .delete()
           .eq('id_novedad', novedad.id)
 
         for (const adicional of fila.adicionales) {
-          await supabase
+          const { error: errAdic } = await supabase
             .from('novedades_adicionales')
             .insert({
               id_novedad: novedad.id,
               id_adicional: adicional.id_adicional,
               cantidad: parseFloat(adicional.cantidad) || 1,
             })
+          if (errAdic) errores++
         }
       }
     }

@@ -48,11 +48,11 @@ export default function VacacionesGeneralClient({
 
   const legajosFiltrados = legajos
     .filter(l => l.id_empresa === empresaActiva?.id)
-    .filter(l => rol !== 'JEFE_OBRA' || obrasJefe.includes(l.id_obra ?? -1))
+    .filter(l => rol !== 'JEFE_OBRA' || (l.id_obra != null && obrasJefe.includes(l.id_obra)))
 
   const vacacionesFiltradas = vacaciones
     .filter(v => v.legajos.id_empresa === empresaActiva?.id)
-    .filter(v => rol !== 'JEFE_OBRA' || obrasJefe.includes(v.legajos.id_obra ?? -1))
+    .filter(v => rol !== 'JEFE_OBRA' || (v.legajos.id_obra != null && obrasJefe.includes(v.legajos.id_obra)))
     .filter(v => filtroLegajo ? v.id_legajo === parseInt(filtroLegajo) : true)
     .filter(v => filtroDesde ? v.fecha_hasta >= filtroDesde : true)
     .filter(v => filtroHasta ? v.fecha_desde <= filtroHasta : true)
