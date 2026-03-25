@@ -42,6 +42,7 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
   const [personal, setPersonal] = useState<Legajo[]>([])
   const [cargando, setCargando] = useState(false)
   const [busqueda, setBusqueda] = useState('')
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   // Modales
   const [modalObra, setModalObra] = useState<Legajo | null>(null)
@@ -66,7 +67,7 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
       .in('id_obra', obrasJefe)
       .eq('estado', 'Activo')
       .order('apellido')
-    setPersonal(data || [])
+    setPersonal((data as any) || [])
     setCargando(false)
   }
 
@@ -74,6 +75,149 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
     const b = busqueda.toLowerCase()
     return !b || p.apellido.toLowerCase().includes(b) || p.nombre.toLowerCase().includes(b) || (p.nro_documento || '').includes(b)
   })
+
+  async function generarPDF() {
+    if (!empresaActiva || obrasJefe.length === 0) return
+    setPdfLoading(true)
+    try {
+      // Fetch full employee data with categoria and plantilla
+      const { data: empleados } = await supabase
+        .from('legajos')
+        .select('id, nro_legajo, apellido, nombre, cuil, fecha_nacimiento, fecha_ingreso, id_plantilla, id_categoria, categorias(descripcion, id_plantilla, sueldo_basico)')
+        .eq('id_empresa', empresaActiva.id)
+        .in('id_obra', obrasJefe)
+        .eq('estado', 'Activo')
+        .order('apellido')
+
+      if (!empleados || empleados.length === 0) {
+        alert('No hay personal activo para generar la planilla.')
+        setPdfLoading(false)
+        return
+      }
+
+      // Collect unique plantilla IDs
+      const plantillaIds = new Set<number>()
+      empleados.forEach((e: any) => {
+        const pid = e.id_plantilla || (e.categorias as any)?.id_plantilla
+        if (pid) plantillaIds.add(pid)
+      })
+
+      // Fetch plantillas
+      const plantillasMap: Record<number, any> = {}
+      if (plantillaIds.size > 0) {
+        const { data: pls } = await supabase
+          .from('plantillas_jornada')
+          .select('id, nombre, lunes_entrada, lunes_salida, martes_entrada, martes_salida, miercoles_entrada, miercoles_salida, jueves_entrada, jueves_salida, viernes_entrada, viernes_salida, sabado_entrada, sabado_salida, domingo_entrada, domingo_salida')
+          .in('id', Array.from(plantillaIds))
+        ;(pls || []).forEach((p: any) => { plantillasMap[p.id] = p })
+      }
+
+      // Fetch empresa data (CUIT, dirección)
+      const { data: empresaData } = await supabase
+        .from('empresas')
+        .select('razon_social, cuit, direccion, localidad, provincia')
+        .eq('id', empresaActiva.id)
+        .single()
+
+      const { jsPDF } = await import('jspdf')
+      const autoTable = (await import('jspdf-autotable')).default
+
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+      const pageW = doc.internal.pageSize.getWidth()
+
+      // Header
+      doc.setFontSize(13)
+      doc.setFont('helvetica', 'bold')
+      doc.text(empresaData?.razon_social || empresaActiva.razon_social, 14, 14)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      const subHeader = [
+        empresaData?.cuit ? `CUIT: ${empresaData.cuit}` : '',
+        [empresaData?.direccion, empresaData?.localidad, empresaData?.provincia].filter(Boolean).join(', '),
+      ].filter(Boolean).join('   |   ')
+      if (subHeader) doc.text(subHeader, 14, 20)
+
+      // Obras
+      const obraNombres = obrasFiltradas.map(o => o.nombre).join(', ')
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`Planilla de Horarios y Descanso — ${obraNombres}`, 14, 28)
+
+      const fmt = (t?: string) => t ? t.substring(0, 5) : '—'
+      const fmtFecha = (f?: string) => {
+        if (!f) return '—'
+        const [y, m, d] = f.split('-')
+        return `${d}/${m}/${y}`
+      }
+
+      const rows = empleados.map((e: any) => {
+        const plantillaId = e.id_plantilla || (e.categorias as any)?.id_plantilla
+        const p = plantillaId ? plantillasMap[plantillaId] : null
+        return [
+          String(e.nro_legajo).padStart(4, '0'),
+          `${e.apellido}, ${e.nombre}`,
+          e.cuil || '—',
+          fmtFecha(e.fecha_nacimiento),
+          (e.categorias as any)?.descripcion || '—',
+          fmtFecha(e.fecha_ingreso),
+          (e.categorias as any)?.sueldo_basico != null ? `$${Number((e.categorias as any).sueldo_basico).toLocaleString('es-AR')}` : '—',
+          p ? `${fmt(p.lunes_entrada)}\n${fmt(p.lunes_salida)}` : '—',
+          p ? `${fmt(p.martes_entrada)}\n${fmt(p.martes_salida)}` : '—',
+          p ? `${fmt(p.miercoles_entrada)}\n${fmt(p.miercoles_salida)}` : '—',
+          p ? `${fmt(p.jueves_entrada)}\n${fmt(p.jueves_salida)}` : '—',
+          p ? `${fmt(p.viernes_entrada)}\n${fmt(p.viernes_salida)}` : '—',
+          p ? `${fmt(p.sabado_entrada)}\n${fmt(p.sabado_salida)}` : '—',
+          p ? `${fmt(p.domingo_entrada)}\n${fmt(p.domingo_salida)}` : '—',
+          '',  // Observación - vacío
+        ]
+      })
+
+      autoTable(doc, {
+        startY: 33,
+        head: [[
+          'Leg.', 'Apellido y Nombre', 'CUIL', 'F. Nac.', 'Categoría', 'Ingreso', 'Básico',
+          'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom', 'Observación'
+        ]],
+        body: rows,
+        styles: { fontSize: 7, cellPadding: 2 },
+        headStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold', fontSize: 7, lineWidth: 0.3, lineColor: [180, 180, 180] },
+        columnStyles: {
+          0: { cellWidth: 10 },
+          1: { cellWidth: 38 },
+          2: { cellWidth: 22 },
+          3: { cellWidth: 16 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 16 },
+          6: { cellWidth: 16 },
+          7: { cellWidth: 12 },
+          8: { cellWidth: 12 },
+          9: { cellWidth: 12 },
+          10: { cellWidth: 12 },
+          11: { cellWidth: 12 },
+          12: { cellWidth: 12 },
+          13: { cellWidth: 12 },
+          14: { cellWidth: 'auto' },
+        },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        theme: 'grid',
+      })
+
+      // Footer
+      const finalY = (doc as any).lastAutoTable.finalY + 10
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'normal')
+      const hoy = new Date()
+      const fechaHoy = `${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}`
+      doc.text(`Fecha: ${fechaHoy}`, 14, finalY)
+      doc.text('Firma y Aclaración: ___________________________', pageW - 100, finalY)
+
+      doc.save(`planilla-horarios-${obraNombres.replace(/[^a-zA-Z0-9]/g, '-')}.pdf`)
+    } catch (err) {
+      console.error('Error generando PDF:', err)
+      alert('Error al generar el PDF. Intentá de nuevo.')
+    }
+    setPdfLoading(false)
+  }
 
   if (!empresaActiva) return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   if (obrasJefe.length === 0) return <div style={{ color: '#8b949e', fontSize: '14px' }}>No tenés obras asignadas. Contactá al administrador.</div>
@@ -87,6 +231,13 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
             {obrasFiltradas.map(o => o.nombre).join(', ')}
           </span>
         </div>
+        <button
+          onClick={generarPDF}
+          disabled={pdfLoading}
+          style={{ background: '#21262d', color: '#e6edf3', border: '0.5px solid #30363d', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer', opacity: pdfLoading ? 0.6 : 1 }}
+        >
+          {pdfLoading ? 'Generando...' : 'Planilla HyD'}
+        </button>
       </div>
 
       {/* Buscador */}

@@ -19,6 +19,20 @@ type Plantilla = {
   viernes: number
   sabado: number
   domingo: number
+  lunes_entrada?: string
+  lunes_salida?: string
+  martes_entrada?: string
+  martes_salida?: string
+  miercoles_entrada?: string
+  miercoles_salida?: string
+  jueves_entrada?: string
+  jueves_salida?: string
+  viernes_entrada?: string
+  viernes_salida?: string
+  sabado_entrada?: string
+  sabado_salida?: string
+  domingo_entrada?: string
+  domingo_salida?: string
   activo: boolean
   convenios?: { descripcion: string }
 }
@@ -55,6 +69,12 @@ export default function PlantillasClient({
   const [horas, setHoras] = useState({
     lunes: '9', martes: '9', miercoles: '9',
     jueves: '9', viernes: '8', sabado: '0', domingo: '0'
+  })
+  const [entradas, setEntradas] = useState({
+    lunes: '', martes: '', miercoles: '', jueves: '', viernes: '', sabado: '', domingo: ''
+  })
+  const [salidas, setSalidas] = useState({
+    lunes: '', martes: '', miercoles: '', jueves: '', viernes: '', sabado: '', domingo: ''
   })
   const [activo, setActivo] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -117,6 +137,8 @@ export default function PlantillasClient({
     setNombre('')
     setIdConvenio('')
     setHoras({ lunes: '9', martes: '9', miercoles: '9', jueves: '9', viernes: '8', sabado: '0', domingo: '0' })
+    setEntradas({ lunes: '', martes: '', miercoles: '', jueves: '', viernes: '', sabado: '', domingo: '' })
+    setSalidas({ lunes: '', martes: '', miercoles: '', jueves: '', viernes: '', sabado: '', domingo: '' })
     setActivo(true)
     setError('')
     setMostrarForm(true)
@@ -134,6 +156,24 @@ export default function PlantillasClient({
       viernes: String(p.viernes),
       sabado: String(p.sabado),
       domingo: String(p.domingo),
+    })
+    setEntradas({
+      lunes: p.lunes_entrada?.substring(0, 5) || '',
+      martes: p.martes_entrada?.substring(0, 5) || '',
+      miercoles: p.miercoles_entrada?.substring(0, 5) || '',
+      jueves: p.jueves_entrada?.substring(0, 5) || '',
+      viernes: p.viernes_entrada?.substring(0, 5) || '',
+      sabado: p.sabado_entrada?.substring(0, 5) || '',
+      domingo: p.domingo_entrada?.substring(0, 5) || '',
+    })
+    setSalidas({
+      lunes: p.lunes_salida?.substring(0, 5) || '',
+      martes: p.martes_salida?.substring(0, 5) || '',
+      miercoles: p.miercoles_salida?.substring(0, 5) || '',
+      jueves: p.jueves_salida?.substring(0, 5) || '',
+      viernes: p.viernes_salida?.substring(0, 5) || '',
+      sabado: p.sabado_salida?.substring(0, 5) || '',
+      domingo: p.domingo_salida?.substring(0, 5) || '',
     })
     setActivo(p.activo)
     setError('')
@@ -162,6 +202,20 @@ export default function PlantillasClient({
       sabado: parseFloat(horas.sabado) || 0,
       domingo: parseFloat(horas.domingo) || 0,
       activo,
+      lunes_entrada: entradas.lunes || null,
+      lunes_salida: salidas.lunes || null,
+      martes_entrada: entradas.martes || null,
+      martes_salida: salidas.martes || null,
+      miercoles_entrada: entradas.miercoles || null,
+      miercoles_salida: salidas.miercoles || null,
+      jueves_entrada: entradas.jueves || null,
+      jueves_salida: salidas.jueves || null,
+      viernes_entrada: entradas.viernes || null,
+      viernes_salida: salidas.viernes || null,
+      sabado_entrada: entradas.sabado || null,
+      sabado_salida: salidas.sabado || null,
+      domingo_entrada: entradas.domingo || null,
+      domingo_salida: salidas.domingo || null,
     }
 
     if (editando) {
@@ -200,7 +254,7 @@ export default function PlantillasClient({
         }}>
           <div style={{
             background: '#161b22', border: '0.5px solid #30363d',
-            borderRadius: '10px', width: '100%', maxWidth: '520px', padding: '24px',
+            borderRadius: '10px', width: '100%', maxWidth: '680px', padding: '24px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
@@ -248,6 +302,20 @@ export default function PlantillasClient({
                         onChange={(e) => setHoras({ ...horas, [dia.key]: e.target.value })}
                         min="0" max="24" step="0.5"
                         style={horaInputStyle}
+                      />
+                      <input
+                        type="time"
+                        value={entradas[dia.key as keyof typeof entradas]}
+                        onChange={(e) => setEntradas({ ...entradas, [dia.key]: e.target.value })}
+                        placeholder="Entrada"
+                        style={{ ...horaInputStyle, width: '100%', marginTop: '4px', fontSize: '11px' }}
+                      />
+                      <input
+                        type="time"
+                        value={salidas[dia.key as keyof typeof salidas]}
+                        onChange={(e) => setSalidas({ ...salidas, [dia.key]: e.target.value })}
+                        placeholder="Salida"
+                        style={{ ...horaInputStyle, width: '100%', marginTop: '4px', fontSize: '11px' }}
                       />
                     </div>
                   ))}
@@ -353,7 +421,14 @@ export default function PlantillasClient({
                         padding: '10px 8px', textAlign: 'center',
                         color: (p[d.key as keyof Plantilla] as number) > 0 ? '#e6edf3' : '#484f58',
                       }}>
-                        {p[d.key as keyof Plantilla] as number || '—'}
+                        <div>{p[d.key as keyof Plantilla] as number || '—'}</div>
+                        {(p[`${d.key}_entrada` as keyof Plantilla] as string) && (
+                          <div style={{ fontSize: '10px', color: '#8b949e', lineHeight: '1.4' }}>
+                            {(p[`${d.key}_entrada` as keyof Plantilla] as string)?.substring(0,5)}
+                            <br/>
+                            {(p[`${d.key}_salida` as keyof Plantilla] as string)?.substring(0,5)}
+                          </div>
+                        )}
                       </td>
                     ))}
                     <td style={{ padding: '10px 8px', textAlign: 'center', color: '#58a6ff', fontWeight: 500 }}>{total}</td>
