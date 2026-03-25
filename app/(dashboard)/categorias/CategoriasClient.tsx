@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
 import { X, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import { traducirError } from '@/lib/errores'
 
 type Categoria = {
   id: number
@@ -157,11 +158,11 @@ export default function CategoriasClient({
     if (editando) {
       const { error } = await supabase
         .from('categorias').update(datos).eq('id', editando.id)
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
       const { error } = await supabase
         .from('categorias').insert({ ...datos, id_empresa: empresaActiva.id })
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
 
     router.refresh()
@@ -175,7 +176,7 @@ export default function CategoriasClient({
     const { error } = await supabase
       .from('categorias').delete().eq('id', cat.id)
     if (error) {
-      alert('No se puede eliminar: ' + error.message)
+      alert('No se puede eliminar: ' + traducirError(error.message))
     } else {
       router.refresh()
     }

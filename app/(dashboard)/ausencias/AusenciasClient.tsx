@@ -152,9 +152,9 @@ export default function AusenciasClient({
             </thead>
             <tbody>
               {ausenciasFiltradas.map((a, i) => {
-                const desde = new Date(a.fecha_desde + 'T00:00:00')
-                const hasta = new Date(a.fecha_hasta + 'T00:00:00')
-                const dias = Math.floor((hasta.getTime() - desde.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                const desde = new Date(a.fecha_desde + 'T12:00:00')
+                const hasta = new Date(a.fecha_hasta + 'T12:00:00')
+                const dias = Math.round((hasta.getTime() - desde.getTime()) / (1000 * 60 * 60 * 24)) + 1
                 return (
                   <tr key={a.id} style={{ borderBottom: i < ausenciasFiltradas.length - 1 ? '0.5px solid #21262d' : 'none' }}>
                     <td style={{ padding: '10px 16px' }}>

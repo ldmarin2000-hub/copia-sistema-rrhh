@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
 import { X, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import { traducirError } from '@/lib/errores'
 
 type TipoAusencia = {
   id: number
@@ -127,11 +128,11 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     if (editando) {
       const { error } = await supabase
         .from('tipos_ausencia').update(datos).eq('id', editando.id)
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
       const { error } = await supabase
         .from('tipos_ausencia').insert({ ...datos, id_empresa: empresaActiva.id })
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
 
     router.refresh()
@@ -144,7 +145,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
     if (!confirm(`¿Eliminar "${t.descripcion}"?`)) return
     const supabase = createClient()
     const { error } = await supabase.from('tipos_ausencia').delete().eq('id', t.id)
-    if (error) alert('No se puede eliminar: ' + error.message)
+    if (error) alert('No se puede eliminar: ' + traducirError(error.message))
     else router.refresh()
   }
 

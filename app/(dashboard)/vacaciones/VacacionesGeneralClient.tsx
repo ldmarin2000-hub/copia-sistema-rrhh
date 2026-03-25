@@ -146,9 +146,9 @@ export default function VacacionesGeneralClient({
             </thead>
             <tbody>
               {vacacionesFiltradas.map((v, i) => {
-                const desde = new Date(v.fecha_desde + 'T00:00:00')
-                const hasta = new Date(v.fecha_hasta + 'T00:00:00')
-                const dias = Math.floor((hasta.getTime() - desde.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                const desde = new Date(v.fecha_desde + 'T12:00:00')
+                const hasta = new Date(v.fecha_hasta + 'T12:00:00')
+                const dias = Math.round((hasta.getTime() - desde.getTime()) / (1000 * 60 * 60 * 24)) + 1
                 const activa = v.fecha_desde <= hoy && v.fecha_hasta >= hoy
                 const futura = v.fecha_desde > hoy
                 return (

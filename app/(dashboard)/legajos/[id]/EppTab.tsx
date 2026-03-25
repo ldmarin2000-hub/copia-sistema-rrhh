@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { Plus, Trash2, Printer } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
+import { traducirError } from '@/lib/errores'
 
 type EppEntrega = {
   id: number
@@ -143,7 +144,7 @@ export default function EppTab({
       .from('epp_detalle_entregas')
       .insert({ id_empresa: idEmpresa, id_legajo: idLegajo, fecha, observaciones: observaciones || null })
       .select('id').single()
-    if (errRemito || !remito) { setError(errRemito?.message || 'Error'); setLoading(false); return }
+    if (errRemito || !remito) { setError(traducirError(errRemito?.message || 'Error')); setLoading(false); return }
 
     // 2. Crear movimiento
     const { data: mov } = await supabase
@@ -273,7 +274,7 @@ export default function EppTab({
       id_empresa: idEmpresa, id_legajo: idLegajo,
       id_epp: parseInt(habIdEpp), talle: habTalle || null,
     })
-    if (err) { setHabError(err.message); setHabLoading(false); return }
+    if (err) { setHabError(traducirError(err.message)); setHabLoading(false); return }
     router.refresh()
     cerrarHabitual()
     setHabLoading(false)

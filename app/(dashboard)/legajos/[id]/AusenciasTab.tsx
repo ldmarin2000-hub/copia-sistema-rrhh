@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { X, Plus } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
+import { traducirError } from '@/lib/errores'
 
 type Ausencia = {
   id: number
@@ -110,7 +111,7 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
     if (editando) {
       const { error } = await supabase
         .from('ausencias_periodo').update(datos).eq('id', editando.id)
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
       const { error } = await supabase
         .from('ausencias_periodo').insert({
@@ -118,7 +119,7 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
           id_empresa: idEmpresa,
           id_legajo: idLegajo,
         })
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
 
     router.refresh()
@@ -130,7 +131,7 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
     if (!confirm(`¿Eliminar ausencia del ${formatFecha(a.fecha_desde)} al ${formatFecha(a.fecha_hasta)}?`)) return
     const supabase = createClient()
     const { error } = await supabase.from('ausencias_periodo').delete().eq('id', a.id)
-    if (error) alert('No se puede eliminar: ' + error.message)
+    if (error) alert('No se puede eliminar: ' + traducirError(error.message))
     else router.refresh()
   }
 

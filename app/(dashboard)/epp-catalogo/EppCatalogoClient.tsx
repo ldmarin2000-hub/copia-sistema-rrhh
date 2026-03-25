@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
 import { X, Tag } from 'lucide-react'
+import { traducirError } from '@/lib/errores'
 
 type EppCatalogo = {
   id: number
@@ -124,10 +125,10 @@ export default function EppCatalogoClient({
     }
     if (editando) {
       const { error } = await supabase.from('epp_catalogo').update(datos).eq('id', editando.id)
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
       const { error } = await supabase.from('epp_catalogo').insert({ ...datos, id_empresa: empresaActiva.id })
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
     router.refresh(); setMostrarForm(false); setEditando(null); setLoading(false)
   }

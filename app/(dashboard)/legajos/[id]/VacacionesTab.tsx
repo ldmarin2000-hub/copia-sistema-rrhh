@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { X, Plus } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
+import { traducirError } from '@/lib/errores'
 
 type Vacacion = {
   id: number
@@ -92,7 +93,7 @@ export default function VacacionesTab({ idLegajo, idEmpresa, vacaciones }: Props
     if (editando) {
       const { error } = await supabase
         .from('vacaciones_periodo').update(datos).eq('id', editando.id)
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
       const { error } = await supabase
         .from('vacaciones_periodo').insert({
@@ -100,7 +101,7 @@ export default function VacacionesTab({ idLegajo, idEmpresa, vacaciones }: Props
           id_empresa: idEmpresa,
           id_legajo: idLegajo,
         })
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
 
     router.refresh()
@@ -112,7 +113,7 @@ export default function VacacionesTab({ idLegajo, idEmpresa, vacaciones }: Props
     if (!confirm(`¿Eliminar vacaciones del ${formatFecha(v.fecha_desde)} al ${formatFecha(v.fecha_hasta)}?`)) return
     const supabase = createClient()
     const { error } = await supabase.from('vacaciones_periodo').delete().eq('id', v.id)
-    if (error) alert('No se puede eliminar: ' + error.message)
+    if (error) alert('No se puede eliminar: ' + traducirError(error.message))
     else router.refresh()
   }
 

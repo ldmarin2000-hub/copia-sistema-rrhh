@@ -7,6 +7,7 @@ import { useEmpresa } from '../context/EmpresaContext'
 import { X, MapPin, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { traducirError } from '@/lib/errores'
 
 const MapaObra = dynamic(() => import('./MapaObra'), { ssr: false })
 
@@ -191,11 +192,11 @@ async function buscarDireccion() {
     if (editando) {
       const { error } = await supabase
         .from('obras').update(datos).eq('id', editando.id)
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
       const { error } = await supabase
         .from('obras').insert({ ...datos, id_empresa: empresaActiva.id })
-      if (error) { setError(error.message); setLoading(false); return }
+      if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
 
     router.refresh()
@@ -209,7 +210,7 @@ async function buscarDireccion() {
     const { error } = await supabase
       .from('obras').delete().eq('id', obra.id)
     if (error) {
-      alert('No se puede eliminar: ' + error.message)
+      alert('No se puede eliminar: ' + traducirError(error.message))
     } else {
       router.refresh()
     }

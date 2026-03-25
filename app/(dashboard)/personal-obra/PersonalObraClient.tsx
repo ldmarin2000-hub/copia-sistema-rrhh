@@ -6,6 +6,7 @@ import { useEmpresa } from '../context/EmpresaContext'
 import { useRouter } from 'next/navigation'
 import { Search, X, ExternalLink } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
+import { traducirError } from '@/lib/errores'
 
 type Categoria = { id: number; id_empresa: number; descripcion: string }
 type Obra = { id: number; id_empresa: number; nombre: string }
@@ -271,7 +272,7 @@ function ModalPreAlta({ empresaActiva, obrasFiltradas, categoriasFiltradas, onCe
         id_obra: parseInt(idObra),
         id_categoria: idCategoria ? parseInt(idCategoria) : legajoExistente.id_categoria,
       }).eq('id', legajoExistente.id)
-      if (err) { setError(err.message); setGuardando(false); return }
+      if (err) { setError(traducirError(err.message)); setGuardando(false); return }
     } else {
       // Nuevo legajo: calcular nro_legajo automático
       const { data: maxData } = await supabase
@@ -296,7 +297,7 @@ function ModalPreAlta({ empresaActiva, obrasFiltradas, categoriasFiltradas, onCe
         estado: 'Activo',
         activo: true,
       })
-      if (err) { setError(err.message); setGuardando(false); return }
+      if (err) { setError(traducirError(err.message)); setGuardando(false); return }
     }
     onGuardado()
   }
@@ -405,7 +406,7 @@ function ModalCambiarObra({ legajo, todasObras, onCerrar, onGuardado }: {
     if (!idObra || !fechaDesde) { setError('Seleccioná la nueva obra y la fecha de traslado.'); return }
     setGuardando(true)
     const { error: err } = await supabase.from('legajos').update({ id_obra: parseInt(idObra) }).eq('id', legajo.id)
-    if (err) { setError(err.message); setGuardando(false); return }
+    if (err) { setError(traducirError(err.message)); setGuardando(false); return }
     // Corregir fechas: el trigger crea el nuevo registro con NOW() (UTC)
     // nuevo registro → fecha_desde = fechaDesde; registro anterior → fecha_hasta = fechaDesde - 1 día
     const { data: ultimos } = await supabase
@@ -480,7 +481,7 @@ function ModalCambiarCategoria({ legajo, categoriasFiltradas, onCerrar, onGuarda
     if (!fechaDesde) { setError('Ingresá la fecha de cambio.'); return }
     setGuardando(true)
     const { error: err } = await supabase.from('legajos').update({ id_categoria: idCategoria ? parseInt(idCategoria) : null }).eq('id', legajo.id)
-    if (err) { setError(err.message); setGuardando(false); return }
+    if (err) { setError(traducirError(err.message)); setGuardando(false); return }
     // Corregir fechas: el trigger crea el nuevo registro con NOW() (UTC)
     // nuevo registro → fecha_desde = fechaDesde; registro anterior → fecha_hasta = fechaDesde - 1 día
     const { data: ultimos } = await supabase
@@ -555,7 +556,7 @@ function ModalPreBaja({ legajo, empresaId, onCerrar, onGuardado }: {
     const { error: err } = await supabase.from('legajos').update({
       estado: 'Baja',
     }).eq('id', legajo.id)
-    if (err) { setError(err.message); setGuardando(false); return }
+    if (err) { setError(traducirError(err.message)); setGuardando(false); return }
 
     // Registrar en historial laboral
     await supabase.from('legajos_historial_laboral').insert({
