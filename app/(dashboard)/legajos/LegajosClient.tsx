@@ -75,7 +75,7 @@ export default function LegajosClient({
   obras: Obra[]
   plantillas: { id: number, id_empresa: number, nombre: string }[]
 }) {
-  const { empresaActiva } = useEmpresa()
+  const { empresaActiva, rol } = useEmpresa()
   const [mostrarForm, setMostrarForm] = useState(false)
   const [legajoEditar, setLegajoEditar] = useState<Legajo | null>(null)
   const [busqueda, setBusqueda] = useState('')
@@ -202,13 +202,15 @@ export default function LegajosClient({
             {empresaActiva.razon_social} · {legajosFiltrados.length} empleado{legajosFiltrados.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <button onClick={abrirNuevo} style={{
-          background: '#2563eb', color: 'white', border: 'none',
-          borderRadius: '6px', padding: '7px 16px',
-          fontSize: '13px', cursor: 'pointer',
-        }}>
-          + Nuevo legajo
-        </button>
+        {rol !== 'JEFE_OBRA' && (
+          <button onClick={abrirNuevo} style={{
+            background: '#2563eb', color: 'white', border: 'none',
+            borderRadius: '6px', padding: '7px 16px',
+            fontSize: '13px', cursor: 'pointer',
+          }}>
+            + Nuevo legajo
+          </button>
+        )}
       </div>
 
       {/* Filtros */}

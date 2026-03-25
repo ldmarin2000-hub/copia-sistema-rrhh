@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
 import { useRouter } from 'next/navigation'
-import { Search, X, ExternalLink } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
 import { traducirError } from '@/lib/errores'
 
@@ -44,10 +44,9 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
   const [busqueda, setBusqueda] = useState('')
 
   // Modales
-  const [modalPreAlta, setModalPreAlta] = useState(false)
   const [modalObra, setModalObra] = useState<Legajo | null>(null)
   const [modalCategoria, setModalCategoria] = useState<Legajo | null>(null)
-  const [modalPreBaja, setModalPreBaja] = useState<Legajo | null>(null)
+
 
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id && obrasJefe.includes(o.id))
   const todasObrasEmpresa = obras.filter(o => o.id_empresa === empresaActiva?.id)
@@ -88,12 +87,6 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
             {obrasFiltradas.map(o => o.nombre).join(', ')}
           </span>
         </div>
-        <button
-          onClick={() => setModalPreAlta(true)}
-          style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
-        >
-          + Alta empleado
-        </button>
       </div>
 
       {/* Buscador */}
@@ -148,12 +141,6 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                         <button onClick={() => setModalObra(p)} style={btnSecStyle}>Cambiar obra</button>
                         <button onClick={() => setModalCategoria(p)} style={btnSecStyle}>Categoría</button>
-                        {p.estado !== 'Baja' && (
-                          <button onClick={() => setModalPreBaja(p)} style={{ ...btnSecStyle, color: '#f85149', borderColor: '#f8514940' }}>Dar de baja</button>
-                        )}
-                        <a href={`/legajos/${p.id}?tab=documentos`} target="_blank" rel="noreferrer" style={{ ...btnSecStyle, display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}>
-                          <ExternalLink size={12} /> Docs
-                        </a>
                       </div>
                     </td>
                   </tr>
@@ -163,17 +150,6 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
           </table>
         )}
       </div>
-
-      {/* Modal Pre-Alta */}
-      {modalPreAlta && (
-        <ModalPreAlta
-          empresaActiva={empresaActiva}
-          obrasFiltradas={obrasFiltradas}
-          categoriasFiltradas={categoriasFiltradas}
-          onCerrar={() => setModalPreAlta(false)}
-          onGuardado={() => { setModalPreAlta(false); cargar() }}
-        />
-      )}
 
       {/* Modal Cambiar Obra */}
       {modalObra && (
@@ -195,15 +171,7 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
         />
       )}
 
-      {/* Modal Pre-Baja */}
-      {modalPreBaja && (
-        <ModalPreBaja
-          legajo={modalPreBaja}
-          empresaId={empresaActiva.id}
-          onCerrar={() => setModalPreBaja(null)}
-          onGuardado={() => { setModalPreBaja(null); cargar() }}
-        />
-      )}
+
     </div>
   )
 }

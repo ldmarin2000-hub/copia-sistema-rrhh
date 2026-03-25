@@ -12,6 +12,7 @@ import EppTab from './EppTab'
 import DocumentosLegajoTab from './DocumentosLegajoTab'
 import NovedadesTab from './NovedadesTab'
 import { createClient } from '@/lib/supabase-browser'
+import { useEmpresa } from '../../context/EmpresaContext'
 
 
 
@@ -130,9 +131,11 @@ export default function FichaClient({
   eppHabitual: any[]
   documentos: any[]
 }){
+  const { rol } = useEmpresa()
   const searchParams = useSearchParams()
   const tabInicial = searchParams.get('tab') || 'datos'
   const [tabActiva, setTabActiva] = useState(tabInicial)
+  const tabsVisibles = tabs.filter(t => !(t.id === 'documentos' && rol === 'JEFE_OBRA'))
   const [mostrarForm, setMostrarForm] = useState(false)
 
   // Historial laboral state
@@ -585,9 +588,9 @@ export default function FichaClient({
     <div>
       {/* Header ficha */}
       <div style={{ marginBottom: '24px' }}>
-        <Link href="/legajos" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#8b949e', fontSize: '13px', marginBottom: '16px' }}>
+        <Link href={rol === 'JEFE_OBRA' ? '/personal-obra' : '/legajos'} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#8b949e', fontSize: '13px', marginBottom: '16px' }}>
           <ArrowLeft size={14} />
-          Volver a legajos
+          {rol === 'JEFE_OBRA' ? 'Volver a personal de obra' : 'Volver a legajos'}
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -621,23 +624,25 @@ export default function FichaClient({
           </div>
         </div>
         {/* Botón editar */}
-        <button
-          onClick={() => setMostrarForm(true)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '6px',
-            background: '#21262d', border: '0.5px solid #30363d',
-            color: '#e6edf3', borderRadius: '6px', padding: '7px 14px',
-            fontSize: '13px', cursor: 'pointer',
-          }}
-        >
-          <Pencil size={14} />
-          Editar legajo
-        </button>
+        {rol !== 'JEFE_OBRA' && (
+          <button
+            onClick={() => setMostrarForm(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: '#21262d', border: '0.5px solid #30363d',
+              color: '#e6edf3', borderRadius: '6px', padding: '7px 14px',
+              fontSize: '13px', cursor: 'pointer',
+            }}
+          >
+            <Pencil size={14} />
+            Editar legajo
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '0.5px solid #30363d', paddingBottom: '0' }}>
-        {tabs.map((tab) => (
+        {tabsVisibles.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setTabActiva(tab.id)}
