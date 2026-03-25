@@ -37,9 +37,9 @@ const TIPOS = [
 
 const badgeTipo = (tipo: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
-    epp:         { bg: '#1a2a3a', color: '#58a6ff' },
+    epp:         { bg: 'var(--c-blue-bg)', color: 'var(--c-blue)' },
     ropa:        { bg: '#3a2f1a', color: '#d29922' },
-    herramienta: { bg: '#21262d', color: '#8b949e' },
+    herramienta: { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
     otro:        { bg: '#2a1a3a', color: '#bc8cff' },
   }
   const c = colores[tipo] || colores.otro
@@ -81,15 +81,15 @@ export default function EppCatalogoClient({
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
   const selectStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
-  const labelStyle = { fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }
+  const labelStyle = { fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }
 
   const catalogoFiltrado = catalogo.filter(c => c.id_empresa === empresaActiva?.id)
 
@@ -180,20 +180,20 @@ export default function EppCatalogoClient({
   }
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
     <>
       {/* Modal catálogo */}
       {mostrarForm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'var(--c-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
                 {editando ? 'Editar item' : 'Nuevo item'}
               </h2>
-              <button onClick={() => setMostrarForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+              <button onClick={() => setMostrarForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -218,14 +218,14 @@ export default function EppCatalogoClient({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingTop: '4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" id="controla_stock" checked={controlaStock} onChange={(e) => setControlaStock(e.target.checked)} />
-                  <label htmlFor="controla_stock" style={{ fontSize: '13px', color: '#e6edf3', cursor: 'pointer' }}>
+                  <label htmlFor="controla_stock" style={{ fontSize: '13px', color: 'var(--c-text-primary)', cursor: 'pointer' }}>
                     Controla stock
-                    <span style={{ fontSize: '11px', color: '#8b949e', marginLeft: '6px' }}>— aparece en el módulo de stock</span>
+                    <span style={{ fontSize: '11px', color: 'var(--c-text-secondary)', marginLeft: '6px' }}>— aparece en el módulo de stock</span>
                   </label>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" id="tiene_vencimiento" checked={tieneVencimiento} onChange={(e) => setTieneVencimiento(e.target.checked)} />
-                  <label htmlFor="tiene_vencimiento" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Tiene vencimiento</label>
+                  <label htmlFor="tiene_vencimiento" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Tiene vencimiento</label>
                 </div>
                 {tieneVencimiento && (
                   <div style={{ paddingLeft: '24px' }}>
@@ -235,20 +235,20 @@ export default function EppCatalogoClient({
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" id="requiere_talle" checked={requiereTalle} onChange={(e) => setRequiereTalle(e.target.checked)} />
-                  <label htmlFor="requiere_talle" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Requiere talle</label>
+                  <label htmlFor="requiere_talle" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Requiere talle</label>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" id="activo" checked={activo} onChange={(e) => setActivo(e.target.checked)} />
-                  <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Activo</label>
+                  <label htmlFor="activo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Activo</label>
                 </div>
               </div>
 
-              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-              <button onClick={() => setMostrarForm(false)} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardar} disabled={loading || !codigo || !descripcion} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
+              <button onClick={() => setMostrarForm(false)} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={guardar} disabled={loading || !codigo || !descripcion} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
                 {loading ? 'Guardando...' : editando ? 'Guardar cambios' : 'Crear item'}
               </button>
             </div>
@@ -258,39 +258,39 @@ export default function EppCatalogoClient({
 
       {/* Modal talles */}
       {itemTalles && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'var(--c-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Talles</h2>
-              <button onClick={cerrarTalles} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Talles</h2>
+              <button onClick={cerrarTalles} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
             </div>
-            <p style={{ fontSize: '12px', color: '#8b949e', margin: '0 0 20px' }}>{itemTalles.descripcion}</p>
+            <p style={{ fontSize: '12px', color: 'var(--c-text-secondary)', margin: '0 0 20px' }}>{itemTalles.descripcion}</p>
 
             {/* Lista de talles */}
             {tallesLocales.length === 0 ? (
-              <p style={{ fontSize: '13px', color: '#484f58', marginBottom: '16px' }}>Sin talles definidos todavía.</p>
+              <p style={{ fontSize: '13px', color: 'var(--c-text-muted)', marginBottom: '16px' }}>Sin talles definidos todavía.</p>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
                 {tallesLocales.map(t => (
                   <div key={t.id} style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
-                    background: t.activo ? '#1a2a3a' : '#21262d',
-                    border: `0.5px solid ${t.activo ? '#2563eb' : '#30363d'}`,
+                    background: t.activo ? 'var(--c-blue-bg)' : 'var(--c-elevated)',
+                    border: `0.5px solid ${t.activo ? 'var(--c-blue-btn)' : 'var(--c-border)'}`,
                     borderRadius: '6px', padding: '5px 10px',
                   }}>
-                    <span style={{ fontSize: '13px', color: t.activo ? '#e6edf3' : '#484f58', fontWeight: 500 }}>
+                    <span style={{ fontSize: '13px', color: t.activo ? 'var(--c-text-primary)' : 'var(--c-text-muted)', fontWeight: 500 }}>
                       {t.talle}
                     </span>
                     <button
                       onClick={() => toggleActivoTalle(t)}
                       title={t.activo ? 'Desactivar' : 'Activar'}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.activo ? '#3fb950' : '#484f58', padding: '0 2px', fontSize: '11px' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.activo ? 'var(--c-green)' : 'var(--c-text-muted)', padding: '0 2px', fontSize: '11px' }}
                     >
                       {t.activo ? '●' : '○'}
                     </button>
                     <button
                       onClick={() => eliminarTalle(t)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#484f58', padding: '0 2px' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-muted)', padding: '0 2px' }}
                     >
                       <X size={12} />
                     </button>
@@ -309,15 +309,15 @@ export default function EppCatalogoClient({
                 maxLength={10}
                 style={{
                   flex: 1, padding: '7px 10px', borderRadius: '6px',
-                  background: '#0d1117', border: '0.5px solid #30363d',
-                  color: '#e6edf3', fontSize: '13px',
+                  background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+                  color: 'var(--c-text-primary)', fontSize: '13px',
                 }}
               />
               <button
                 onClick={agregarTalle}
                 disabled={loadingTalle || !nuevoTalle.trim()}
                 style={{
-                  background: '#2563eb', color: 'white', border: 'none',
+                  background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                   borderRadius: '6px', padding: '7px 14px',
                   fontSize: '13px', cursor: 'pointer', opacity: !nuevoTalle.trim() ? 0.5 : 1,
                 }}
@@ -332,48 +332,48 @@ export default function EppCatalogoClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>EPP y Ropa — Catálogo</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>EPP y Ropa — Catálogo</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {empresaActiva.razon_social} · {catalogoFiltrado.length} item{catalogoFiltrado.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <button onClick={abrirNuevo} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>
+        <button onClick={abrirNuevo} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>
           + Nuevo item
         </button>
       </div>
 
       {/* Tabla */}
       {catalogoFiltrado.length === 0 ? (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '14px' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px' }}>
           No hay items en el catálogo. Agregá EPPs, ropa y herramientas.
         </div>
       ) : (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {['Código', 'Descripción', 'Tipo', 'Stock', 'Vencimiento', 'Talles', 'Estado'].map(col => (
-                  <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
+                  <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>{col}</th>
                 ))}
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
             <tbody>
               {catalogoFiltrado.map((item, i) => (
-                <tr key={item.id} style={{ borderBottom: i < catalogoFiltrado.length - 1 ? '0.5px solid #21262d' : 'none' }}>
+                <tr key={item.id} style={{ borderBottom: i < catalogoFiltrado.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                   <td style={{ padding: '10px 16px' }}>
-                    <span style={{ background: '#21262d', color: '#e6edf3', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{item.codigo}</span>
+                    <span style={{ background: 'var(--c-elevated)', color: 'var(--c-text-primary)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{item.codigo}</span>
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{item.descripcion}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{item.descripcion}</td>
                   <td style={{ padding: '10px 16px' }}>{badgeTipo(item.tipo)}</td>
                   <td style={{ padding: '10px 16px' }}>
                     {item.controla_stock ? (
-                      <span style={{ background: '#1a3a2a', color: '#3fb950', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Sí</span>
+                      <span style={{ background: 'var(--c-green-bg)', color: 'var(--c-green)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Sí</span>
                     ) : (
-                      <span style={{ background: '#21262d', color: '#484f58', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>No</span>
+                      <span style={{ background: 'var(--c-elevated)', color: 'var(--c-text-muted)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>No</span>
                     )}
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
                     {item.tiene_vencimiento ? `${item.meses_renovacion} meses` : '—'}
                   </td>
                   <td style={{ padding: '10px 16px' }}>
@@ -382,8 +382,8 @@ export default function EppCatalogoClient({
                         onClick={() => abrirTalles(item)}
                         style={{
                           display: 'inline-flex', alignItems: 'center', gap: '4px',
-                          background: 'transparent', border: '0.5px solid #30363d',
-                          color: '#58a6ff', cursor: 'pointer', fontSize: '11px',
+                          background: 'transparent', border: '0.5px solid var(--c-border)',
+                          color: 'var(--c-blue)', cursor: 'pointer', fontSize: '11px',
                           padding: '3px 8px', borderRadius: '4px',
                         }}
                       >
@@ -391,20 +391,20 @@ export default function EppCatalogoClient({
                         {talles.filter(t => t.id_epp === item.id && t.activo).length} talles
                       </button>
                     ) : (
-                      <span style={{ color: '#484f58' }}>—</span>
+                      <span style={{ color: 'var(--c-text-muted)' }}>—</span>
                     )}
                   </td>
                   <td style={{ padding: '10px 16px' }}>
                     <span style={{
-                      background: item.activo ? '#1a3a2a' : '#3a1a1a',
-                      color: item.activo ? '#3fb950' : '#f85149',
+                      background: item.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+                      color: item.activo ? 'var(--c-green)' : 'var(--c-red)',
                       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                     }}>
                       {item.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
-                    <button onClick={() => abrirEditar(item)} style={{ background: 'transparent', border: 'none', color: '#8b949e', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
+                    <button onClick={() => abrirEditar(item)} style={{ background: 'transparent', border: 'none', color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
                   </td>
                 </tr>
               ))}

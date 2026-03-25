@@ -90,17 +90,17 @@ function cerrarModal() {
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>
             Empresas
           </h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {empresas.length} empresa{empresas.length !== 1 ? 's' : ''} registrada{empresas.length !== 1 ? 's' : ''}
           </span>
         </div>
         <button
           onClick={() => setMostrarForm(true)}
           style={{
-            background: '#2563eb', color: 'white', border: 'none',
+            background: 'var(--c-blue-btn)', color: 'white', border: 'none',
             borderRadius: '6px', padding: '7px 16px',
             fontSize: '13px', cursor: 'pointer',
           }}
@@ -111,15 +111,15 @@ function cerrarModal() {
 
       {/* Buscar */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
-        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
         <input
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por código, razón social, CUIT..."
           style={{
             width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
-            background: '#161b22', border: '0.5px solid #30363d',
-            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
           }}
         />
       </div>
@@ -127,46 +127,46 @@ function cerrarModal() {
       {/* Tabla */}
       {empresasFiltradas.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           {busqueda ? 'Sin resultados para la búsqueda.' : 'No hay empresas registradas todavía.'}
         </div>
       ) : (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', overflow: 'hidden',
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {([['Código','codigo'],['Razón Social','razon_social'],['CUIT','cuit'],['Localidad','localidad'],['Provincia','provincia']] as [string,SortCol][]).map(([label, col]) => (
                   <th key={col} onClick={() => toggleSort(col)} style={{
                     textAlign: 'left', padding: '10px 16px',
-                    color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                    color: 'var(--c-text-secondary)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
                   }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
                   </th>
                 ))}
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
             <tbody>
               {empresasFiltradas.map((empresa, i) => (
                 <tr key={empresa.id} style={{
-                  borderBottom: i < empresasFiltradas.length - 1 ? '0.5px solid #21262d' : 'none',
+                  borderBottom: i < empresasFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
                 }}>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{empresa.codigo}</td>
-                  <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{empresa.razon_social}</td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{empresa.cuit}</td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{empresa.localidad || '—'}</td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{empresa.provincia || '—'}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{empresa.codigo}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{empresa.razon_social}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{empresa.cuit}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{empresa.localidad || '—'}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{empresa.provincia || '—'}</td>
                   <td style={{ padding: '10px 16px' }}>
                     <span style={{
-                      background: empresa.activo ? '#1a3a2a' : '#3a1a1a',
-                      color: empresa.activo ? '#3fb950' : '#f85149',
+                      background: empresa.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+                      color: empresa.activo ? 'var(--c-green)' : 'var(--c-red)',
                       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                     }}>
                       {empresa.activo ? 'Activa' : 'Inactiva'}
@@ -174,8 +174,8 @@ function cerrarModal() {
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                     <Link href={`/empresas/${empresa.id}`} style={{
-                      background: 'transparent', border: '0.5px solid #30363d',
-                      color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                      background: 'transparent', border: '0.5px solid var(--c-border)',
+                      color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px',
                       padding: '4px 10px', borderRadius: '4px', textDecoration: 'none',
                       marginRight: '6px', display: 'inline-block',
                     }}>
@@ -185,7 +185,7 @@ function cerrarModal() {
                       onClick={() => abrirEditar(empresa)}
                       style={{
                         background: 'transparent', border: 'none',
-                        color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                        color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px',
                         padding: '4px 8px', borderRadius: '4px',
                       }}
                     >
@@ -195,7 +195,7 @@ function cerrarModal() {
                         onClick={() => eliminar(empresa)}
                         style={{
                         background: 'transparent', border: 'none',
-                        color: '#f85149', cursor: 'pointer', fontSize: '12px',
+                        color: 'var(--c-red)', cursor: 'pointer', fontSize: '12px',
                         padding: '4px 8px', borderRadius: '4px',
                         }}
                     >

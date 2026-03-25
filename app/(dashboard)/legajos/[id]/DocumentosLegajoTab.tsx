@@ -50,10 +50,10 @@ export default function DocumentosLegajoTab({
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
-  const labelStyle = { fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }
+  const labelStyle = { fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }
 
   function resetForm() {
     setTipo(''); setTipoCustom(''); setDescripcion(''); setVencimiento(''); setArchivo(null)
@@ -107,7 +107,7 @@ export default function DocumentosLegajoTab({
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <button onClick={() => setMostrarForm(true)} style={{
-          background: '#2563eb', color: 'white', border: 'none',
+          background: 'var(--c-blue-btn)', color: 'white', border: 'none',
           borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: '6px',
         }}>
@@ -117,18 +117,18 @@ export default function DocumentosLegajoTab({
 
       {documentos.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px',
-          padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '13px',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px',
+          padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px',
         }}>
           No hay documentos cargados todavía.
         </div>
       ) : (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {['Tipo', 'Descripción', 'Archivo', 'Fecha subida', 'Vencimiento', ''].map(col => (
-                  <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
+                  <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>{col}</th>
                 ))}
               </tr>
             </thead>
@@ -136,23 +136,23 @@ export default function DocumentosLegajoTab({
               {documentos.map((doc, i) => {
                 const vencido = doc.fecha_vencimiento && new Date(doc.fecha_vencimiento + 'T00:00:00') < new Date()
                 return (
-                  <tr key={doc.id} style={{ borderBottom: i < documentos.length - 1 ? '0.5px solid #21262d' : 'none' }}>
-                    <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{doc.tipo}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{doc.descripcion || '—'}</td>
-                    <td style={{ padding: '10px 16px', color: '#58a6ff', fontSize: '12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <tr key={doc.id} style={{ borderBottom: i < documentos.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{doc.tipo}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{doc.descripcion || '—'}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-blue)', fontSize: '12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {doc.nombre_archivo}
                     </td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(doc.fecha_subida)}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(doc.fecha_subida)}</td>
                     <td style={{ padding: '10px 16px' }}>
                       {doc.fecha_vencimiento
-                        ? <span style={{ color: vencido ? '#f85149' : '#8b949e' }}>{formatFecha(doc.fecha_vencimiento)}</span>
-                        : <span style={{ color: '#8b949e' }}>—</span>
+                        ? <span style={{ color: vencido ? 'var(--c-red)' : 'var(--c-text-secondary)' }}>{formatFecha(doc.fecha_vencimiento)}</span>
+                        : <span style={{ color: 'var(--c-text-secondary)' }}>—</span>
                       }
                     </td>
                     <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <button onClick={() => verArchivo(doc.storage_path)} style={{
-                        background: 'transparent', border: '0.5px solid #30363d',
-                        color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                        background: 'transparent', border: '0.5px solid var(--c-border)',
+                        color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px',
                         padding: '3px 10px', borderRadius: '4px', marginRight: '6px',
                         display: 'inline-flex', alignItems: 'center', gap: '4px',
                       }}>
@@ -160,7 +160,7 @@ export default function DocumentosLegajoTab({
                       </button>
                       <button onClick={() => eliminar(doc)} style={{
                         background: 'transparent', border: 'none',
-                        color: '#f85149', cursor: 'pointer', padding: '3px 6px',
+                        color: 'var(--c-red)', cursor: 'pointer', padding: '3px 6px',
                       }}>
                         <Trash2 size={14} />
                       </button>
@@ -175,11 +175,11 @@ export default function DocumentosLegajoTab({
 
       {/* Modal */}
       {mostrarForm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '460px', padding: '24px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'var(--c-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '460px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Nuevo documento</h2>
-              <button onClick={() => { setMostrarForm(false); resetForm() }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Nuevo documento</h2>
+              <button onClick={() => { setMostrarForm(false); resetForm() }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
@@ -214,14 +214,14 @@ export default function DocumentosLegajoTab({
                   onChange={e => setArchivo(e.target.files?.[0] || null)}
                   style={{ ...inputStyle, padding: '6px 10px', cursor: 'pointer' }} />
               </div>
-              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
                 <button onClick={() => { setMostrarForm(false); resetForm() }} style={{
-                  background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e',
+                  background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)',
                   borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer',
                 }}>Cancelar</button>
                 <button onClick={guardar} disabled={loading} style={{
-                  background: '#2563eb', color: 'white', border: 'none',
+                  background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                   borderRadius: '6px', padding: '7px 16px', fontSize: '13px',
                   cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1,
                   display: 'flex', alignItems: 'center', gap: '6px',

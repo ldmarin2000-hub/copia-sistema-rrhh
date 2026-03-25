@@ -28,8 +28,8 @@ export default function Header({ nombreUsuario, empresas }: Props) {
   return (
     <header style={{
       height: '52px',
-      background: '#161b22',
-      borderBottom: '0.5px solid #30363d',
+      background: 'var(--c-surface)',
+      borderBottom: '0.5px solid var(--c-border)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -43,16 +43,16 @@ export default function Header({ nombreUsuario, empresas }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{
           width: '24px', height: '24px',
-          background: '#2563eb', borderRadius: '6px',
+          background: 'var(--c-blue-btn)', borderRadius: '6px',
         }} />
-        <span style={{ color: '#e6edf3', fontSize: '14px', fontWeight: 500 }}>
+        <span style={{ color: 'var(--c-text-primary)', fontSize: '14px', fontWeight: 500 }}>
           Sistema RRHH
         </span>
       </div>
 
       {/* Selector empresa */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '12px', color: '#8b949e' }}>Empresa:</span>
+        <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>Empresa:</span>
         <div style={{ position: 'relative' }}>
           <select
             value={empresaActiva?.id || ''}
@@ -61,10 +61,10 @@ export default function Header({ nombreUsuario, empresas }: Props) {
               if (empresa) setEmpresaActiva(empresa)
             }}
             style={{
-              background: '#21262d',
-              border: '0.5px solid #30363d',
+              background: 'var(--c-elevated)',
+              border: '0.5px solid var(--c-border)',
               borderRadius: '6px',
-              color: '#e6edf3',
+              color: 'var(--c-text-primary)',
               fontSize: '13px',
               padding: '5px 28px 5px 10px',
               cursor: 'pointer',
@@ -77,7 +77,7 @@ export default function Header({ nombreUsuario, empresas }: Props) {
           </select>
           <ChevronDown
             size={13}
-            color="#8b949e"
+            color="var(--c-text-secondary)"
             style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
           />
         </div>
@@ -90,14 +90,14 @@ export default function Header({ nombreUsuario, empresas }: Props) {
         }}>
           <div style={{
             width: '28px', height: '28px',
-            background: '#2563eb', borderRadius: '50%',
+            background: 'var(--c-blue-btn)', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <span style={{ fontSize: '11px', color: 'white', fontWeight: 500 }}>
               {nombreUsuario.charAt(0).toUpperCase()}
             </span>
           </div>
-          <span style={{ fontSize: '13px', color: '#8b949e' }}>{nombreUsuario}</span>
+          <span style={{ fontSize: '13px', color: 'var(--c-text-secondary)' }}>{nombreUsuario}</span>
         </div>
 
         <button
@@ -106,7 +106,7 @@ export default function Header({ nombreUsuario, empresas }: Props) {
             display: 'flex', alignItems: 'center', gap: '6px',
             background: 'transparent', border: 'none',
             cursor: 'pointer', padding: '6px 10px', borderRadius: '6px',
-            color: '#8b949e', fontSize: '13px',
+            color: 'var(--c-text-secondary)', fontSize: '13px',
           }}
         >
           <LogOut size={15} />

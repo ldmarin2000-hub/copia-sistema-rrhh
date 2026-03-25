@@ -104,8 +104,8 @@ export default function NovedadesClient({
 
   const inputStyle = {
     padding: '6px 8px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', width: '70px',
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', width: '70px',
     textAlign: 'center' as const,
   }
 
@@ -381,7 +381,7 @@ export default function NovedadesClient({
   }
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   function getDiaSemana(fecha: string): string {
@@ -394,25 +394,25 @@ export default function NovedadesClient({
     <div>
       {/* Título */}
       <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Novedades</h1>
-        <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva.razon_social}</span>
+        <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Novedades</h1>
+        <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
       </div>
 
       {/* Selector de obra y fecha */}
       <div style={{
-        background: '#161b22', border: '0.5px solid #30363d',
+        background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
         borderRadius: '8px', padding: '16px 20px',
         display: 'flex', alignItems: 'flex-end', gap: '16px', marginBottom: '20px',
       }}>
         <div style={{ flex: 1 }}>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Obra *</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Obra *</label>
           <select
             value={idObra}
             onChange={(e) => { setIdObra(e.target.value); setFilas([]) }}
             style={{
               width: '100%', padding: '7px 10px', borderRadius: '6px',
-              background: '#0d1117', border: '0.5px solid #30363d',
-              color: '#e6edf3', fontSize: '13px',
+              background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-text-primary)', fontSize: '13px',
             }}
           >
             <option value="">Seleccionar obra...</option>
@@ -423,7 +423,7 @@ export default function NovedadesClient({
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha *</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Fecha *</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <input
               type="date"
@@ -431,14 +431,14 @@ export default function NovedadesClient({
               onChange={(e) => { setFecha(e.target.value); setFilas([]) }}
               style={{
                 padding: '7px 10px', borderRadius: '6px',
-                background: '#0d1117', border: '0.5px solid #30363d',
-                color: '#e6edf3', fontSize: '13px',
+                background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-primary)', fontSize: '13px',
               }}
             />
             {fecha && (
               <span style={{
                 fontSize: '13px', fontWeight: 500,
-                color: feriadoDelDia ? '#e07b39' : ['Sábado', 'Domingo'].includes(getDiaSemana(fecha)) ? '#d29922' : '#8b949e',
+                color: feriadoDelDia ? '#e07b39' : ['Sábado', 'Domingo'].includes(getDiaSemana(fecha)) ? '#d29922' : 'var(--c-text-secondary)',
               }}>
                 {getDiaSemana(fecha)}
                 {feriadoDelDia && (
@@ -460,7 +460,7 @@ export default function NovedadesClient({
           onClick={cargarEmpleados}
           disabled={!idObra || !fecha || cargando}
           style={{
-            background: '#2563eb', color: 'white', border: 'none',
+            background: 'var(--c-blue-btn)', color: 'white', border: 'none',
             borderRadius: '6px', padding: '7px 16px',
             fontSize: '13px', cursor: 'pointer',
             opacity: (!idObra || !fecha) ? 0.4 : 1,
@@ -474,27 +474,27 @@ export default function NovedadesClient({
       {filas.length > 0 && (
         <>
           <div style={{
-            background: '#161b22', border: '0.5px solid #30363d',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
             borderRadius: '8px', overflow: 'hidden', marginBottom: '16px',
           }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <thead>
-                <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '25%' }}>Empleado</th>
-                  <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Normales</th>
-                  <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Extra 50%</th>
-                  <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Extra 100%</th>
-                  <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Nocturnas</th>
-                  <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Ausente</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Observaciones</th>
-                  <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Adicionales</th>
+                <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '25%' }}>Empleado</th>
+                  <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Normales</th>
+                  <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Extra 50%</th>
+                  <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Extra 100%</th>
+                  <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Nocturnas</th>
+                  <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Ausente</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Observaciones</th>
+                  <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Adicionales</th>
                 </tr>
               </thead>
               <tbody>
   {filas.map((fila, i) => (
     <>
       <tr key={fila.id_legajo} style={{
-        borderBottom: fila.mostrarAdicionales ? 'none' : (i < filas.length - 1 ? '0.5px solid #21262d' : 'none'),
+        borderBottom: fila.mostrarAdicionales ? 'none' : (i < filas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none'),
         background: fila.enVacaciones
           ? 'rgba(88,166,255,0.05)'
           : fila.ausenciaActiva || fila.ausente
@@ -507,17 +507,17 @@ export default function NovedadesClient({
         <td style={{ padding: '8px 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div>
-              <span style={{ color: '#e6edf3', fontWeight: 500 }}>
+              <span style={{ color: 'var(--c-text-primary)', fontWeight: 500 }}>
                 {fila.apellido}, {fila.nombre}
               </span>
-              <span style={{ color: '#484f58', fontSize: '11px', marginLeft: '6px' }}>
+              <span style={{ color: 'var(--c-text-muted)', fontSize: '11px', marginLeft: '6px' }}>
                 #{String(fila.nro_legajo).padStart(4, '0')}
               </span>
             </div>
             {fila.enVacaciones ? (
-              <span style={{ background: '#1a2a3a', color: '#58a6ff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>VAC</span>
+              <span style={{ background: 'var(--c-blue-bg)', color: 'var(--c-blue)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>VAC</span>
             ) : fila.ausenciaActiva ? (
-              <span style={{ background: '#3a1a1a', color: '#f85149', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}
+              <span style={{ background: 'var(--c-red-bg)', color: 'var(--c-red)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}
                 title={fila.ausenciaActiva.descripcion}>
                 {fila.ausenciaActiva.codigo}
               </span>
@@ -566,9 +566,9 @@ export default function NovedadesClient({
           <button
             onClick={() => actualizarFila(i, 'mostrarAdicionales', !fila.mostrarAdicionales)}
             style={{
-              background: fila.adicionales.length > 0 ? '#1a2a3a' : 'transparent',
-              border: '0.5px solid #30363d',
-              color: fila.adicionales.length > 0 ? '#58a6ff' : '#8b949e',
+              background: fila.adicionales.length > 0 ? 'var(--c-blue-bg)' : 'transparent',
+              border: '0.5px solid var(--c-border)',
+              color: fila.adicionales.length > 0 ? 'var(--c-blue)' : 'var(--c-text-secondary)',
               borderRadius: '4px', padding: '3px 8px',
               fontSize: '11px', cursor: 'pointer',
               whiteSpace: 'nowrap' as const,
@@ -582,14 +582,14 @@ export default function NovedadesClient({
       {/* Fila adicionales */}
       {fila.mostrarAdicionales && (
         <tr key={`adicionales-${fila.id_legajo}`} style={{
-          borderBottom: i < filas.length - 1 ? '0.5px solid #21262d' : 'none',
-          background: '#0d1117',
+          borderBottom: i < filas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
+          background: 'var(--c-base)',
         }}>
           <td colSpan={8} style={{ padding: '8px 16px 12px 32px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {fila.adicionales.map(adic => (
                 <div key={adic.id_adicional} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '12px', color: '#e6edf3', flex: 1 }}>{adic.descripcion}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--c-text-primary)', flex: 1 }}>{adic.descripcion}</span>
                   <input
                     type="number" value={adic.cantidad}
                     onChange={(e) => actualizarCantidadAdicional(i, adic.id_adicional, e.target.value)}
@@ -598,7 +598,7 @@ export default function NovedadesClient({
                   />
                   <button onClick={() => quitarAdicional(i, adic.id_adicional)} style={{
                     background: 'transparent', border: 'none',
-                    color: '#f85149', cursor: 'pointer', fontSize: '14px', padding: '2px 6px',
+                    color: 'var(--c-red)', cursor: 'pointer', fontSize: '14px', padding: '2px 6px',
                   }}>×</button>
                 </div>
               ))}
@@ -608,8 +608,8 @@ export default function NovedadesClient({
                   onChange={(e) => { agregarAdicional(i, e.target.value); e.target.value = '' }}
                   style={{
                     padding: '5px 8px', borderRadius: '6px',
-                    background: '#161b22', border: '0.5px solid #30363d',
-                    color: '#8b949e', fontSize: '12px',
+                    background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+                    color: 'var(--c-text-secondary)', fontSize: '12px',
                   }}
                 >
                   <option value="">+ Agregar adicional...</option>
@@ -629,15 +629,15 @@ export default function NovedadesClient({
             </table>
           </div>
 
-          {error && <p style={{ color: '#f85149', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
-          {mensaje && <p style={{ color: '#3fb950', fontSize: '13px', marginBottom: '12px' }}>{mensaje}</p>}
+          {error && <p style={{ color: 'var(--c-red)', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
+          {mensaje && <p style={{ color: 'var(--c-green)', fontSize: '13px', marginBottom: '12px' }}>{mensaje}</p>}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button
               onClick={guardar}
               disabled={guardando}
               style={{
-                background: '#2563eb', color: 'white', border: 'none',
+                background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '8px 20px',
                 fontSize: '13px', cursor: 'pointer',
                 opacity: guardando ? 0.6 : 1,
@@ -650,9 +650,9 @@ export default function NovedadesClient({
       )}
       {filas.length === 0 && idObra && fecha && !cargando && (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           Seleccioná una obra y fecha, luego clickeá "Cargar empleados".
         </div>

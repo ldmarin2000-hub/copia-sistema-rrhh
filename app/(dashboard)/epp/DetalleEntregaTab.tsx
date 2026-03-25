@@ -141,9 +141,9 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
   const [fechaHasta, setFechaHasta] = useState('')
   const [estadoFiltro, setEstadoFiltro] = useState('todos')
 
-  const inputStyle = { width: '100%', padding: '7px 10px', borderRadius: '6px', background: '#0d1117', border: '0.5px solid #30363d', color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const }
-  const selectStyle = { width: '100%', padding: '7px 10px', borderRadius: '6px', background: '#0d1117', border: '0.5px solid #30363d', color: '#e6edf3', fontSize: '13px' }
-  const labelStyle = { fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }
+  const inputStyle = { width: '100%', padding: '7px 10px', borderRadius: '6px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const }
+  const selectStyle = { width: '100%', padding: '7px 10px', borderRadius: '6px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', fontSize: '13px' }
+  const labelStyle = { fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }
 
   const catalogoActivo = catalogo.filter(c => c.id_empresa === idEmpresa && c.activo)
   const legajosFiltrados = legajos.filter(l => l.id_empresa === idEmpresa)
@@ -399,20 +399,20 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
     <>
       {/* Modal firma */}
       {modalFirma && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60 }}>
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '420px', padding: '24px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'var(--c-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60 }}>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '420px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h2 style={{ fontSize: '15px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Marcar como firmado</h2>
-              <button onClick={() => { setModalFirma(null); setArchivoFirma(null); setErrorFirma('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={16} /></button>
+              <h2 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Marcar como firmado</h2>
+              <button onClick={() => { setModalFirma(null); setArchivoFirma(null); setErrorFirma('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={16} /></button>
             </div>
-            <p style={{ fontSize: '13px', color: '#8b949e', margin: '0 0 16px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', margin: '0 0 16px' }}>
               {modalFirma.legajos.apellido}, {modalFirma.legajos.nombre} · {formatFecha(modalFirma.fecha)}
             </p>
-            <div style={{ border: '0.5px dashed #30363d', borderRadius: '8px', padding: '16px', textAlign: 'center', marginBottom: '12px' }}>
-              <p style={{ fontSize: '12px', color: '#8b949e', margin: '0 0 10px' }}>
-                Adjuntar comprobante firmado <span style={{ color: '#484f58' }}>(opcional)</span>
+            <div style={{ border: '0.5px dashed var(--c-border)', borderRadius: '8px', padding: '16px', textAlign: 'center', marginBottom: '12px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--c-text-secondary)', margin: '0 0 10px' }}>
+                Adjuntar comprobante firmado <span style={{ color: 'var(--c-text-muted)' }}>(opcional)</span>
               </p>
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}>
                 <FileUp size={13} />
                 {archivoFirma ? archivoFirma.name : 'Seleccionar archivo'}
                 <input
@@ -424,13 +424,13 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
                 />
               </label>
               {archivoFirma && (
-                <button onClick={() => { setArchivoFirma(null); if (fileRef.current) fileRef.current.value = '' }} style={{ marginLeft: '8px', background: 'none', border: 'none', color: '#484f58', cursor: 'pointer', fontSize: '13px' }}>× quitar</button>
+                <button onClick={() => { setArchivoFirma(null); if (fileRef.current) fileRef.current.value = '' }} style={{ marginLeft: '8px', background: 'none', border: 'none', color: 'var(--c-text-muted)', cursor: 'pointer', fontSize: '13px' }}>× quitar</button>
               )}
             </div>
-            {errorFirma && <p style={{ color: '#f85149', fontSize: '12px', margin: '0 0 12px' }}>{errorFirma}</p>}
+            {errorFirma && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: '0 0 12px' }}>{errorFirma}</p>}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-              <button onClick={() => { setModalFirma(null); setArchivoFirma(null); setErrorFirma('') }} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={confirmarFirma} disabled={loadingFirma} style={{ background: '#1a3a2a', border: '0.5px solid #3fb95040', color: '#3fb950', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: loadingFirma ? 0.6 : 1 }}>
+              <button onClick={() => { setModalFirma(null); setArchivoFirma(null); setErrorFirma('') }} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={confirmarFirma} disabled={loadingFirma} style={{ background: 'var(--c-green-bg)', border: '0.5px solid var(--c-green)40', color: 'var(--c-green)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: loadingFirma ? 0.6 : 1 }}>
                 {loadingFirma ? 'Guardando...' : 'Confirmar firma'}
               </button>
             </div>
@@ -439,13 +439,13 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
       )}
 
       {mostrarForm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, overflowY: 'auto', padding: '20px' }}>
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '600px', padding: '24px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'var(--c-overlay)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, overflowY: 'auto', padding: '20px' }}>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '600px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
                 {editandoRemito ? 'Editar remito' : 'Nuevo remito de entrega'}
               </h2>
-              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '20px' }}>
@@ -468,10 +468,10 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
               </div>
             </div>
 
-            <div style={{ borderTop: '0.5px solid #30363d', paddingTop: '16px' }}>
+            <div style={{ borderTop: '0.5px solid var(--c-border)', paddingTop: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Items a entregar</p>
-                <button onClick={agregarLinea} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Items a entregar</p>
+                <button onClick={agregarLinea} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
                   <Plus size={12} /> Agregar línea
                 </button>
               </div>
@@ -496,24 +496,24 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
                             {tallesItem.map(t => <option key={t.id} value={t.talle}>{t.talle}</option>)}
                           </select>
                         ) : (
-                          <input value="—" disabled style={{ ...inputStyle, color: '#484f58' }} />
+                          <input value="—" disabled style={{ ...inputStyle, color: 'var(--c-text-muted)' }} />
                         )}
                       </div>
                       <div>
                         <label style={labelStyle}>Cantidad</label>
                         <input type="number" value={l.cantidad} onChange={e => updateLinea(l.tempId, 'cantidad', e.target.value)} min="1" style={inputStyle} />
                       </div>
-                      <button onClick={() => quitarLinea(l.tempId)} style={{ background: 'transparent', border: 'none', color: '#484f58', cursor: 'pointer', padding: '7px 2px', fontSize: '18px', lineHeight: 1 }}>×</button>
+                      <button onClick={() => quitarLinea(l.tempId)} style={{ background: 'transparent', border: 'none', color: 'var(--c-text-muted)', cursor: 'pointer', padding: '7px 2px', fontSize: '18px', lineHeight: 1 }}>×</button>
                     </div>
                   )
                 })}
               </div>
             </div>
 
-            {error && <p style={{ color: '#f85149', fontSize: '12px', margin: '12px 0 0' }}>{error}</p>}
+            {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: '12px 0 0' }}>{error}</p>}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-              <button onClick={cerrar} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardar} disabled={loading} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
+              <button onClick={cerrar} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={guardar} disabled={loading} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
                 {loading ? 'Guardando...' : editandoRemito ? 'Guardar cambios' : 'Generar remito'}
               </button>
             </div>
@@ -522,32 +522,32 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
       )}
 
       {/* Filtros */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '10px 14px' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '10px 14px' }}>
         <div style={{ position: 'relative', flex: '1 1 180px' }}>
-          <Search size={13} color="#484f58" style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado o EPP..." style={{ width: '100%', padding: '6px 10px 6px 30px', borderRadius: '5px', background: '#0d1117', border: '0.5px solid #30363d', color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const }} />
+          <Search size={13} color="var(--c-text-muted)" style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar empleado o EPP..." style={{ width: '100%', padding: '6px 10px 6px 30px', borderRadius: '5px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const }} />
         </div>
-        <input type="date" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)} style={{ padding: '6px 10px', borderRadius: '5px', background: '#0d1117', border: '0.5px solid #30363d', color: fechaDesde ? '#e6edf3' : '#484f58', fontSize: '12px' }} />
-        <span style={{ color: '#484f58', fontSize: '12px' }}>—</span>
-        <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} style={{ padding: '6px 10px', borderRadius: '5px', background: '#0d1117', border: '0.5px solid #30363d', color: fechaHasta ? '#e6edf3' : '#484f58', fontSize: '12px' }} />
-        <select value={estadoFiltro} onChange={e => setEstadoFiltro(e.target.value)} style={{ padding: '6px 10px', borderRadius: '5px', background: '#0d1117', border: '0.5px solid #30363d', color: '#e6edf3', fontSize: '12px' }}>
+        <input type="date" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)} style={{ padding: '6px 10px', borderRadius: '5px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', color: fechaDesde ? 'var(--c-text-primary)' : 'var(--c-text-muted)', fontSize: '12px' }} />
+        <span style={{ color: 'var(--c-text-muted)', fontSize: '12px' }}>—</span>
+        <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} style={{ padding: '6px 10px', borderRadius: '5px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', color: fechaHasta ? 'var(--c-text-primary)' : 'var(--c-text-muted)', fontSize: '12px' }} />
+        <select value={estadoFiltro} onChange={e => setEstadoFiltro(e.target.value)} style={{ padding: '6px 10px', borderRadius: '5px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', fontSize: '12px' }}>
           <option value="todos">Todos</option>
           <option value="pendiente">Pendiente firma</option>
           <option value="firmado">Firmados</option>
         </select>
         {hayFiltros && (
           <>
-            <span style={{ fontSize: '12px', color: '#8b949e', whiteSpace: 'nowrap' }}>{remitos.length} resultado{remitos.length !== 1 ? 's' : ''}</span>
-            <button onClick={limpiarFiltros} style={{ padding: '6px 10px', borderRadius: '5px', background: '#0d1117', border: '0.5px solid #30363d', color: '#8b949e', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>× Limpiar</button>
+            <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)', whiteSpace: 'nowrap' }}>{remitos.length} resultado{remitos.length !== 1 ? 's' : ''}</span>
+            <button onClick={limpiarFiltros} style={{ padding: '6px 10px', borderRadius: '5px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>× Limpiar</button>
           </>
         )}
-        <button onClick={() => setMostrarForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 14px', fontSize: '13px', cursor: 'pointer', marginLeft: 'auto' }}>
+        <button onClick={() => setMostrarForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 14px', fontSize: '13px', cursor: 'pointer', marginLeft: 'auto' }}>
           <Plus size={14} /> Nuevo remito
         </button>
       </div>
 
       {remitos.length === 0 ? (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '14px' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px' }}>
           No hay remitos registrados.
         </div>
       ) : (
@@ -555,34 +555,34 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
           {remitos.map(r => {
             const esEditable = permiteEditar && !r.firmado
             return (
-              <div key={r.id} style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+              <div key={r.id} style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
                 <div
                   onClick={() => toggleExpand(r.id)}
                   style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', cursor: 'pointer' }}
                 >
-                  {expandidos.has(r.id) ? <ChevronDown size={14} color="#8b949e" /> : <ChevronRight size={14} color="#8b949e" />}
-                  <span style={{ fontSize: '13px', color: '#e6edf3', fontWeight: 500, minWidth: '80px' }}>{formatFecha(r.fecha)}</span>
-                  <span style={{ fontSize: '13px', color: '#e6edf3' }}>{r.legajos.apellido}, {r.legajos.nombre}</span>
-                  <span style={{ fontSize: '12px', color: '#484f58' }}>Leg. {r.legajos.nro_legajo}</span>
+                  {expandidos.has(r.id) ? <ChevronDown size={14} color="var(--c-text-secondary)" /> : <ChevronRight size={14} color="var(--c-text-secondary)" />}
+                  <span style={{ fontSize: '13px', color: 'var(--c-text-primary)', fontWeight: 500, minWidth: '80px' }}>{formatFecha(r.fecha)}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--c-text-primary)' }}>{r.legajos.apellido}, {r.legajos.nombre}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--c-text-muted)' }}>Leg. {r.legajos.nro_legajo}</span>
                   <span style={{ flex: 1 }} />
                   {r.firmado ? (
-                    <span style={{ background: '#1a3a2a', color: '#3fb950', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Firmado</span>
+                    <span style={{ background: 'var(--c-green-bg)', color: 'var(--c-green)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Firmado</span>
                   ) : (
                     <span style={{ background: '#3a2f1a', color: '#d29922', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Pendiente firma</span>
                   )}
-                  <span style={{ fontSize: '12px', color: '#484f58' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--c-text-muted)' }}>
                     {r.epp_detalle_entregas_items.length} item{r.epp_detalle_entregas_items.length !== 1 ? 's' : ''}
                   </span>
                   <button
                     onClick={e => { e.stopPropagation(); imprimirRemito(r) }}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '3px 10px', fontSize: '12px', cursor: 'pointer' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '3px 10px', fontSize: '12px', cursor: 'pointer' }}
                   >
                     <Printer size={11} /> Imprimir
                   </button>
                   {!r.firmado && (
                     <button
                       onClick={e => { e.stopPropagation(); setModalFirma(r) }}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid #30363d', color: '#3fb950', borderRadius: '5px', padding: '3px 10px', fontSize: '12px', cursor: 'pointer' }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-green)', borderRadius: '5px', padding: '3px 10px', fontSize: '12px', cursor: 'pointer' }}
                     >
                       <CheckCircle size={11} /> Firmado
                     </button>
@@ -590,7 +590,7 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
                   {r.firmado && r.storage_path_firmado && (
                     <button
                       onClick={e => { e.stopPropagation(); verComprobante(r.storage_path_firmado!) }}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid #30363d', color: '#58a6ff', borderRadius: '5px', padding: '3px 10px', fontSize: '12px', cursor: 'pointer' }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-blue)', borderRadius: '5px', padding: '3px 10px', fontSize: '12px', cursor: 'pointer' }}
                     >
                       <ExternalLink size={11} /> Comprobante
                     </button>
@@ -600,14 +600,14 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
                       <button
                         onClick={e => { e.stopPropagation(); editarRemito(r) }}
                         title="Editar"
-                        style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '3px 8px', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
+                        style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '3px 8px', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
                       >
                         <Pencil size={11} />
                       </button>
                       <button
                         onClick={e => { e.stopPropagation(); eliminarRemito(r) }}
                         title="Eliminar"
-                        style={{ background: 'transparent', border: '0.5px solid #3a1a1a', color: '#f85149', borderRadius: '5px', padding: '3px 8px', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
+                        style={{ background: 'transparent', border: '0.5px solid var(--c-red-bg)', color: 'var(--c-red)', borderRadius: '5px', padding: '3px 8px', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
                       >
                         <Trash2 size={11} />
                       </button>
@@ -615,28 +615,28 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
                   )}
                 </div>
                 {expandidos.has(r.id) && (
-                  <div style={{ borderTop: '0.5px solid #30363d' }}>
+                  <div style={{ borderTop: '0.5px solid var(--c-border)' }}>
                     {r.observaciones && (
-                      <p style={{ fontSize: '12px', color: '#8b949e', margin: 0, padding: '8px 16px 0' }}>{r.observaciones}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--c-text-secondary)', margin: 0, padding: '8px 16px 0' }}>{r.observaciones}</p>
                     )}
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                       <thead>
-                        <tr style={{ borderBottom: '0.5px solid #21262d', background: '#0d1117' }}>
-                          <th style={{ textAlign: 'left', padding: '8px 16px 8px 40px', color: '#8b949e', fontWeight: 400, fontSize: '12px' }}>Item</th>
-                          <th style={{ textAlign: 'left', padding: '8px 16px', color: '#8b949e', fontWeight: 400, fontSize: '12px' }}>Talle</th>
-                          <th style={{ textAlign: 'left', padding: '8px 16px', color: '#8b949e', fontWeight: 400, fontSize: '12px' }}>Cant.</th>
-                          <th style={{ textAlign: 'left', padding: '8px 16px', color: '#8b949e', fontWeight: 400, fontSize: '12px' }}>Vencimiento</th>
+                        <tr style={{ borderBottom: '0.5px solid var(--c-elevated)', background: 'var(--c-base)' }}>
+                          <th style={{ textAlign: 'left', padding: '8px 16px 8px 40px', color: 'var(--c-text-secondary)', fontWeight: 400, fontSize: '12px' }}>Item</th>
+                          <th style={{ textAlign: 'left', padding: '8px 16px', color: 'var(--c-text-secondary)', fontWeight: 400, fontSize: '12px' }}>Talle</th>
+                          <th style={{ textAlign: 'left', padding: '8px 16px', color: 'var(--c-text-secondary)', fontWeight: 400, fontSize: '12px' }}>Cant.</th>
+                          <th style={{ textAlign: 'left', padding: '8px 16px', color: 'var(--c-text-secondary)', fontWeight: 400, fontSize: '12px' }}>Vencimiento</th>
                         </tr>
                       </thead>
                       <tbody>
                         {r.epp_detalle_entregas_items.map((item, i) => (
-                          <tr key={item.id} style={{ borderBottom: i < r.epp_detalle_entregas_items.length - 1 ? '0.5px solid #21262d' : 'none' }}>
-                            <td style={{ padding: '8px 16px 8px 40px', color: '#e6edf3' }}>{item.epp_catalogo.descripcion}</td>
-                            <td style={{ padding: '8px 16px', color: '#8b949e' }}>
+                          <tr key={item.id} style={{ borderBottom: i < r.epp_detalle_entregas_items.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+                            <td style={{ padding: '8px 16px 8px 40px', color: 'var(--c-text-primary)' }}>{item.epp_catalogo.descripcion}</td>
+                            <td style={{ padding: '8px 16px', color: 'var(--c-text-secondary)' }}>
                               {item.talle ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{item.talle}</span> : '—'}
                             </td>
-                            <td style={{ padding: '8px 16px', color: '#8b949e' }}>{item.cantidad}</td>
-                            <td style={{ padding: '8px 16px', color: '#8b949e' }}>{item.fecha_vencimiento ? formatFecha(item.fecha_vencimiento) : '—'}</td>
+                            <td style={{ padding: '8px 16px', color: 'var(--c-text-secondary)' }}>{item.cantidad}</td>
+                            <td style={{ padding: '8px 16px', color: 'var(--c-text-secondary)' }}>{item.fecha_vencimiento ? formatFecha(item.fecha_vencimiento) : '—'}</td>
                           </tr>
                         ))}
                       </tbody>

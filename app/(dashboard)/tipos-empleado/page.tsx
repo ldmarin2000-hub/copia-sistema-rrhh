@@ -8,7 +8,7 @@ export default async function TiposEmpleado() {
     .order('descripcion')
 
   if (error) {
-    return <p style={{ color: '#f85149' }}>Error: {error.message}</p>
+    return <p style={{ color: 'var(--c-red)' }}>Error: {error.message}</p>
   }
 
   return <TiposEmpleadoClient tipos={tipos || []} />

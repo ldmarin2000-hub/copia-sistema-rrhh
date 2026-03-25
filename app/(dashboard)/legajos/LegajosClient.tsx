@@ -55,10 +55,10 @@ const ESTADOS = ['Activo', 'Baja']
 
 const badgeEstado = (estado: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
-    Activo: { bg: '#1a3a2a', color: '#3fb950' },
-    Baja:   { bg: '#3a1a1a', color: '#f85149' },
+    Activo: { bg: 'var(--c-green-bg)', color: 'var(--c-green)' },
+    Baja:   { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
   }
-  const c = colores[estado] || { bg: '#21262d', color: '#8b949e' }
+  const c = colores[estado] || { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' }
   return (
     <span style={{
       background: c.bg, color: c.color,
@@ -179,7 +179,7 @@ export default function LegajosClient({
   }
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
@@ -197,14 +197,14 @@ export default function LegajosClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Legajos</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Legajos</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {empresaActiva.razon_social} · {legajosFiltrados.length} empleado{legajosFiltrados.length !== 1 ? 's' : ''}
           </span>
         </div>
         {rol !== 'JEFE_OBRA' && (
           <button onClick={abrirNuevo} style={{
-            background: '#2563eb', color: 'white', border: 'none',
+            background: 'var(--c-blue-btn)', color: 'white', border: 'none',
             borderRadius: '6px', padding: '7px 16px',
             fontSize: '13px', cursor: 'pointer',
           }}>
@@ -216,15 +216,15 @@ export default function LegajosClient({
       {/* Filtros */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
         <div style={{ position: 'relative', flex: 1 }}>
-          <Search size={14} color="#8b949e" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={14} color="var(--c-text-secondary)" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
           <input
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por nombre, apellido, CUIL o legajo..."
             style={{
               width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
-              background: '#161b22', border: '0.5px solid #30363d',
-              color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+              background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
             }}
           />
         </div>
@@ -233,8 +233,8 @@ export default function LegajosClient({
           onChange={(e) => setFiltroEstado(e.target.value)}
           style={{
             padding: '7px 10px', borderRadius: '6px',
-            background: '#161b22', border: '0.5px solid #30363d',
-            color: filtroEstado ? '#e6edf3' : '#8b949e', fontSize: '13px',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            color: filtroEstado ? 'var(--c-text-primary)' : 'var(--c-text-secondary)', fontSize: '13px',
           }}
         >
           <option value="">Todos los estados</option>
@@ -245,9 +245,9 @@ export default function LegajosClient({
       {/* Tabla */}
       {legajosFiltrados.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           {legajos.filter(l => l.id_empresa === empresaActiva.id).length === 0
             ? `No hay legajos para ${empresaActiva.razon_social}.`
@@ -256,12 +256,12 @@ export default function LegajosClient({
         </div>
       ) : (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', overflow: 'hidden',
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {([
                   { label: 'Legajo',          col: 'nro_legajo' },
                   { label: 'Apellido y Nombre', col: 'apellido' },
@@ -276,7 +276,7 @@ export default function LegajosClient({
                   return (
                     <th key={col} onClick={() => toggleSort(col)} style={{
                       textAlign: 'left', padding: '10px 16px',
-                      color: activo ? '#e6edf3' : '#8b949e', fontWeight: 500,
+                      color: activo ? 'var(--c-text-primary)' : 'var(--c-text-secondary)', fontWeight: 500,
                       cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
                     }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -291,49 +291,49 @@ export default function LegajosClient({
             <tbody>
               {legajosFiltrados.map((legajo, i) => (
                 <tr key={legajo.id} style={{
-                  borderBottom: i < legajosFiltrados.length - 1 ? '0.5px solid #21262d' : 'none',
+                  borderBottom: i < legajosFiltrados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
                 }}>
                   <td style={{ padding: '10px 16px' }}>
                     <Link href={`/legajos/${legajo.id}`} style={{ textDecoration: 'none' }}>
                       <span style={{
-                        background: '#21262d', color: '#e6edf3',
+                        background: 'var(--c-elevated)', color: 'var(--c-text-primary)',
                         fontSize: '11px', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer',
                       }}>{String(legajo.nro_legajo).padStart(4, '0')}</span>
                     </Link>
                   </td>
                   <td style={{ padding: '10px 16px' }}>
                     <Link href={`/legajos/${legajo.id}`} style={{ textDecoration: 'none' }}>
-                      <span style={{ color: '#e6edf3', fontWeight: 500, cursor: 'pointer' }}>
+                      <span style={{ color: 'var(--c-text-primary)', fontWeight: 500, cursor: 'pointer' }}>
                         {legajo.apellido}, {legajo.nombre}
                       </span>
                     </Link>
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{legajo.cuil}</td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{legajo.cuil}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
                     {legajo.categorias?.descripcion || '—'}
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
                     {legajo.obras?.nombre || '—'}
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
                     {formatFecha(legajo.fecha_ingreso)}
                   </td>
                   <td style={{ padding: '10px 16px' }}>{badgeEstado(legajo.estado)}</td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                     <Link href={`/legajos/${legajo.id}`} style={{
-                      background: 'transparent', border: '0.5px solid #30363d',
-                      color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                      background: 'transparent', border: '0.5px solid var(--c-border)',
+                      color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px',
                       padding: '3px 10px', borderRadius: '4px', textDecoration: 'none',
                       marginRight: '4px', display: 'inline-block',
                     }}>Ver ficha</Link>
                     <button onClick={() => abrirEditar(legajo)} style={{
                       background: 'transparent', border: 'none',
-                      color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                      color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px',
                       padding: '4px 8px', borderRadius: '4px',
                     }}>Editar</button>
                     <button onClick={() => eliminar(legajo)} style={{
                       background: 'transparent', border: 'none',
-                      color: '#f85149', cursor: 'pointer', fontSize: '12px',
+                      color: 'var(--c-red)', cursor: 'pointer', fontSize: '12px',
                       padding: '4px 8px', borderRadius: '4px',
                     }}>Eliminar</button>
                   </td>

@@ -25,10 +25,10 @@ type Obra = {
 
 const badgeEstado = (estado: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
-    Activa:     { bg: '#1a3a2a', color: '#3fb950' },
+    Activa:     { bg: 'var(--c-green-bg)', color: 'var(--c-green)' },
     Pausada:    { bg: '#3a2f1a', color: '#d29922' },
-    Finalizada: { bg: '#21262d', color: '#8b949e' },
-    Cancelada:  { bg: '#3a1a1a', color: '#f85149' },
+    Finalizada: { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
+    Cancelada:  { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
   }
   const c = colores[estado] || colores.Activa
   return (
@@ -55,27 +55,27 @@ export default function FichaObraClient({
     <div>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-        <Link href="/obras" style={{ color: '#8b949e', display: 'flex', alignItems: 'center' }}>
+        <Link href="/obras" style={{ color: 'var(--c-text-secondary)', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={18} />
         </Link>
         <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>
             {obra.nombre}
           </h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {obra.codigo}
             {obra.localidad ? ` · ${obra.localidad}` : ''}
             {obra.provincia ? `, ${obra.provincia}` : ''}
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {obra.latitud && <MapPin size={14} color="#3fb950" />}
+          {obra.latitud && <MapPin size={14} color="var(--c-green)" />}
           {badgeEstado(obra.estado)}
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '0.5px solid #30363d', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', borderBottom: '0.5px solid var(--c-border)', marginBottom: '24px' }}>
         {TABS.map(tab => {
           const Icon = tab.icon
           return (
@@ -83,8 +83,8 @@ export default function FichaObraClient({
               display: 'flex', alignItems: 'center', gap: '6px',
               padding: '10px 18px', fontSize: '13px', cursor: 'pointer',
               background: 'transparent', border: 'none',
-              borderBottom: tabActiva === tab.id ? '2px solid #2563eb' : '2px solid transparent',
-              color: tabActiva === tab.id ? '#e6edf3' : '#8b949e',
+              borderBottom: tabActiva === tab.id ? '2px solid var(--c-blue-btn)' : '2px solid transparent',
+              color: tabActiva === tab.id ? 'var(--c-text-primary)' : 'var(--c-text-secondary)',
               marginBottom: '-0.5px',
             }}>
               <Icon size={14} />
@@ -97,7 +97,7 @@ export default function FichaObraClient({
       {/* Tab: Datos */}
       {tabActiva === 'datos' && (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '20px',
           display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px',
         }}>
@@ -114,8 +114,8 @@ export default function FichaObraClient({
             { label: 'GPS',           value: obra.latitud ? `${obra.latitud}, ${obra.longitud}` : 'Sin coordenadas' },
           ].map(({ label, value }) => (
             <div key={label}>
-              <span style={{ fontSize: '11px', color: '#8b949e', display: 'block', marginBottom: '3px' }}>{label}</span>
-              <span style={{ fontSize: '14px', color: '#e6edf3' }}>{value}</span>
+              <span style={{ fontSize: '11px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '3px' }}>{label}</span>
+              <span style={{ fontSize: '14px', color: 'var(--c-text-primary)' }}>{value}</span>
             </div>
           ))}
         </div>

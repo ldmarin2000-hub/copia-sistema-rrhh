@@ -20,18 +20,18 @@ type Legajo = {
 
 const inputStyle = {
   width: '100%', padding: '7px 10px', borderRadius: '6px',
-  background: '#0d1117', border: '0.5px solid #30363d',
-  color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+  background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+  color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
 }
 const selStyle = {
   width: '100%', padding: '7px 10px', borderRadius: '6px',
-  background: '#0d1117', border: '0.5px solid #30363d',
-  color: '#e6edf3', fontSize: '13px',
+  background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+  color: 'var(--c-text-primary)', fontSize: '13px',
 }
 
 const estadoColor: Record<string, { bg: string; color: string }> = {
-  'Activo': { bg: '#1a3a2a', color: '#3fb950' },
-  'Baja':   { bg: '#3a1a1a', color: '#f85149' },
+  'Activo': { bg: 'var(--c-green-bg)', color: 'var(--c-green)' },
+  'Baja':   { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
 }
 
 export default function PersonalObraClient({ categorias, obras }: { categorias: Categoria[]; obras: Obra[] }) {
@@ -219,22 +219,22 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
     setPdfLoading(false)
   }
 
-  if (!empresaActiva) return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
-  if (obrasJefe.length === 0) return <div style={{ color: '#8b949e', fontSize: '14px' }}>No tenés obras asignadas. Contactá al administrador.</div>
+  if (!empresaActiva) return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+  if (obrasJefe.length === 0) return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>No tenés obras asignadas. Contactá al administrador.</div>
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Personal de Obra</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Personal de Obra</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {obrasFiltradas.map(o => o.nombre).join(', ')}
           </span>
         </div>
         <button
           onClick={generarPDF}
           disabled={pdfLoading}
-          style={{ background: '#21262d', color: '#e6edf3', border: '0.5px solid #30363d', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer', opacity: pdfLoading ? 0.6 : 1 }}
+          style={{ background: 'var(--c-elevated)', color: 'var(--c-text-primary)', border: '0.5px solid var(--c-border)', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer', opacity: pdfLoading ? 0.6 : 1 }}
         >
           {pdfLoading ? 'Generando...' : 'Planilla HyD'}
         </button>
@@ -242,7 +242,7 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
 
       {/* Buscador */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
-        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
         <input
           value={busqueda} onChange={e => setBusqueda(e.target.value)}
           placeholder="Buscar por apellido, nombre o documento..."
@@ -251,40 +251,40 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
       </div>
 
       {/* Tabla */}
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
         {cargando ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '13px' }}>Cargando...</div>
+          <div style={{ padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>Cargando...</div>
         ) : personalFiltrado.length === 0 ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '13px' }}>
+          <div style={{ padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>
             {busqueda ? 'Sin resultados.' : 'No hay personal en tus obras.'}
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d', background: '#0d1117' }}>
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Empleado</th>
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Obra</th>
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Categoría</th>
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Ingreso</th>
-                <th style={{ padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)', background: 'var(--c-base)' }}>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Empleado</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Obra</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Categoría</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Ingreso</th>
+                <th style={{ padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
             <tbody>
               {personalFiltrado.map((p, i) => {
-                const ec = estadoColor[p.estado] || { bg: '#21262d', color: '#8b949e' }
+                const ec = estadoColor[p.estado] || { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' }
                 return (
-                  <tr key={p.id} style={{ borderBottom: i < personalFiltrado.length - 1 ? '0.5px solid #21262d' : 'none' }}>
+                  <tr key={p.id} style={{ borderBottom: i < personalFiltrado.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                     <td style={{ padding: '10px 16px' }}>
-                      <div style={{ color: '#e6edf3', fontWeight: 500 }}>{p.apellido}, {p.nombre}</div>
-                      <div style={{ color: '#484f58', fontSize: '11px' }}>
+                      <div style={{ color: 'var(--c-text-primary)', fontWeight: 500 }}>{p.apellido}, {p.nombre}</div>
+                      <div style={{ color: 'var(--c-text-muted)', fontSize: '11px' }}>
                         Leg. {String(p.nro_legajo).padStart(4, '0')}
                         {p.nro_documento ? ` · DNI ${p.nro_documento}` : ''}
                       </div>
                     </td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{p.obras?.nombre || '—'}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{p.categorias?.descripcion || '—'}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{p.fecha_ingreso ? formatFecha(p.fecha_ingreso) : '—'}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{p.obras?.nombre || '—'}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{p.categorias?.descripcion || '—'}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{p.fecha_ingreso ? formatFecha(p.fecha_ingreso) : '—'}</td>
                     <td style={{ padding: '10px 16px', textAlign: 'center' }}>
                       <span style={{ background: ec.bg, color: ec.color, fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{p.estado}</span>
                     </td>
@@ -328,8 +328,8 @@ export default function PersonalObraClient({ categorias, obras }: { categorias: 
 }
 
 const btnSecStyle: React.CSSProperties = {
-  background: 'transparent', border: '0.5px solid #30363d',
-  color: '#8b949e', cursor: 'pointer', fontSize: '11px',
+  background: 'transparent', border: '0.5px solid var(--c-border)',
+  color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '11px',
   padding: '3px 8px', borderRadius: '4px',
 }
 
@@ -423,23 +423,23 @@ function ModalPreAlta({ empresaActiva, obrasFiltradas, categoriasFiltradas, onCe
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Alta de empleado</h2>
-          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+          <h2 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Alta de empleado</h2>
+          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
         </div>
 
         {/* Buscar por DNI */}
         <div style={{ marginBottom: '16px' }}>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Buscar por DNI (si ya existe en el sistema)</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Buscar por DNI (si ya existe en el sistema)</label>
           <div style={{ display: 'flex', gap: '8px' }}>
             <input value={dniBusqueda} onChange={e => setDniBusqueda(e.target.value)} onKeyDown={e => e.key === 'Enter' && buscarPorDni()} placeholder="Número de documento..." style={{ ...inputStyle, flex: 1 }} />
-            <button onClick={buscarPorDni} disabled={buscando} style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '7px 14px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <button onClick={buscarPorDni} disabled={buscando} style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '7px 14px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               {buscando ? '...' : 'Buscar'}
             </button>
           </div>
           {legajoExistente && (
-            <div style={{ marginTop: '8px', padding: '8px 12px', background: '#1a2a3a', borderRadius: '6px', fontSize: '12px', color: '#58a6ff' }}>
+            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'var(--c-blue-bg)', borderRadius: '6px', fontSize: '12px', color: 'var(--c-blue)' }}>
               ✓ Empleado encontrado: <strong>{legajoExistente.apellido}, {legajoExistente.nombre}</strong> — Legajo {String(legajoExistente.nro_legajo).padStart(4,'0')} (estado actual: {legajoExistente.estado})
             </div>
           )}
@@ -448,37 +448,37 @@ function ModalPreAlta({ empresaActiva, obrasFiltradas, categoriasFiltradas, onCe
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Apellido *</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Apellido *</label>
               <input value={apellido} onChange={e => setApellido(e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nombre *</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Nombre *</label>
               <input value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle} />
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px' }}>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Tipo doc.</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Tipo doc.</label>
               <select value={tipoDoc} onChange={e => setTipoDoc(e.target.value)} style={selStyle}>
                 <option>DNI</option><option>PASAPORTE</option><option>CI</option>
               </select>
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nro. documento</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Nro. documento</label>
               <input value={nroDoc} onChange={e => setNroDoc(e.target.value)} style={inputStyle} />
             </div>
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>CUIL</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>CUIL</label>
             <input value={cuil} onChange={e => setCuil(e.target.value)} placeholder="20-12345678-9" style={inputStyle} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha de ingreso *</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Fecha de ingreso *</label>
               <input type="date" value={fechaIngreso} onChange={e => setFechaIngreso(e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Obra *</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Obra *</label>
               <select value={idObra} onChange={e => setIdObra(e.target.value)} style={selStyle}>
                 <option value="">Seleccionar...</option>
                 {obrasFiltradas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
@@ -486,7 +486,7 @@ function ModalPreAlta({ empresaActiva, obrasFiltradas, categoriasFiltradas, onCe
             </div>
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Categoría</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Categoría</label>
             <select value={idCategoria} onChange={e => setIdCategoria(e.target.value)} style={selStyle}>
               <option value="">Sin categoría</option>
               {categoriasFiltradas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
@@ -494,11 +494,11 @@ function ModalPreAlta({ empresaActiva, obrasFiltradas, categoriasFiltradas, onCe
           </div>
         </div>
 
-        {error && <p style={{ color: '#f85149', fontSize: '12px', margin: '12px 0 0' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: '12px 0 0' }}>{error}</p>}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-          <button onClick={guardar} disabled={guardando} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
+          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+          <button onClick={guardar} disabled={guardando} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
             {guardando ? 'Guardando...' : legajoExistente ? 'Confirmar reingreso' : 'Crear alta'}
           </button>
         </div>
@@ -548,32 +548,32 @@ function ModalCambiarObra({ legajo, todasObras, onCerrar, onGuardado }: {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Cambiar obra</h2>
-          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+          <h2 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Cambiar obra</h2>
+          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
         </div>
-        <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '4px' }}>{legajo.apellido}, {legajo.nombre}</p>
-        <p style={{ fontSize: '11px', color: '#484f58', marginBottom: '16px' }}>
-          Obra actual: <span style={{ color: '#8b949e' }}>{legajo.obras?.nombre || '—'}</span>
+        <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', marginBottom: '4px' }}>{legajo.apellido}, {legajo.nombre}</p>
+        <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', marginBottom: '16px' }}>
+          Obra actual: <span style={{ color: 'var(--c-text-secondary)' }}>{legajo.obras?.nombre || '—'}</span>
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nueva obra</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Nueva obra</label>
             <select value={idObra} onChange={e => setIdObra(e.target.value)} style={selStyle}>
               <option value="">Seleccionar...</option>
               {obrasDisponibles.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha de traslado</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Fecha de traslado</label>
             <input type="date" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)} style={inputStyle} />
           </div>
         </div>
-        {error && <p style={{ color: '#f85149', fontSize: '12px', marginBottom: '8px' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', marginBottom: '8px' }}>{error}</p>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-          <button onClick={guardar} disabled={guardando || !idObra} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
+          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+          <button onClick={guardar} disabled={guardando || !idObra} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
             {guardando ? 'Guardando...' : 'Trasladar'}
           </button>
         </div>
@@ -623,32 +623,32 @@ function ModalCambiarCategoria({ legajo, categoriasFiltradas, onCerrar, onGuarda
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Cambiar categoría</h2>
-          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+          <h2 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Cambiar categoría</h2>
+          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
         </div>
-        <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '4px' }}>{legajo.apellido}, {legajo.nombre}</p>
-        <p style={{ fontSize: '11px', color: '#484f58', marginBottom: '16px' }}>
-          Categoría actual: <span style={{ color: '#8b949e' }}>{legajo.categorias?.descripcion || '—'}</span>
+        <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', marginBottom: '4px' }}>{legajo.apellido}, {legajo.nombre}</p>
+        <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', marginBottom: '16px' }}>
+          Categoría actual: <span style={{ color: 'var(--c-text-secondary)' }}>{legajo.categorias?.descripcion || '—'}</span>
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nueva categoría</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Nueva categoría</label>
             <select value={idCategoria} onChange={e => setIdCategoria(e.target.value)} style={selStyle}>
               <option value="">Sin categoría</option>
               {categoriasDisponibles.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha de cambio</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Fecha de cambio</label>
             <input type="date" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)} style={inputStyle} />
           </div>
         </div>
-        {error && <p style={{ color: '#f85149', fontSize: '12px', marginBottom: '8px' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', marginBottom: '8px' }}>{error}</p>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-          <button onClick={guardar} disabled={guardando} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
+          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+          <button onClick={guardar} disabled={guardando} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
             {guardando ? 'Guardando...' : 'Cambiar'}
           </button>
         </div>
@@ -691,32 +691,32 @@ function ModalPreBaja({ legajo, empresaId, onCerrar, onGuardado }: {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '400px', padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: 500, color: '#f85149', margin: 0 }}>Dar de baja</h2>
-          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+          <h2 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--c-red)', margin: 0 }}>Dar de baja</h2>
+          <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
         </div>
-        <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '16px' }}>{legajo.apellido}, {legajo.nombre}</p>
+        <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', marginBottom: '16px' }}>{legajo.apellido}, {legajo.nombre}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Motivo *</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Motivo *</label>
             <select value={motivo} onChange={e => setMotivo(e.target.value)} style={selStyle}>
               <option value="">Seleccionar...</option>
               {motivos.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha tentativa de egreso</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Fecha tentativa de egreso</label>
             <input type="date" value={fechaTentativa} onChange={e => setFechaTentativa(e.target.value)} style={inputStyle} />
           </div>
-          <div style={{ padding: '10px 12px', background: '#3a1a1a', borderRadius: '6px', fontSize: '12px', color: '#f85149' }}>
+          <div style={{ padding: '10px 12px', background: 'var(--c-red-bg)', borderRadius: '6px', fontSize: '12px', color: 'var(--c-red)' }}>
             El empleado quedará en estado <strong>Baja</strong>.
           </div>
         </div>
-        {error && <p style={{ color: '#f85149', fontSize: '12px', margin: '10px 0 0' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: '10px 0 0' }}>{error}</p>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-          <button onClick={guardar} disabled={guardando} style={{ background: '#3a1a1a', border: '0.5px solid #f8514940', color: '#f85149', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
+          <button onClick={onCerrar} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+          <button onClick={guardar} disabled={guardando} style={{ background: 'var(--c-red-bg)', border: '0.5px solid var(--c-red)40', color: 'var(--c-red)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: guardando ? 0.6 : 1 }}>
             {guardando ? 'Guardando...' : 'Confirmar baja'}
           </button>
         </div>

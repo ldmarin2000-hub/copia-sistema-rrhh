@@ -92,8 +92,8 @@ export default function UsuariosClient({
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
 
   function abrirEditar(usuario: Usuario) {
@@ -175,50 +175,50 @@ export default function UsuariosClient({
       {/* Modal nuevo usuario */}
       {mostrarForm && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
         }}>
           <div style={{
-            background: '#161b22', border: '0.5px solid #30363d',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
             borderRadius: '10px', width: '100%', maxWidth: '420px', padding: '24px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
                 Nuevo usuario
               </h2>
-              <button onClick={() => { setMostrarForm(false); setError('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <button onClick={() => { setMostrarForm(false); setError('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nombre *</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Nombre *</label>
                 <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" style={inputStyle} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Email *</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Email *</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="usuario@email.com" style={inputStyle} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Contraseña *</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Contraseña *</label>
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" style={inputStyle} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input type="checkbox" id="superadmin" checked={esSuperadmin} onChange={(e) => setEsSuperadmin(e.target.checked)} />
-                <label htmlFor="superadmin" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Es Superadmin</label>
+                <label htmlFor="superadmin" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Es Superadmin</label>
               </div>
-              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
               <button onClick={() => { setMostrarForm(false); setError('') }} style={{
-                background: 'transparent', border: '0.5px solid #30363d',
-                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer',
               }}>Cancelar</button>
               <button onClick={crearUsuario} disabled={loading || !email || !nombre || !password} style={{
-                background: '#2563eb', color: 'white', border: 'none',
+                background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1,
               }}>
@@ -232,48 +232,48 @@ export default function UsuariosClient({
       {/* Modal editar usuario */}
       {usuarioEditar && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
         }}>
           <div style={{
-            background: '#161b22', border: '0.5px solid #30363d',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
             borderRadius: '10px', width: '100%', maxWidth: '420px', padding: '24px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
                 Editar usuario
               </h2>
-              <button onClick={() => setUsuarioEditar(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <button onClick={() => setUsuarioEditar(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nombre</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Nombre</label>
                 <input value={editNombre} onChange={(e) => setEditNombre(e.target.value)} style={inputStyle} />
               </div>
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>
                   Nueva contraseña — dejá vacío para no cambiar
                 </label>
                 <input type="password" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} placeholder="••••••••" style={inputStyle} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input type="checkbox" id="editActivo" checked={editActivo} onChange={(e) => setEditActivo(e.target.checked)} />
-                <label htmlFor="editActivo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Usuario activo</label>
+                <label htmlFor="editActivo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Usuario activo</label>
               </div>
-              {errorEdit && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{errorEdit}</p>}
+              {errorEdit && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{errorEdit}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
               <button onClick={() => setUsuarioEditar(null)} style={{
-                background: 'transparent', border: '0.5px solid #30363d',
-                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer',
               }}>Cancelar</button>
               <button onClick={guardarEdicion} disabled={loadingEdit || !editNombre} style={{
-                background: '#2563eb', color: 'white', border: 'none',
+                background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer', opacity: loadingEdit ? 0.6 : 1,
               }}>
@@ -287,13 +287,13 @@ export default function UsuariosClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Usuarios</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Usuarios</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {usuarios.length} usuario{usuarios.length !== 1 ? 's' : ''} registrado{usuarios.length !== 1 ? 's' : ''}
           </span>
         </div>
         <button onClick={() => setMostrarForm(true)} style={{
-          background: '#2563eb', color: 'white', border: 'none',
+          background: 'var(--c-blue-btn)', color: 'white', border: 'none',
           borderRadius: '6px', padding: '7px 16px',
           fontSize: '13px', cursor: 'pointer',
         }}>
@@ -303,47 +303,47 @@ export default function UsuariosClient({
 
       {/* Buscar */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
-        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
         <input
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por nombre o email..."
           style={{
             width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
-            background: '#161b22', border: '0.5px solid #30363d',
-            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
           }}
         />
       </div>
 
       {/* Tabla */}
       <div style={{
-        background: '#161b22', border: '0.5px solid #30363d',
+        background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
         borderRadius: '8px', overflow: 'hidden',
       }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+            <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
               {([['Nombre','nombre'],['Email','mail']] as [string,SortCol][]).map(([label, col]) => (
                 <th key={col} onClick={() => toggleSort(col)} style={{
                   textAlign: 'left', padding: '10px 16px',
-                  color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                  color: 'var(--c-text-secondary)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
                 }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
                 </th>
               ))}
-              <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Permisos</th>
-              <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
+              <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Permisos</th>
+              <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Estado</th>
               <th style={{ padding: '10px 16px' }}></th>
             </tr>
           </thead>
           <tbody>
             {usuariosFiltrados.map((usuario, i) => (
               <tr key={usuario.id} style={{
-                borderBottom: i < usuariosFiltrados.length - 1 ? '0.5px solid #21262d' : 'none',
+                borderBottom: i < usuariosFiltrados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
               }}>
-                <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{usuario.nombre}</td>
-                <td style={{ padding: '10px 16px', color: '#8b949e' }}>{usuario.mail}</td>
+                <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{usuario.nombre}</td>
+                <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{usuario.mail}</td>
                 <td style={{ padding: '10px 16px' }}>
                   {usuario.es_superadmin ? (
                     <span style={{
@@ -352,16 +352,16 @@ export default function UsuariosClient({
                     }}>Superadmin</span>
                   ) : (
                     <button onClick={() => setUsuarioPermisos(usuario)} style={{
-                      background: 'transparent', border: '0.5px solid #30363d',
-                      color: '#58a6ff', cursor: 'pointer', fontSize: '12px',
+                      background: 'transparent', border: '0.5px solid var(--c-border)',
+                      color: 'var(--c-blue)', cursor: 'pointer', fontSize: '12px',
                       padding: '4px 10px', borderRadius: '4px',
                     }}>Ver permisos</button>
                   )}
                 </td>
                 <td style={{ padding: '10px 16px' }}>
                   <span style={{
-                    background: usuario.activo ? '#1a3a2a' : '#3a1a1a',
-                    color: usuario.activo ? '#3fb950' : '#f85149',
+                    background: usuario.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+                    color: usuario.activo ? 'var(--c-green)' : 'var(--c-red)',
                     fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                   }}>
                     {usuario.activo ? 'Activo' : 'Inactivo'}
@@ -370,7 +370,7 @@ export default function UsuariosClient({
                 <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                   <button onClick={() => abrirEditar(usuario)} style={{
                     background: 'transparent', border: 'none',
-                    color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                    color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px',
                     padding: '4px 8px', borderRadius: '4px',
                   }}>Editar</button>
                 </td>

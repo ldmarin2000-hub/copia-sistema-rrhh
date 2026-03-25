@@ -53,8 +53,8 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
 
   const selStyle = {
     padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
 
   function getRango() {
@@ -237,7 +237,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
 
   const periodoLabel = `${MESES[parseInt(mes) - 1]} ${anio}${periodo === '1' ? ' — 1ª quincena' : periodo === '2' ? ' — 2ª quincena' : ' — mes completo'}`
 
-  if (!empresaActiva) return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+  if (!empresaActiva) return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
 
   // ── Estilos celda día ───────────────────────────────────
   function thDiaStyle(fecha: string) {
@@ -246,9 +246,9 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
     const fer = feriadosFechas.has(fecha)
     return {
       textAlign: 'center' as const, padding: '6px 2px', minWidth: '38px', width: '38px',
-      color: fer ? '#d29922' : fds ? '#484f58' : '#8b949e',
+      color: fer ? '#d29922' : fds ? 'var(--c-text-muted)' : 'var(--c-text-secondary)',
       background: fds ? '#0a0d12' : 'transparent',
-      borderBottom: `2px solid ${fer ? '#d2992240' : fds ? '#21262d' : '#30363d'}`,
+      borderBottom: `2px solid ${fer ? '#d2992240' : fds ? 'var(--c-elevated)' : 'var(--c-border)'}`,
       position: 'sticky' as const, top: 0, zIndex: 1,
     }
   }
@@ -262,57 +262,57 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
   return (
     <div>
       <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Consulta de novedades</h1>
-        <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva.razon_social}</span>
+        <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Consulta de novedades</h1>
+        <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
       </div>
 
       {/* Filtros */}
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '16px 20px', display: 'flex', flexWrap: 'wrap' as const, gap: '12px', alignItems: 'flex-end', marginBottom: '20px' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '16px 20px', display: 'flex', flexWrap: 'wrap' as const, gap: '12px', alignItems: 'flex-end', marginBottom: '20px' }}>
         <div style={{ flex: '1 1 180px' }}>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Obra</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Obra</label>
           <select value={idObra} onChange={e => setIdObra(e.target.value)} style={{ ...selStyle, width: '100%' }}>
             <option value="">Todas las obras</option>
             {obrasFiltradas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Mes</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Mes</label>
           <select value={mes} onChange={e => setMes(e.target.value)} style={selStyle}>
             {MESES.map((m, i) => <option key={i} value={String(i + 1).padStart(2, '0')}>{m}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Año</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Año</label>
           <select value={anio} onChange={e => setAnio(e.target.value)} style={selStyle}>
             {['2024','2025','2026','2027'].map(a => <option key={a} value={a}>{a}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Período</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Período</label>
           <select value={periodo} onChange={e => setPeriodo(e.target.value)} style={selStyle}>
             <option value="1">1ª quincena (1–15)</option>
             <option value="2">2ª quincena (16–fin)</option>
             <option value="mes">Mes completo</option>
           </select>
         </div>
-        <button onClick={consultar} disabled={cargando} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 20px', fontSize: '13px', cursor: 'pointer', opacity: cargando ? 0.6 : 1 }}>
+        <button onClick={consultar} disabled={cargando} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 20px', fontSize: '13px', cursor: 'pointer', opacity: cargando ? 0.6 : 1 }}>
           {cargando ? 'Consultando...' : 'Consultar'}
         </button>
       </div>
 
       {/* Resultados */}
       {buscado && empleados.length === 0 && (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '14px' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px' }}>
           No hay novedades para {periodoLabel}.
         </div>
       )}
 
       {buscado && empleados.length > 0 && (
-        <div style={{ overflowX: 'auto', borderRadius: '8px', border: '0.5px solid #30363d' }}>
+        <div style={{ overflowX: 'auto', borderRadius: '8px', border: '0.5px solid var(--c-border)' }}>
           <table style={{ borderCollapse: 'collapse', fontSize: '12px', width: '100%', minWidth: `${200 + dias.length * 38 + 55}px` }}>
             <thead>
-              <tr style={{ background: '#0d1117' }}>
-                <th style={{ textAlign: 'left', padding: '10px 14px', fontSize: '12px', color: '#8b949e', fontWeight: 500, minWidth: '200px', position: 'sticky', left: 0, background: '#0d1117', zIndex: 2, borderBottom: '2px solid #30363d' }}>
+              <tr style={{ background: 'var(--c-base)' }}>
+                <th style={{ textAlign: 'left', padding: '10px 14px', fontSize: '12px', color: 'var(--c-text-secondary)', fontWeight: 500, minWidth: '200px', position: 'sticky', left: 0, background: 'var(--c-base)', zIndex: 2, borderBottom: '2px solid var(--c-border)' }}>
                   {periodoLabel}
                 </th>
                 {dias.map(fecha => {
@@ -326,7 +326,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                     </th>
                   )
                 })}
-                <th style={{ padding: '10px 8px', fontSize: '12px', color: '#8b949e', fontWeight: 500, textAlign: 'center', minWidth: '55px', position: 'sticky', right: 0, background: '#0d1117', zIndex: 2, borderBottom: '2px solid #30363d', borderLeft: '0.5px solid #30363d' }}>
+                <th style={{ padding: '10px 8px', fontSize: '12px', color: 'var(--c-text-secondary)', fontWeight: 500, textAlign: 'center', minWidth: '55px', position: 'sticky', right: 0, background: 'var(--c-base)', zIndex: 2, borderBottom: '2px solid var(--c-border)', borderLeft: '0.5px solid var(--c-border)' }}>
                   Total
                 </th>
               </tr>
@@ -349,24 +349,24 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                     <tr
                       onClick={() => toggleExpand(idLegajo)}
                       style={{
-                        borderBottom: expanded ? 'none' : empIdx < empleados.length - 1 ? '0.5px solid #21262d' : 'none',
+                        borderBottom: expanded ? 'none' : empIdx < empleados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
                         cursor: 'pointer',
-                        background: expanded ? '#0d1117' : 'transparent',
+                        background: expanded ? 'var(--c-base)' : 'transparent',
                       }}
                     >
-                      <td style={{ padding: '9px 14px', position: 'sticky', left: 0, background: expanded ? '#0d1117' : '#161b22', zIndex: 1, borderBottom: expanded ? 'none' : '0.5px solid #21262d' }}>
+                      <td style={{ padding: '9px 14px', position: 'sticky', left: 0, background: expanded ? 'var(--c-base)' : 'var(--c-surface)', zIndex: 1, borderBottom: expanded ? 'none' : '0.5px solid var(--c-elevated)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {expanded
-                            ? <ChevronDown size={13} color="#58a6ff" />
-                            : <ChevronRight size={13} color="#484f58" />}
-                          <span style={{ color: '#e6edf3', fontWeight: 500, fontSize: '13px' }}>
+                            ? <ChevronDown size={13} color="var(--c-blue)" />
+                            : <ChevronRight size={13} color="var(--c-text-muted)" />}
+                          <span style={{ color: 'var(--c-text-primary)', fontWeight: 500, fontSize: '13px' }}>
                             {legajo.apellido}, {legajo.nombre}
                           </span>
-                          <span style={{ color: '#484f58', fontSize: '11px' }}>
+                          <span style={{ color: 'var(--c-text-muted)', fontSize: '11px' }}>
                             #{String(legajo.nro_legajo).padStart(4, '0')}
                           </span>
-                          {totalExtra50 > 0 && <span style={{ fontSize: '10px', color: '#58a6ff', background: '#1a2a3a', padding: '1px 6px', borderRadius: '3px' }}>+{totalExtra50}h 50%</span>}
-                          {totalExtra100 > 0 && <span style={{ fontSize: '10px', color: '#58a6ff', background: '#1a2a3a', padding: '1px 6px', borderRadius: '3px' }}>+{totalExtra100}h 100%</span>}
+                          {totalExtra50 > 0 && <span style={{ fontSize: '10px', color: 'var(--c-blue)', background: 'var(--c-blue-bg)', padding: '1px 6px', borderRadius: '3px' }}>+{totalExtra50}h 50%</span>}
+                          {totalExtra100 > 0 && <span style={{ fontSize: '10px', color: 'var(--c-blue)', background: 'var(--c-blue-bg)', padding: '1px 6px', borderRadius: '3px' }}>+{totalExtra100}h 100%</span>}
                         </div>
                       </td>
                       {dias.map(fecha => {
@@ -378,26 +378,26 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                         return (
                           <td key={fecha} style={{ padding: '6px 2px', textAlign: 'center', background: bg }}>
                             {vac ? (
-                              <span style={{ fontSize: '10px', fontWeight: 600, color: '#58a6ff' }}>VAC</span>
+                              <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-blue)' }}>VAC</span>
                             ) : aus ? (
-                              <span style={{ fontSize: '10px', fontWeight: 600, color: (aus as any).tipos_ausencia?.pierde_presentismo === false ? '#3fb950' : '#f85149' }}>
+                              <span style={{ fontSize: '10px', fontWeight: 600, color: (aus as any).tipos_ausencia?.pierde_presentismo === false ? 'var(--c-green)' : 'var(--c-red)' }}>
                                 {(aus as any).tipos_ausencia?.codigo || 'AUS'}
                               </span>
                             ) : fer ? (
                               <span style={{ fontSize: '10px', fontWeight: 600, color: '#d29922' }}>FER</span>
                             ) : nov?.ausente ? (
-                              <span style={{ fontSize: '10px', color: '#f85149' }}>A</span>
+                              <span style={{ fontSize: '10px', color: 'var(--c-red)' }}>A</span>
                             ) : nov ? (
-                              <span style={{ color: nov.hs_normales > 0 ? '#e6edf3' : '#484f58', fontSize: '12px' }}>
+                              <span style={{ color: nov.hs_normales > 0 ? 'var(--c-text-primary)' : 'var(--c-text-muted)', fontSize: '12px' }}>
                                 {nov.hs_normales || '—'}
                               </span>
                             ) : (
-                              <span style={{ color: '#21262d', fontSize: '12px' }}>·</span>
+                              <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>·</span>
                             )}
                           </td>
                         )
                       })}
-                      <td style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, color: totalHoras > 0 ? '#e6edf3' : '#484f58', fontSize: '13px', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: expanded ? '#0d1117' : '#161b22' }}>
+                      <td style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, color: totalHoras > 0 ? 'var(--c-text-primary)' : 'var(--c-text-muted)', fontSize: '13px', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: expanded ? 'var(--c-base)' : 'var(--c-surface)' }}>
                         {totalHoras || '—'}
                       </td>
                     </tr>
@@ -405,7 +405,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                     {/* ── Filas de detalle (expandido) ── */}
                     {expanded && (() => {
                       const isLast = empIdx === empleados.length - 1
-                      const sepStyle = { borderBottom: '0.5px solid #21262d' }
+                      const sepStyle = { borderBottom: '0.5px solid var(--c-elevated)' }
 
                       const filaConcepto = (
                         label: string,
@@ -416,15 +416,15 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                         isLastFila: boolean
                       ) => (
                         <tr key={`${idLegajo}-${label}`} style={isLastFila && isLast ? {} : sepStyle}>
-                          <td style={{ padding: '6px 14px 6px 34px', fontSize: '11px', fontWeight: 500, color, position: 'sticky', left: 0, background: bg, zIndex: 1, borderBottom: isLastFila && isLast ? 'none' : '0.5px solid #21262d' }}>
+                          <td style={{ padding: '6px 14px 6px 34px', fontSize: '11px', fontWeight: 500, color, position: 'sticky', left: 0, background: bg, zIndex: 1, borderBottom: isLastFila && isLast ? 'none' : '0.5px solid var(--c-elevated)' }}>
                             {label}
                           </td>
                           {dias.map(fecha => (
-                            <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: bg, borderBottom: isLastFila && isLast ? 'none' : '0.5px solid #21262d' }}>
+                            <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: bg, borderBottom: isLastFila && isLast ? 'none' : '0.5px solid var(--c-elevated)' }}>
                               {getCelda(fecha)}
                             </td>
                           ))}
-                          <td style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, color, fontSize: '12px', borderLeft: '0.5px solid #30363d', position: 'sticky', right: 0, background: bg, borderBottom: isLastFila && isLast ? 'none' : '0.5px solid #21262d' }}>
+                          <td style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 600, color, fontSize: '12px', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: bg, borderBottom: isLastFila && isLast ? 'none' : '0.5px solid var(--c-elevated)' }}>
                             {total}
                           </td>
                         </tr>
@@ -434,49 +434,49 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
 
                       // Hs. Normales
                       conceptos.push(filaConcepto(
-                        'Hs. Normales', '#8b949e', '#0a0d12',
+                        'Hs. Normales', 'var(--c-text-secondary)', '#0a0d12',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_normales || 0
-                          return val > 0 ? <span style={{ color: '#e6edf3', fontSize: '12px' }}>{val}</span> : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                          return val > 0 ? <span style={{ color: 'var(--c-text-primary)', fontSize: '12px' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                         },
-                        totalNorm > 0 ? totalNorm : <span style={{ color: '#484f58' }}>—</span>,
+                        totalNorm > 0 ? totalNorm : <span style={{ color: 'var(--c-text-muted)' }}>—</span>,
                         false
                       ))
 
                       // Hs. Extra 50%
                       if (totalExtra50 > 0) conceptos.push(filaConcepto(
-                        'Hs. Extra 50%', '#58a6ff', '#0a0d12',
+                        'Hs. Extra 50%', 'var(--c-blue)', '#0a0d12',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_50 || 0
-                          return val > 0 ? <span style={{ color: '#58a6ff', fontSize: '12px' }}>{val}</span> : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                          return val > 0 ? <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                         },
-                        <span style={{ color: '#58a6ff' }}>{totalExtra50}</span>,
+                        <span style={{ color: 'var(--c-blue)' }}>{totalExtra50}</span>,
                         false
                       ))
 
                       // Hs. Extra 100%
                       if (totalExtra100 > 0) conceptos.push(filaConcepto(
-                        'Hs. Extra 100%', '#58a6ff', '#0a0d12',
+                        'Hs. Extra 100%', 'var(--c-blue)', '#0a0d12',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_100 || 0
-                          return val > 0 ? <span style={{ color: '#58a6ff', fontSize: '12px' }}>{val}</span> : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                          return val > 0 ? <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                         },
-                        <span style={{ color: '#58a6ff' }}>{totalExtra100}</span>,
+                        <span style={{ color: 'var(--c-blue)' }}>{totalExtra100}</span>,
                         false
                       ))
 
                       // Hs. Nocturnas
                       if (totalNoct > 0) conceptos.push(filaConcepto(
-                        'Hs. Nocturnas', '#58a6ff', '#0a0d12',
+                        'Hs. Nocturnas', 'var(--c-blue)', '#0a0d12',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_nocturnas || 0
-                          return val > 0 ? <span style={{ color: '#58a6ff', fontSize: '12px' }}>{val}</span> : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                          return val > 0 ? <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                         },
-                        <span style={{ color: '#58a6ff' }}>{totalNoct}</span>,
+                        <span style={{ color: 'var(--c-blue)' }}>{totalNoct}</span>,
                         false
                       ))
 
@@ -487,15 +487,15 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           return nov && na.id_adicional === adic.id
                         }).reduce((s, na) => s + na.cantidad, 0)
                         conceptos.push(filaConcepto(
-                          adic.descripcion, '#58a6ff', '#0d1420',
+                          adic.descripcion, 'var(--c-blue)', '#0d1420',
                           fecha => {
                             const nov = getNov(idLegajo, fecha)
-                            if (!nov) return <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                            if (!nov) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                             const adicsNov = getAdicsNov(nov.id)
                             const val = adicsNov.filter(na => na.id_adicional === adic.id).reduce((s, na) => s + na.cantidad, 0)
-                            return val > 0 ? <span style={{ color: '#58a6ff', fontSize: '12px' }}>{val}</span> : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                            return val > 0 ? <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                           },
-                          <span style={{ color: '#58a6ff' }}>{total}</span>,
+                          <span style={{ color: 'var(--c-blue)' }}>{total}</span>,
                           false
                         ))
                       })
@@ -510,14 +510,14 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           return cuentaCorridos ? true : esDiaLaboral(d, plantilla)
                         }).length
                         conceptos.push(filaConcepto(
-                          tipo.descripcion, '#f85149', '#1a0a0a',
+                          tipo.descripcion, 'var(--c-red)', '#1a0a0a',
                           fecha => {
                             const aus = ausenciasPeriodo.find(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= fecha && a.fecha_hasta >= fecha)
                             return aus
-                              ? <span style={{ fontSize: '10px', fontWeight: 600, color: '#f85149', background: '#3a1a1a', padding: '1px 5px', borderRadius: '3px' }}>{tipo.codigo || 'AUS'}</span>
-                              : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                              ? <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-red)', background: 'var(--c-red-bg)', padding: '1px 5px', borderRadius: '3px' }}>{tipo.codigo || 'AUS'}</span>
+                              : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                           },
-                          <span style={{ color: '#f85149' }}>{totalDias}d</span>,
+                          <span style={{ color: 'var(--c-red)' }}>{totalDias}d</span>,
                           false
                         ))
                       })
@@ -526,11 +526,11 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                       if (tieneVac) {
                         const totalVac = dias.filter(d => enVacaciones(idLegajo, d)).length
                         conceptos.push(filaConcepto(
-                          'Vacaciones', '#3fb950', '#0a1a0a',
+                          'Vacaciones', 'var(--c-green)', '#0a1a0a',
                           fecha => enVacaciones(idLegajo, fecha)
-                            ? <span style={{ fontSize: '10px', fontWeight: 600, color: '#3fb950', background: '#1a3a2a', padding: '1px 5px', borderRadius: '3px' }}>VAC</span>
-                            : <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>,
-                          <span style={{ color: '#3fb950' }}>{totalVac}d</span>,
+                            ? <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-green)', background: 'var(--c-green-bg)', padding: '1px 5px', borderRadius: '3px' }}>VAC</span>
+                            : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>,
+                          <span style={{ color: 'var(--c-green)' }}>{totalVac}d</span>,
                           false
                         ))
                       }
@@ -546,7 +546,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           'Feriados', '#d29922', '#1a1500',
                           fecha => {
                             const fer = feriadosFechas.has(fecha)
-                            if (!fer) return <span style={{ color: '#21262d', fontSize: '12px' }}>—</span>
+                            if (!fer) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                             const aus = getAusencia(idLegajo, fecha)
                             const vac = enVacaciones(idLegajo, fecha)
                             const cuenta = !aus && !vac

@@ -36,18 +36,18 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
 
   const labelStyle = {
-    fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px'
+    fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px'
   }
 
   const checkRow = (label: string, value: boolean, onChange: (v: boolean) => void) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} />
-      <label style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>{label}</label>
+      <label style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>{label}</label>
     </div>
   )
 
@@ -151,35 +151,35 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
 
   const badge = (valor: boolean, si: string, no: string) => (
     <span style={{
-      background: valor ? '#1a3a2a' : '#3a1a1a',
-      color: valor ? '#3fb950' : '#f85149',
+      background: valor ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+      color: valor ? 'var(--c-green)' : 'var(--c-red)',
       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
     }}>{valor ? si : no}</span>
   )
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
     <>
       {mostrarForm && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
         }}>
           <div style={{
-            background: '#161b22', border: '0.5px solid #30363d',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
             borderRadius: '10px', width: '100%', maxWidth: '440px', padding: '24px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
-                <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>
                   {editando ? 'Editar tipo de ausencia' : 'Nuevo tipo de ausencia'}
                 </h2>
-                <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva.razon_social}</span>
+                <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
               </div>
-              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
@@ -206,17 +206,17 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
               {checkRow('Remunerada', remunerada, setRemunerada)}
               {checkRow('Cuenta días corridos (incluye fines de semana)', cuentaDiasCorridos, setCuentaDiasCorridos)}
               {checkRow('Activo', activo, setActivo)}
-              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
               <button onClick={cerrar} style={{
-                background: 'transparent', border: '0.5px solid #30363d',
-                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer',
               }}>Cancelar</button>
               <button onClick={guardar} disabled={loading || !descripcion} style={{
-                background: '#2563eb', color: 'white', border: 'none',
+                background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1,
               }}>
@@ -229,60 +229,60 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
 
       {/* Buscar */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
-        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
         <input
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por código o descripción..."
           style={{
             width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
-            background: '#161b22', border: '0.5px solid #30363d',
-            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
           }}
         />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Tipos de ausencia</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Tipos de ausencia</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             Globales + {empresaActiva.razon_social}
           </span>
         </div>
         <button onClick={abrirNuevo} style={{
-          background: '#2563eb', color: 'white', border: 'none',
+          background: 'var(--c-blue-btn)', color: 'white', border: 'none',
           borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer',
         }}>+ Nuevo tipo</button>
       </div>
 
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+            <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
               {([['Código','codigo'],['Descripción','descripcion']] as [string,SortCol][]).map(([label, col]) => (
                 <th key={col} onClick={() => toggleSort(col)} style={{
                   textAlign: 'left', padding: '10px 16px',
-                  color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                  color: 'var(--c-text-secondary)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
                 }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
                 </th>
               ))}
               {['Presentismo','Certificado','Remunerada','Días','Origen','Estado'].map(col => (
-                <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
+                <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>{col}</th>
               ))}
               <th style={{ padding: '10px 16px' }}></th>
             </tr>
           </thead>
           <tbody>
             {tiposFiltrados.map((t, i) => (
-              <tr key={t.id} style={{ borderBottom: i < tiposFiltrados.length - 1 ? '0.5px solid #21262d' : 'none' }}>
+              <tr key={t.id} style={{ borderBottom: i < tiposFiltrados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                                 <td style={{ padding: '10px 16px' }}>
                   <span style={{
-                    background: '#21262d', color: '#e6edf3',
+                    background: 'var(--c-elevated)', color: 'var(--c-text-primary)',
                     fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                   }}>{t.codigo || '—'}</span>
                 </td>
-                <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{t.descripcion}</td>
+                <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{t.descripcion}</td>
                 <td style={{ padding: '10px 16px' }}>{badge(t.pierde_presentismo, 'Pierde', 'No pierde')}</td>
                 <td style={{ padding: '10px 16px' }}>{badge(t.requiere_certificado, 'Sí', 'No')}</td>
                 <td style={{ padding: '10px 16px' }}>{badge(t.remunerada, 'Sí', 'No')}</td>
@@ -291,21 +291,21 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
                   {!t.id_empresa ? (
                     <span style={{ background: '#2a1a3a', color: '#bc8cff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Global</span>
                   ) : (
-                    <span style={{ background: '#1a2a3a', color: '#58a6ff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Empresa</span>
+                    <span style={{ background: 'var(--c-blue-bg)', color: 'var(--c-blue)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Empresa</span>
                   )}
                 </td>
                 <td style={{ padding: '10px 16px' }}>
                   <span style={{
-                    background: t.activo ? '#1a3a2a' : '#3a1a1a',
-                    color: t.activo ? '#3fb950' : '#f85149',
+                    background: t.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+                    color: t.activo ? 'var(--c-green)' : 'var(--c-red)',
                     fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                   }}>{t.activo ? 'Activo' : 'Inactivo'}</span>
                 </td>
                 <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                   {t.id_empresa && (
                     <>
-                      <button onClick={() => abrirEditar(t)} style={{ background: 'transparent', border: 'none', color: '#8b949e', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
-                      <button onClick={() => eliminar(t)} style={{ background: 'transparent', border: 'none', color: '#f85149', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Eliminar</button>
+                      <button onClick={() => abrirEditar(t)} style={{ background: 'transparent', border: 'none', color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
+                      <button onClick={() => eliminar(t)} style={{ background: 'transparent', border: 'none', color: 'var(--c-red)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Eliminar</button>
                     </>
                   )}
                 </td>

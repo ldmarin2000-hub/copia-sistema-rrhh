@@ -47,20 +47,20 @@ export default function FichaEmpresaClient({
       <div>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-          <Link href="/empresas" style={{ color: '#8b949e', display: 'flex', alignItems: 'center' }}>
+          <Link href="/empresas" style={{ color: 'var(--c-text-secondary)', display: 'flex', alignItems: 'center' }}>
             <ArrowLeft size={18} />
           </Link>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+            <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>
               {empresa.razon_social}
             </h1>
-            <span style={{ fontSize: '12px', color: '#8b949e' }}>
+            <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
               {empresa.codigo} · CUIT {empresa.cuit}
             </span>
           </div>
           <span style={{
-            background: empresa.activo ? '#1a3a2a' : '#3a1a1a',
-            color: empresa.activo ? '#3fb950' : '#f85149',
+            background: empresa.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+            color: empresa.activo ? 'var(--c-green)' : 'var(--c-red)',
             fontSize: '12px', padding: '3px 10px', borderRadius: '4px',
           }}>
             {empresa.activo ? 'Activa' : 'Inactiva'}
@@ -68,7 +68,7 @@ export default function FichaEmpresaClient({
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '0.5px solid #30363d', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', borderBottom: '0.5px solid var(--c-border)', marginBottom: '24px' }}>
           {TABS.map(tab => {
             const Icon = tab.icon
             return (
@@ -76,8 +76,8 @@ export default function FichaEmpresaClient({
                 display: 'flex', alignItems: 'center', gap: '6px',
                 padding: '10px 18px', fontSize: '13px', cursor: 'pointer',
                 background: 'transparent', border: 'none',
-                borderBottom: tabActiva === tab.id ? '2px solid #2563eb' : '2px solid transparent',
-                color: tabActiva === tab.id ? '#e6edf3' : '#8b949e',
+                borderBottom: tabActiva === tab.id ? '2px solid var(--c-blue-btn)' : '2px solid transparent',
+                color: tabActiva === tab.id ? 'var(--c-text-primary)' : 'var(--c-text-secondary)',
                 marginBottom: '-0.5px',
               }}>
                 <Icon size={14} />
@@ -92,15 +92,15 @@ export default function FichaEmpresaClient({
           <div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
               <button onClick={() => setEditando(true)} style={{
-                background: 'transparent', border: '0.5px solid #30363d',
-                color: '#8b949e', borderRadius: '6px', padding: '6px 14px',
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '6px 14px',
                 fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
               }}>
                 <Pencil size={13} /> Editar
               </button>
             </div>
             <div style={{
-              background: '#161b22', border: '0.5px solid #30363d',
+              background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
               borderRadius: '8px', padding: '20px',
               display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px',
             }}>
@@ -116,8 +116,8 @@ export default function FichaEmpresaClient({
                 { label: 'Fecha de inicio', value: empresa.fecha_inicio ? formatFecha(empresa.fecha_inicio) : '—' },
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <span style={{ fontSize: '11px', color: '#8b949e', display: 'block', marginBottom: '3px' }}>{label}</span>
-                  <span style={{ fontSize: '14px', color: '#e6edf3' }}>{value}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '3px' }}>{label}</span>
+                  <span style={{ fontSize: '14px', color: 'var(--c-text-primary)' }}>{value}</span>
                 </div>
               ))}
             </div>

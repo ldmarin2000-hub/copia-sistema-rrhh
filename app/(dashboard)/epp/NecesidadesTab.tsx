@@ -48,10 +48,10 @@ type Necesidad = {
 type Vista = 'epp' | 'empleado' | 'vencimiento'
 
 const TIPO_INFO: Record<TipoNecesidad, { label: string, color: string, bg: string, orden: number }> = {
-  sin_entrega: { label: 'Sin entrega', color: '#f85149', bg: '#3a1a1a', orden: 1 },
-  vencido:     { label: 'Vencido',     color: '#f85149', bg: '#3a1a1a', orden: 2 },
+  sin_entrega: { label: 'Sin entrega', color: 'var(--c-red)', bg: 'var(--c-red-bg)', orden: 1 },
+  vencido:     { label: 'Vencido',     color: 'var(--c-red)', bg: 'var(--c-red-bg)', orden: 2 },
   por_vencer:  { label: 'Por vencer',  color: '#d29922', bg: '#3a2f1a', orden: 3 },
-  vigente:     { label: 'Vigente',     color: '#3fb950', bg: '#1a3a2a', orden: 4 },
+  vigente:     { label: 'Vigente',     color: 'var(--c-green)', bg: 'var(--c-green-bg)', orden: 4 },
 }
 
 export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: Props) {
@@ -119,7 +119,7 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
 
   if (todasLasNecesidades.length === 0) {
     return (
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '14px' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px' }}>
         No hay necesidades de entrega. Todo el EPP habitual está al día.
       </div>
     )
@@ -128,24 +128,24 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
   const filaEmpleado = (n: Necesidad, i: number, total: number) => {
     const info = TIPO_INFO[n.tipo]
     return (
-      <tr key={`${n.idLegajo}-${n.idEpp}`} style={{ borderBottom: i < total - 1 ? '0.5px solid #21262d' : 'none' }}>
-        <td style={{ padding: '8px 16px', color: '#e6edf3' }}>
-          <span style={{ color: '#484f58', fontSize: '11px', marginRight: '8px' }}>{n.nroLegajo}</span>
+      <tr key={`${n.idLegajo}-${n.idEpp}`} style={{ borderBottom: i < total - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+        <td style={{ padding: '8px 16px', color: 'var(--c-text-primary)' }}>
+          <span style={{ color: 'var(--c-text-muted)', fontSize: '11px', marginRight: '8px' }}>{n.nroLegajo}</span>
           {n.apellido}, {n.nombre}
         </td>
         <td style={{ padding: '8px 16px' }}>
           {n.talle
             ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
-            : <span style={{ color: '#484f58' }}>—</span>}
+            : <span style={{ color: 'var(--c-text-muted)' }}>—</span>}
         </td>
         <td style={{ padding: '8px 16px' }}>
           <span style={{ background: info.bg, color: info.color, fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{info.label}</span>
         </td>
-        <td style={{ padding: '8px 16px', color: n.tipo === 'vencido' ? '#f85149' : '#8b949e' }}>
+        <td style={{ padding: '8px 16px', color: n.tipo === 'vencido' ? 'var(--c-red)' : 'var(--c-text-secondary)' }}>
           {n.fechaVencimiento ? formatFecha(n.fechaVencimiento) : '—'}
         </td>
         <td style={{ padding: '8px 16px', textAlign: 'right' }}>
-          <Link href={`/legajos/${n.idLegajo}`} target="_blank" style={{ fontSize: '12px', color: '#58a6ff', textDecoration: 'none' }}>
+          <Link href={`/legajos/${n.idLegajo}`} target="_blank" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>
             Ver ficha ↗
           </Link>
         </td>
@@ -162,16 +162,16 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
     }
 
     return Array.from(grupos.entries()).map(([idEpp, { descEpp, items }]) => (
-      <div key={idEpp} style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #30363d', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p style={{ fontSize: '13px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>{descEpp}</p>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>{items.length} empleado{items.length !== 1 ? 's' : ''}</span>
+      <div key={idEpp} style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ padding: '12px 16px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>{descEpp}</p>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{items.length} empleado{items.length !== 1 ? 's' : ''}</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ borderBottom: '0.5px solid #21262d', background: '#0d1117' }}>
+            <tr style={{ borderBottom: '0.5px solid var(--c-elevated)', background: 'var(--c-base)' }}>
               {['Empleado', 'Talle', 'Estado', 'Vencimiento', ''].map(col => (
-                <th key={col} style={{ textAlign: 'left', padding: '8px 16px', color: '#8b949e', fontWeight: 400, fontSize: '12px' }}>{col}</th>
+                <th key={col} style={{ textAlign: 'left', padding: '8px 16px', color: 'var(--c-text-secondary)', fontWeight: 400, fontSize: '12px' }}>{col}</th>
               ))}
             </tr>
           </thead>
@@ -193,19 +193,19 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
     const sorted = Array.from(grupos.values()).sort((a, b) => a.apellido.localeCompare(b.apellido))
 
     return sorted.map(({ idLegajo, apellido, nombre, nroLegajo, items }) => (
-      <div key={idLegajo} style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #30363d', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div key={idLegajo} style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ padding: '12px 16px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '12px', color: '#484f58' }}>{nroLegajo}</span>
-            <p style={{ fontSize: '13px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>{apellido}, {nombre}</p>
+            <span style={{ fontSize: '12px', color: 'var(--c-text-muted)' }}>{nroLegajo}</span>
+            <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>{apellido}, {nombre}</p>
           </div>
-          <Link href={`/legajos/${idLegajo}`} target="_blank" style={{ fontSize: '12px', color: '#58a6ff', textDecoration: 'none' }}>Ver ficha ↗</Link>
+          <Link href={`/legajos/${idLegajo}`} target="_blank" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver ficha ↗</Link>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ borderBottom: '0.5px solid #21262d', background: '#0d1117' }}>
+            <tr style={{ borderBottom: '0.5px solid var(--c-elevated)', background: 'var(--c-base)' }}>
               {['EPP', 'Talle', 'Estado', 'Vencimiento'].map(col => (
-                <th key={col} style={{ textAlign: 'left', padding: '8px 16px', color: '#8b949e', fontWeight: 400, fontSize: '12px' }}>{col}</th>
+                <th key={col} style={{ textAlign: 'left', padding: '8px 16px', color: 'var(--c-text-secondary)', fontWeight: 400, fontSize: '12px' }}>{col}</th>
               ))}
             </tr>
           </thead>
@@ -213,17 +213,17 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
             {items.map((n, i) => {
               const info = TIPO_INFO[n.tipo]
               return (
-                <tr key={`${n.idLegajo}-${n.idEpp}`} style={{ borderBottom: i < items.length - 1 ? '0.5px solid #21262d' : 'none' }}>
-                  <td style={{ padding: '8px 16px', color: '#e6edf3' }}>{n.descEpp}</td>
+                <tr key={`${n.idLegajo}-${n.idEpp}`} style={{ borderBottom: i < items.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+                  <td style={{ padding: '8px 16px', color: 'var(--c-text-primary)' }}>{n.descEpp}</td>
                   <td style={{ padding: '8px 16px' }}>
                     {n.talle
                       ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
-                      : <span style={{ color: '#484f58' }}>—</span>}
+                      : <span style={{ color: 'var(--c-text-muted)' }}>—</span>}
                   </td>
                   <td style={{ padding: '8px 16px' }}>
                     <span style={{ background: info.bg, color: info.color, fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{info.label}</span>
                   </td>
-                  <td style={{ padding: '8px 16px', color: n.tipo === 'vencido' ? '#f85149' : '#8b949e' }}>
+                  <td style={{ padding: '8px 16px', color: n.tipo === 'vencido' ? 'var(--c-red)' : 'var(--c-text-secondary)' }}>
                     {n.fechaVencimiento ? formatFecha(n.fechaVencimiento) : '—'}
                   </td>
                 </tr>
@@ -246,12 +246,12 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
     })
 
     return (
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+            <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
               {['Estado', 'Vencimiento', 'Empleado', 'EPP', 'Talle', ''].map(col => (
-                <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
+                <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>{col}</th>
               ))}
             </tr>
           </thead>
@@ -259,25 +259,25 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
             {sorted.map((n, i) => {
               const info = TIPO_INFO[n.tipo]
               return (
-                <tr key={`${n.idLegajo}-${n.idEpp}`} style={{ borderBottom: i < sorted.length - 1 ? '0.5px solid #21262d' : 'none' }}>
+                <tr key={`${n.idLegajo}-${n.idEpp}`} style={{ borderBottom: i < sorted.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                   <td style={{ padding: '10px 16px' }}>
                     <span style={{ background: info.bg, color: info.color, fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{info.label}</span>
                   </td>
-                  <td style={{ padding: '10px 16px', color: n.tipo === 'vencido' ? '#f85149' : '#8b949e' }}>
+                  <td style={{ padding: '10px 16px', color: n.tipo === 'vencido' ? 'var(--c-red)' : 'var(--c-text-secondary)' }}>
                     {n.fechaVencimiento ? formatFecha(n.fechaVencimiento) : '—'}
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#e6edf3' }}>
-                    <span style={{ color: '#484f58', fontSize: '11px', marginRight: '8px' }}>{n.nroLegajo}</span>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
+                    <span style={{ color: 'var(--c-text-muted)', fontSize: '11px', marginRight: '8px' }}>{n.nroLegajo}</span>
                     {n.apellido}, {n.nombre}
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{n.descEpp}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{n.descEpp}</td>
                   <td style={{ padding: '10px 16px' }}>
                     {n.talle
                       ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
-                      : <span style={{ color: '#484f58' }}>—</span>}
+                      : <span style={{ color: 'var(--c-text-muted)' }}>—</span>}
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
-                    <Link href={`/legajos/${n.idLegajo}`} target="_blank" style={{ fontSize: '12px', color: '#58a6ff', textDecoration: 'none' }}>Ver ficha ↗</Link>
+                    <Link href={`/legajos/${n.idLegajo}`} target="_blank" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver ficha ↗</Link>
                   </td>
                 </tr>
               )
@@ -307,22 +307,22 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
           <button
             onClick={() => setMostrarVigentes(v => !v)}
             style={{
-              background: mostrarVigentes ? '#1a3a2a' : 'transparent',
-              border: `0.5px solid ${mostrarVigentes ? '#3fb95040' : '#30363d'}`,
+              background: mostrarVigentes ? 'var(--c-green-bg)' : 'transparent',
+              border: `0.5px solid ${mostrarVigentes ? 'var(--c-green)40' : 'var(--c-border)'}`,
               borderRadius: '8px', padding: '8px 14px',
               display: 'flex', alignItems: 'center', gap: '8px',
               cursor: 'pointer',
             }}
           >
-            <span style={{ fontSize: '18px', fontWeight: 600, color: '#3fb950' }}>{vigentes}</span>
-            <span style={{ fontSize: '12px', color: '#3fb950' }}>Vigente{vigentes !== 1 ? 's' : ''}</span>
-            <span style={{ fontSize: '11px', color: '#484f58', marginLeft: '2px' }}>{mostrarVigentes ? '▲ ocultar' : '▼ mostrar'}</span>
+            <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--c-green)' }}>{vigentes}</span>
+            <span style={{ fontSize: '12px', color: 'var(--c-green)' }}>Vigente{vigentes !== 1 ? 's' : ''}</span>
+            <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', marginLeft: '2px' }}>{mostrarVigentes ? '▲ ocultar' : '▼ mostrar'}</span>
           </button>
         )}
       </div>
 
       {necesidades.length === 0 ? (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '32px', textAlign: 'center', color: '#8b949e', fontSize: '14px' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '32px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px' }}>
           {urgentes === 0 ? 'No hay entregas urgentes pendientes.' : ''}
           {vigentes > 0 && urgentes === 0 ? ' Mostrá los vigentes para ver el calendario de vencimientos.' : ''}
         </div>
@@ -330,27 +330,27 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
         <>
           {/* Búsqueda */}
           <div style={{ position: 'relative', marginBottom: '12px' }}>
-            <Search size={13} color="#484f58" style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+            <Search size={13} color="var(--c-text-muted)" style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
             <input
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               placeholder="Filtrar por EPP o empleado..."
-              style={{ width: '100%', padding: '7px 10px 7px 30px', borderRadius: '6px', background: '#161b22', border: '0.5px solid #30363d', color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const }}
+              style={{ width: '100%', padding: '7px 10px 7px 30px', borderRadius: '6px', background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const }}
             />
             {busqueda && (
-              <button onClick={() => setBusqueda('')} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#484f58', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>×</button>
+              <button onClick={() => setBusqueda('')} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--c-text-muted)', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>×</button>
             )}
           </div>
 
           {/* Toggle vista */}
           <div style={{ display: 'flex', gap: '4px', marginBottom: '16px', alignItems: 'center' }}>
-            {busqueda && <span style={{ fontSize: '12px', color: '#8b949e', marginRight: '4px' }}>{resultadosBusqueda} resultado{resultadosBusqueda !== 1 ? 's' : ''}</span>}
+            {busqueda && <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)', marginRight: '4px' }}>{resultadosBusqueda} resultado{resultadosBusqueda !== 1 ? 's' : ''}</span>}
             {([['epp', 'Por EPP'], ['empleado', 'Por empleado'], ['vencimiento', 'Por vencimiento']] as [Vista, string][]).map(([v, label]) => (
               <button key={v} onClick={() => setVista(v)} style={{
                 padding: '6px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer',
-                background: vista === v ? '#2563eb' : 'transparent',
-                color: vista === v ? 'white' : '#8b949e',
-                border: vista === v ? 'none' : '0.5px solid #30363d',
+                background: vista === v ? 'var(--c-blue-btn)' : 'transparent',
+                color: vista === v ? 'white' : 'var(--c-text-secondary)',
+                border: vista === v ? 'none' : '0.5px solid var(--c-border)',
               }}>
                 {label}
               </button>

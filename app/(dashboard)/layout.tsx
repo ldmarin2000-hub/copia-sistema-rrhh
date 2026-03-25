@@ -75,7 +75,7 @@ export default async function DashboardLayout({
       esSuperadmin={usuario?.es_superadmin || false}
       obrasJefe={obrasJefe}
     >
-      <div style={{ minHeight: '100vh', background: '#0d1117' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--c-base)' }}>
         <Header
           nombreUsuario={usuario?.nombre || ''}
           empresas={empresas}
@@ -84,7 +84,7 @@ export default async function DashboardLayout({
           <Sidebar />
           <main style={{
             flex: 1, padding: '24px',
-            maxWidth: '1280px', color: '#e6edf3',
+            maxWidth: '1280px', color: 'var(--c-text-primary)',
           }}>
             {children}
           </main>

@@ -40,8 +40,8 @@ const TIPOS = [
 
 const badgeTipo = (tipo: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
-    nacional:             { bg: '#1a2a3a', color: '#58a6ff' },
-    no_laborable:         { bg: '#21262d', color: '#8b949e' },
+    nacional:             { bg: 'var(--c-blue-bg)', color: 'var(--c-blue)' },
+    no_laborable:         { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
     provincial_municipal: { bg: '#2a1a3a', color: '#bc8cff' },
     sindical:             { bg: '#3a2f1a', color: '#d29922' },
   }
@@ -85,18 +85,18 @@ export default function FeriadosClient({
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
 
   const selectStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
 
   const labelStyle = {
-    fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px'
+    fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px'
   }
 
   const conveniosFiltrados = convenios.filter(c => c.id_empresa === empresaActiva?.id)
@@ -219,18 +219,18 @@ export default function FeriadosClient({
     <>
       {mostrarForm && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
         }}>
           <div style={{
-            background: '#161b22', border: '0.5px solid #30363d',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
             borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
                 {editando ? 'Editar feriado' : 'Nuevo feriado'}
               </h2>
-              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
@@ -275,20 +275,20 @@ export default function FeriadosClient({
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input type="checkbox" id="activo" checked={activo} onChange={(e) => setActivo(e.target.checked)} />
-                <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Activo</label>
+                <label htmlFor="activo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Activo</label>
               </div>
 
-              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
               <button onClick={cerrar} style={{
-                background: 'transparent', border: '0.5px solid #30363d',
-                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer',
               }}>Cancelar</button>
               <button onClick={guardar} disabled={loading || !fecha || !descripcion} style={{
-                background: '#2563eb', color: 'white', border: 'none',
+                background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1,
               }}>
@@ -302,26 +302,26 @@ export default function FeriadosClient({
       {/* Título y filtros */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Feriados</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>{feriadosFiltrados.length} feriados</span>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Feriados</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{feriadosFiltrados.length} feriados</span>
         </div>
         <button onClick={abrirNuevo} style={{
-          background: '#2563eb', color: 'white', border: 'none',
+          background: 'var(--c-blue-btn)', color: 'white', border: 'none',
           borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer',
         }}>+ Nuevo feriado</button>
       </div>
 
       {/* Buscar */}
       <div style={{ position: 'relative', marginBottom: '12px' }}>
-        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
         <input
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por descripción o provincia..."
           style={{
             width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
-            background: '#161b22', border: '0.5px solid #30363d',
-            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
           }}
         />
       </div>
@@ -330,16 +330,16 @@ export default function FeriadosClient({
       <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
         <select value={filtroAnio} onChange={(e) => setFiltroAnio(e.target.value)} style={{
           padding: '7px 10px', borderRadius: '6px',
-          background: '#161b22', border: '0.5px solid #30363d',
-          color: '#e6edf3', fontSize: '13px',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+          color: 'var(--c-text-primary)', fontSize: '13px',
         }}>
           <option value="">Todos los años</option>
           {anios.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
         <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} style={{
           padding: '7px 10px', borderRadius: '6px',
-          background: '#161b22', border: '0.5px solid #30363d',
-          color: filtroTipo ? '#e6edf3' : '#8b949e', fontSize: '13px',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+          color: filtroTipo ? 'var(--c-text-primary)' : 'var(--c-text-secondary)', fontSize: '13px',
         }}>
           <option value="">Todos los tipos</option>
           {TIPOS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -349,50 +349,50 @@ export default function FeriadosClient({
       {/* Tabla */}
       {feriadosFiltrados.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           No hay feriados cargados para el período seleccionado.
         </div>
       ) : (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {([['Fecha','fecha'],['Descripción','descripcion'],['Tipo','tipo']] as [string,SortCol][]).map(([label, col]) => (
                   <th key={col} onClick={() => toggleSort(col)} style={{
                     textAlign: 'left', padding: '10px 16px',
-                    color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                    color: 'var(--c-text-secondary)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
                   }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
                   </th>
                 ))}
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Provincia / Convenio</th>
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Provincia / Convenio</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
-                <th style={{ textAlign: 'center', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Trabaja</th>
+                <th style={{ textAlign: 'center', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Trabaja</th>
               </tr>
             </thead>
             <tbody>
               {feriadosFiltrados.map((f, i) => (
-                <tr key={f.id} style={{ borderBottom: i < feriadosFiltrados.length - 1 ? '0.5px solid #21262d' : 'none' }}>
-                  <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{formatFecha(f.fecha)}</td>
-                  <td style={{ padding: '10px 16px', color: '#e6edf3' }}>{f.descripcion}</td>
+                <tr key={f.id} style={{ borderBottom: i < feriadosFiltrados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{formatFecha(f.fecha)}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>{f.descripcion}</td>
                   <td style={{ padding: '10px 16px' }}>{badgeTipo(f.tipo)}</td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
                     {f.provincia || f.convenios?.descripcion || '—'}
                   </td>
                   <td style={{ padding: '10px 16px' }}>
                     <span style={{
-                      background: f.activo ? '#1a3a2a' : '#3a1a1a',
-                      color: f.activo ? '#3fb950' : '#f85149',
+                      background: f.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+                      color: f.activo ? 'var(--c-green)' : 'var(--c-red)',
                       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                     }}>{f.activo ? 'Activo' : 'Inactivo'}</span>
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
-                    <button onClick={() => abrirEditar(f)} style={{ background: 'transparent', border: 'none', color: '#8b949e', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
-                    <button onClick={() => eliminar(f)} style={{ background: 'transparent', border: 'none', color: '#f85149', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Eliminar</button>
+                    <button onClick={() => abrirEditar(f)} style={{ background: 'transparent', border: 'none', color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
+                    <button onClick={() => eliminar(f)} style={{ background: 'transparent', border: 'none', color: 'var(--c-red)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Eliminar</button>
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'center' }}>
                   <input

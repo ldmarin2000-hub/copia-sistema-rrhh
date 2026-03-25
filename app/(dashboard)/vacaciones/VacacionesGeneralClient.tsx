@@ -49,19 +49,19 @@ export default function VacacionesGeneralClient({
 
   const selectStyle = {
     padding: '7px 10px', borderRadius: '6px',
-    background: '#161b22', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
 
   const inputStyle = {
     padding: '7px 10px', borderRadius: '6px',
-    background: '#161b22', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
     width: '100%', boxSizing: 'border-box' as const,
   }
 
   const labelStyle: React.CSSProperties = {
-    fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px',
+    fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px',
   }
 
   const legajosFiltrados = legajos
@@ -161,19 +161,19 @@ export default function VacacionesGeneralClient({
   }
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
     <div>
       {mostrarForm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'var(--c-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
                 {editandoVac ? 'Editar vacación' : 'Nueva vacación'}
               </h2>
-              <button onClick={cerrarForm} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+              <button onClick={cerrarForm} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -189,7 +189,7 @@ export default function VacacionesGeneralClient({
                 </div>
               )}
               {editandoVac && (
-                <p style={{ fontSize: '13px', color: '#8b949e', margin: 0 }}>
+                <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', margin: 0 }}>
                   {editandoVac.legajos.apellido}, {editandoVac.legajos.nombre}
                 </p>
               )}
@@ -206,7 +206,7 @@ export default function VacacionesGeneralClient({
               </div>
 
               {formDesde && formHasta && getDias() > 0 && (
-                <p style={{ fontSize: '12px', color: '#58a6ff', margin: 0 }}>{getDias()} día{getDias() !== 1 ? 's' : ''}</p>
+                <p style={{ fontSize: '12px', color: 'var(--c-blue)', margin: 0 }}>{getDias()} día{getDias() !== 1 ? 's' : ''}</p>
               )}
 
               <div>
@@ -215,12 +215,12 @@ export default function VacacionesGeneralClient({
                   style={{ ...inputStyle, resize: 'vertical' as const }} />
               </div>
 
-              {formError && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{formError}</p>}
+              {formError && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{formError}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-              <button onClick={cerrarForm} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardar} disabled={formLoading} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: formLoading ? 0.6 : 1 }}>
+              <button onClick={cerrarForm} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={guardar} disabled={formLoading} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: formLoading ? 0.6 : 1 }}>
                 {formLoading ? 'Guardando...' : editandoVac ? 'Guardar cambios' : 'Registrar vacación'}
               </button>
             </div>
@@ -231,17 +231,17 @@ export default function VacacionesGeneralClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Vacaciones</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Vacaciones</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {empresaActiva.razon_social} · {vacacionesFiltradas.length} registro{vacacionesFiltradas.length !== 1 ? 's' : ''}
             {enVacacionesHoy > 0 && (
-              <span style={{ marginLeft: '8px', color: '#58a6ff' }}>
+              <span style={{ marginLeft: '8px', color: 'var(--c-blue)' }}>
                 · {enVacacionesHoy} en vacaciones hoy
               </span>
             )}
           </span>
         </div>
-        <button onClick={abrirNuevo} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+        <button onClick={abrirNuevo} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
           <Plus size={14} />
           Nueva vacación
         </button>
@@ -249,13 +249,13 @@ export default function VacacionesGeneralClient({
 
       {/* Filtros */}
       <div style={{
-        background: '#161b22', border: '0.5px solid #30363d',
+        background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
         borderRadius: '8px', padding: '16px 20px',
         display: 'flex', flexWrap: 'wrap' as const, gap: '12px',
         alignItems: 'flex-end', marginBottom: '20px',
       }}>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Empleado</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Empleado</label>
           <select value={filtroLegajo} onChange={(e) => setFiltroLegajo(e.target.value)} style={selectStyle}>
             <option value="">Todos</option>
             {legajosFiltrados.map(l => (
@@ -265,12 +265,12 @@ export default function VacacionesGeneralClient({
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Desde</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Desde</label>
           <input type="date" value={filtroDesde} onChange={(e) => setFiltroDesde(e.target.value)} style={selectStyle} />
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Hasta</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Hasta</label>
           <input type="date" value={filtroHasta} onChange={(e) => setFiltroHasta(e.target.value)} style={selectStyle} />
         </div>
 
@@ -278,8 +278,8 @@ export default function VacacionesGeneralClient({
           <button
             onClick={() => { setFiltroLegajo(''); setFiltroDesde(''); setFiltroHasta('') }}
             style={{
-              background: 'transparent', border: '0.5px solid #30363d',
-              color: '#8b949e', borderRadius: '6px', padding: '7px 14px',
+              background: 'transparent', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 14px',
               fontSize: '13px', cursor: 'pointer',
             }}
           >
@@ -291,19 +291,19 @@ export default function VacacionesGeneralClient({
       {/* Tabla */}
       {vacacionesFiltradas.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           No hay vacaciones para los filtros seleccionados.
         </div>
       ) : (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {['Empleado', 'Desde', 'Hasta', 'Días', 'Estado', 'Observación', ''].map((col, i) => (
-                  <th key={i} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
+                  <th key={i} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>{col}</th>
                 ))}
               </tr>
             </thead>
@@ -315,38 +315,38 @@ export default function VacacionesGeneralClient({
                 const activa = v.fecha_desde <= hoy && v.fecha_hasta >= hoy
                 const futura = v.fecha_desde > hoy
                 return (
-                  <tr key={v.id} style={{ borderBottom: i < vacacionesFiltradas.length - 1 ? '0.5px solid #21262d' : 'none' }}>
+                  <tr key={v.id} style={{ borderBottom: i < vacacionesFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                     <td style={{ padding: '10px 16px' }}>
-                      <span style={{ color: '#e6edf3', fontWeight: 500 }}>
+                      <span style={{ color: 'var(--c-text-primary)', fontWeight: 500 }}>
                         {v.legajos.apellido}, {v.legajos.nombre}
                       </span>
-                      <span style={{ color: '#484f58', fontSize: '11px', marginLeft: '6px' }}>
+                      <span style={{ color: 'var(--c-text-muted)', fontSize: '11px', marginLeft: '6px' }}>
                         #{String(v.legajos.nro_legajo).padStart(4, '0')}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(v.fecha_desde)}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(v.fecha_hasta)}</td>
-                    <td style={{ padding: '10px 16px', color: '#58a6ff', fontWeight: 500 }}>{dias}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(v.fecha_desde)}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(v.fecha_hasta)}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-blue)', fontWeight: 500 }}>{dias}</td>
                     <td style={{ padding: '10px 16px' }}>
                       {activa ? (
-                        <span style={{ background: '#1a3a2a', color: '#3fb950', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>En curso</span>
+                        <span style={{ background: 'var(--c-green-bg)', color: 'var(--c-green)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>En curso</span>
                       ) : futura ? (
-                        <span style={{ background: '#1a2a3a', color: '#58a6ff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Próxima</span>
+                        <span style={{ background: 'var(--c-blue-bg)', color: 'var(--c-blue)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Próxima</span>
                       ) : (
-                        <span style={{ background: '#21262d', color: '#8b949e', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Finalizada</span>
+                        <span style={{ background: 'var(--c-elevated)', color: 'var(--c-text-secondary)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Finalizada</span>
                       )}
                     </td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{v.observacion || '—'}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{v.observacion || '—'}</td>
                     <td style={{ padding: '10px 16px', whiteSpace: 'nowrap' }}>
                       <button
                         onClick={() => abrirEditar(v)}
-                        style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
+                        style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => eliminar(v)}
-                        style={{ background: 'transparent', border: '0.5px solid #f8514933', color: '#f85149', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
+                        style={{ background: 'transparent', border: '0.5px solid var(--c-red)33', color: 'var(--c-red)', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
                       >
                         Eliminar
                       </button>

@@ -8,7 +8,7 @@ export default async function Obras() {
     .order('nombre')
 
   if (error) {
-    return <p style={{ color: '#f85149' }}>Error: {error.message}</p>
+    return <p style={{ color: 'var(--c-red)' }}>Error: {error.message}</p>
   }
 
   return <ObrasClient obras={obras || []} />

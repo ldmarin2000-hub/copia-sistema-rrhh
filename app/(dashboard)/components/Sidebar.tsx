@@ -9,6 +9,7 @@ import {
   UserCog, BarChart2, BriefcaseMedical, Download,
 } from 'lucide-react'
 import { useEmpresa } from '../context/EmpresaContext'
+import ThemeToggle from './ThemeToggle'
 
 const administracion = [
   { href: '/empresas',  label: 'Empresas', icon: Building2 },
@@ -69,13 +70,13 @@ export default function Sidebar() {
   const itemStyle = (href: string) => ({
     display: 'flex', alignItems: 'center', gap: '10px',
     padding: '7px 10px', borderRadius: '6px', marginBottom: '2px',
-    background: activo(href) ? '#1a2a3a' : 'transparent',
+    background: activo(href) ? 'var(--c-blue-bg)' : 'transparent',
     textDecoration: 'none', cursor: 'pointer',
   })
 
   const labelStyle = (href: string) => ({
     fontSize: '13px',
-    color: activo(href) ? '#58a6ff' : '#8b949e',
+    color: activo(href) ? 'var(--c-blue)' : 'var(--c-text-secondary)',
     fontWeight: activo(href) ? 500 : 400,
   })
 
@@ -91,8 +92,8 @@ export default function Sidebar() {
       cursor: 'pointer', marginBottom: '2px',
     }}>
       {icon}
-      <span style={{ fontSize: '13px', color: '#8b949e', flex: 1 }}>{label}</span>
-      {open ? <ChevronDown size={14} color="#8b949e" /> : <ChevronRight size={14} color="#8b949e" />}
+      <span style={{ fontSize: '13px', color: 'var(--c-text-secondary)', flex: 1 }}>{label}</span>
+      {open ? <ChevronDown size={14} color="var(--c-text-secondary)" /> : <ChevronRight size={14} color="var(--c-text-secondary)" />}
     </div>
   )
 
@@ -109,7 +110,7 @@ export default function Sidebar() {
   return (
     <aside style={{
       width: '220px', minHeight: '100vh',
-      background: '#161b22', borderRight: '0.5px solid #30363d',
+      background: 'var(--c-surface)', borderRight: '0.5px solid var(--c-border)',
       padding: '12px 0', flexShrink: 0,
     }}>
 
@@ -117,7 +118,7 @@ export default function Sidebar() {
       <div style={{ padding: '0 12px', marginBottom: '8px' }}>
         <Link href="/dashboard" style={{ textDecoration: 'none' }}>
           <div style={itemStyle('/dashboard')}>
-            <LayoutDashboard size={16} color={activo('/dashboard') ? '#58a6ff' : '#8b949e'} />
+            <LayoutDashboard size={16} color={activo('/dashboard') ? 'var(--c-blue)' : 'var(--c-text-secondary)'} />
             <span style={labelStyle('/dashboard')}>Dashboard</span>
           </div>
         </Link>
@@ -128,7 +129,7 @@ export default function Sidebar() {
         <div style={{ padding: '0 12px', marginBottom: '4px' }}>
           {seccionHeader(
             'Administración',
-            <ShieldCheck size={16} color="#8b949e" />,
+            <ShieldCheck size={16} color="var(--c-text-secondary)" />,
             adminOpen,
             () => setAdminOpen(!adminOpen)
           )}
@@ -137,7 +138,7 @@ export default function Sidebar() {
               {administracion.map((item) => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                   <div style={itemStyle(item.href)}>
-                    <item.icon size={15} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
+                    <item.icon size={15} color={activo(item.href) ? 'var(--c-blue)' : 'var(--c-text-secondary)'} />
                     <span style={labelStyle(item.href)}>{item.label}</span>
                   </div>
                 </Link>
@@ -152,7 +153,7 @@ export default function Sidebar() {
         <div style={{ padding: '0 12px', marginBottom: '4px' }}>
           {seccionHeader(
             'Maestras',
-            <BookOpen size={16} color="#8b949e" />,
+            <BookOpen size={16} color="var(--c-text-secondary)" />,
             maestrasOpen,
             () => setMaestrasOpen(!maestrasOpen)
           )}
@@ -172,7 +173,7 @@ export default function Sidebar() {
 
       {/* Gestión */}
       <div style={{ padding: '8px 22px 4px' }}>
-        <span style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+        <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
           Gestión
         </span>
       </div>
@@ -182,7 +183,7 @@ export default function Sidebar() {
         {gestionFiltrada.slice(0, 1).map((item) => (
           <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
             <div style={itemStyle(item.href)}>
-              <item.icon size={16} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
+              <item.icon size={16} color={activo(item.href) ? 'var(--c-blue)' : 'var(--c-text-secondary)'} />
               <span style={labelStyle(item.href)}>{item.label}</span>
             </div>
           </Link>
@@ -190,17 +191,17 @@ export default function Sidebar() {
 
         {/* Novedades con submenu */}
         <div style={{ marginBottom: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', borderRadius: '6px', background: activo('/novedades') ? '#1a2a3a' : 'transparent' }}>
+          <div style={{ display: 'flex', alignItems: 'center', borderRadius: '6px', background: activo('/novedades') ? 'var(--c-blue-bg)' : 'transparent' }}>
             <Link href="/novedades" style={{ textDecoration: 'none', flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 10px' }}>
-                <Calendar size={16} color={activo('/novedades') ? '#58a6ff' : '#8b949e'} />
+                <Calendar size={16} color={activo('/novedades') ? 'var(--c-blue)' : 'var(--c-text-secondary)'} />
                 <span style={labelStyle('/novedades')}>Novedades</span>
               </div>
             </Link>
             <div onClick={() => setNovedadesOpen(!novedadesOpen)} style={{ padding: '7px 8px', cursor: 'pointer' }}>
               {novedadesOpen
-                ? <ChevronDown size={14} color="#8b949e" />
-                : <ChevronRight size={14} color="#8b949e" />}
+                ? <ChevronDown size={14} color="var(--c-text-secondary)" />
+                : <ChevronRight size={14} color="var(--c-text-secondary)" />}
             </div>
           </div>
           {novedadesOpen && (
@@ -208,7 +209,7 @@ export default function Sidebar() {
               {submenuNovedades.map((item) => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                   <div style={itemStyle(item.href)}>
-                    <item.icon size={14} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
+                    <item.icon size={14} color={activo(item.href) ? 'var(--c-blue)' : 'var(--c-text-secondary)'} />
                     <span style={labelStyle(item.href)}>{item.label}</span>
                   </div>
                 </Link>
@@ -221,11 +222,16 @@ export default function Sidebar() {
         {gestionFiltrada.slice(1).map((item) => (
           <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
             <div style={itemStyle(item.href)}>
-              <item.icon size={16} color={activo(item.href) ? '#58a6ff' : '#8b949e'} />
+              <item.icon size={16} color={activo(item.href) ? 'var(--c-blue)' : 'var(--c-text-secondary)'} />
               <span style={labelStyle(item.href)}>{item.label}</span>
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Toggle tema */}
+      <div style={{ padding: '12px', marginTop: '8px', borderTop: '0.5px solid var(--c-border)' }}>
+        <ThemeToggle />
       </div>
 
     </aside>

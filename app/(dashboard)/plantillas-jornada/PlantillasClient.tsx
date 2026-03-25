@@ -82,20 +82,20 @@ export default function PlantillasClient({
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
 
   const horaInputStyle = {
     width: '60px', padding: '6px 8px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', textAlign: 'center' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', textAlign: 'center' as const,
   }
 
   const selectStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
 
   const [busqueda, setBusqueda] = useState('')
@@ -242,28 +242,28 @@ export default function PlantillasClient({
   }
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
     <>
       {mostrarForm && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
         }}>
           <div style={{
-            background: '#161b22', border: '0.5px solid #30363d',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
             borderRadius: '10px', width: '100%', maxWidth: '680px', padding: '24px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
-                <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>
                   {editando ? 'Editar plantilla' : 'Nueva plantilla'}
                 </h2>
-                <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva.razon_social}</span>
+                <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
               </div>
-              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
@@ -271,11 +271,11 @@ export default function PlantillasClient({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Nombre *</label>
+                  <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Nombre *</label>
                   <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: UOCRA Standard" style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Convenio</label>
+                  <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Convenio</label>
                   <select value={idConvenio} onChange={(e) => setIdConvenio(e.target.value)} style={selectStyle}>
                     <option value="">Sin convenio específico</option>
                     {conveniosFiltrados.map(c => (
@@ -287,13 +287,13 @@ export default function PlantillasClient({
 
               {/* Horas por día */}
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
-                  Horas por día — Total semana: <span style={{ color: '#58a6ff' }}>{totalHoras}hs</span>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '8px' }}>
+                  Horas por día — Total semana: <span style={{ color: 'var(--c-blue)' }}>{totalHoras}hs</span>
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
                   {DIAS.map(dia => (
                     <div key={dia.key} style={{ textAlign: 'center' }}>
-                      <label style={{ fontSize: '11px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+                      <label style={{ fontSize: '11px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>
                         {dia.label.substring(0, 3)}
                       </label>
                       <input
@@ -324,20 +324,20 @@ export default function PlantillasClient({
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input type="checkbox" id="activo" checked={activo} onChange={(e) => setActivo(e.target.checked)} />
-                <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>Activa</label>
+                <label htmlFor="activo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Activa</label>
               </div>
 
-              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
               <button onClick={cerrar} style={{
-                background: 'transparent', border: '0.5px solid #30363d',
-                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer',
               }}>Cancelar</button>
               <button onClick={guardar} disabled={loading || !nombre} style={{
-                background: '#2563eb', color: 'white', border: 'none',
+                background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1,
               }}>
@@ -351,28 +351,28 @@ export default function PlantillasClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Plantillas de jornada</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Plantillas de jornada</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {empresaActiva.razon_social} · {plantillasFiltradas.length} plantilla{plantillasFiltradas.length !== 1 ? 's' : ''}
           </span>
         </div>
         <button onClick={abrirNuevo} style={{
-          background: '#2563eb', color: 'white', border: 'none',
+          background: 'var(--c-blue-btn)', color: 'white', border: 'none',
           borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer',
         }}>+ Nueva plantilla</button>
       </div>
 
       {/* Buscar */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
-        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
         <input
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por nombre o convenio..."
           style={{
             width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
-            background: '#161b22', border: '0.5px solid #30363d',
-            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
           }}
         />
       </div>
@@ -380,32 +380,32 @@ export default function PlantillasClient({
       {/* Tabla */}
       {plantillasFiltradas.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           No hay plantillas para {empresaActiva.razon_social}.
         </div>
       ) : (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                <th onClick={() => toggleSort('nombre')} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
+                <th onClick={() => toggleSort('nombre')} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center' }}>Nombre{sortIcon('nombre')}</span>
                 </th>
-                <th onClick={() => toggleSort('convenio')} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                <th onClick={() => toggleSort('convenio')} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center' }}>Convenio{sortIcon('convenio')}</span>
                 </th>
                 {DIAS.map(d => (
-                  <th key={d.key} style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>
+                  <th key={d.key} style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>
                     {d.label.substring(0, 3)}
                   </th>
                 ))}
-                <th onClick={() => toggleSort('total')} style={{ textAlign: 'center', padding: '10px 8px', color: '#58a6ff', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+                <th onClick={() => toggleSort('total')} style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-blue)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center' }}>Total{sortIcon('total')}</span>
                 </th>
-                <th style={{ textAlign: 'center', padding: '10px 8px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
+                <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
@@ -413,17 +413,17 @@ export default function PlantillasClient({
               {plantillasFiltradas.map((p, i) => {
                 const total = p.lunes + p.martes + p.miercoles + p.jueves + p.viernes + p.sabado + p.domingo
                 return (
-                  <tr key={p.id} style={{ borderBottom: i < plantillasFiltradas.length - 1 ? '0.5px solid #21262d' : 'none' }}>
-                    <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{p.nombre}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{p.convenios?.descripcion || '—'}</td>
+                  <tr key={p.id} style={{ borderBottom: i < plantillasFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{p.nombre}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{p.convenios?.descripcion || '—'}</td>
                     {DIAS.map(d => (
                       <td key={d.key} style={{
                         padding: '10px 8px', textAlign: 'center',
-                        color: (p[d.key as keyof Plantilla] as number) > 0 ? '#e6edf3' : '#484f58',
+                        color: (p[d.key as keyof Plantilla] as number) > 0 ? 'var(--c-text-primary)' : 'var(--c-text-muted)',
                       }}>
                         <div>{p[d.key as keyof Plantilla] as number || '—'}</div>
                         {(p[`${d.key}_entrada` as keyof Plantilla] as string) && (
-                          <div style={{ fontSize: '10px', color: '#8b949e', lineHeight: '1.4' }}>
+                          <div style={{ fontSize: '10px', color: 'var(--c-text-secondary)', lineHeight: '1.4' }}>
                             {(p[`${d.key}_entrada` as keyof Plantilla] as string)?.substring(0,5)}
                             <br/>
                             {(p[`${d.key}_salida` as keyof Plantilla] as string)?.substring(0,5)}
@@ -431,17 +431,17 @@ export default function PlantillasClient({
                         )}
                       </td>
                     ))}
-                    <td style={{ padding: '10px 8px', textAlign: 'center', color: '#58a6ff', fontWeight: 500 }}>{total}</td>
+                    <td style={{ padding: '10px 8px', textAlign: 'center', color: 'var(--c-blue)', fontWeight: 500 }}>{total}</td>
                     <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                       <span style={{
-                        background: p.activo ? '#1a3a2a' : '#3a1a1a',
-                        color: p.activo ? '#3fb950' : '#f85149',
+                        background: p.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+                        color: p.activo ? 'var(--c-green)' : 'var(--c-red)',
                         fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                       }}>{p.activo ? 'Activa' : 'Inactiva'}</span>
                     </td>
                     <td style={{ padding: '10px 16px', textAlign: 'right' }}>
-                      <button onClick={() => abrirEditar(p)} style={{ background: 'transparent', border: 'none', color: '#8b949e', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
-                      <button onClick={() => eliminar(p)} style={{ background: 'transparent', border: 'none', color: '#f85149', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Eliminar</button>
+                      <button onClick={() => abrirEditar(p)} style={{ background: 'transparent', border: 'none', color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
+                      <button onClick={() => eliminar(p)} style={{ background: 'transparent', border: 'none', color: 'var(--c-red)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Eliminar</button>
                     </td>
                   </tr>
                 )

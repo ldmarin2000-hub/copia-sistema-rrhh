@@ -64,14 +64,14 @@ export default function CategoriasClient({
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
 
   const selectStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
 
   const [busqueda, setBusqueda] = useState('')
@@ -183,7 +183,7 @@ export default function CategoriasClient({
   }
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
@@ -191,21 +191,21 @@ export default function CategoriasClient({
       {/* Modal */}
       {mostrarForm && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
         }}>
           <div style={{
-            background: '#161b22', border: '0.5px solid #30363d',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
             borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
-                <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>
                   {editando ? 'Editar categoría' : 'Nueva categoría'}
                 </h2>
-                <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva.razon_social}</span>
+                <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
               </div>
-              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+              <button onClick={cerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
@@ -213,7 +213,7 @@ export default function CategoriasClient({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Código *</label>
+                  <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Código *</label>
                   <input
                     value={codigo}
                     onChange={(e) => setCodigo(e.target.value.toUpperCase())}
@@ -222,7 +222,7 @@ export default function CategoriasClient({
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Sueldo básico</label>
+                  <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Sueldo básico</label>
                   <input
                     type="number"
                     value={sueldoBasico}
@@ -234,7 +234,7 @@ export default function CategoriasClient({
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Descripción *</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Descripción *</label>
                 <input
                   value={descripcion}
                   onChange={(e) => setDescripcion(e.target.value)}
@@ -244,7 +244,7 @@ export default function CategoriasClient({
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Convenio *</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Convenio *</label>
                 <select value={idConvenio} onChange={(e) => setIdConvenio(e.target.value)} style={selectStyle}>
                   <option value="">Seleccionar...</option>
                   {conveniosFiltrados.map(c => (
@@ -254,7 +254,7 @@ export default function CategoriasClient({
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Tipo de empleado *</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Tipo de empleado *</label>
                 <select value={idTipo} onChange={(e) => setIdTipo(e.target.value)} style={selectStyle}>
                   <option value="">Seleccionar...</option>
                   {tiposFiltrados.map(t => (
@@ -264,7 +264,7 @@ export default function CategoriasClient({
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Plantilla de jornada</label>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Plantilla de jornada</label>
                 <select value={idPlantilla} onChange={(e) => setIdPlantilla(e.target.value)} style={selectStyle}>
                   <option value="">Sin plantilla</option>
                   {plantillas.filter(p => p.id_empresa === empresaActiva?.id).map(p => (
@@ -280,25 +280,25 @@ export default function CategoriasClient({
                   checked={activo}
                   onChange={(e) => setActivo(e.target.checked)}
                 />
-                <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+                <label htmlFor="activo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>
                   Categoría activa
                 </label>
               </div>
 
-              {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+              {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
               <button onClick={cerrar} style={{
-                background: 'transparent', border: '0.5px solid #30363d',
-                color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer',
               }}>Cancelar</button>
               <button
                 onClick={guardar}
                 disabled={loading || !codigo || !descripcion || !idConvenio || !idTipo}
                 style={{
-                  background: '#2563eb', color: 'white', border: 'none',
+                  background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                   borderRadius: '6px', padding: '7px 16px',
                   fontSize: '13px', cursor: 'pointer',
                   opacity: loading ? 0.6 : 1,
@@ -314,13 +314,13 @@ export default function CategoriasClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Categorías</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Categorías</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {empresaActiva.razon_social} · {categoriasFiltradas.length} categoría{categoriasFiltradas.length !== 1 ? 's' : ''}
           </span>
         </div>
         <button onClick={abrirNuevo} style={{
-          background: '#2563eb', color: 'white', border: 'none',
+          background: 'var(--c-blue-btn)', color: 'white', border: 'none',
           borderRadius: '6px', padding: '7px 16px',
           fontSize: '13px', cursor: 'pointer',
         }}>
@@ -330,15 +330,15 @@ export default function CategoriasClient({
 
       {/* Buscar */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
-        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#8b949e' }} />
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
         <input
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por código, descripción, convenio..."
           style={{
             width: '100%', padding: '7px 10px 7px 32px', borderRadius: '6px',
-            background: '#161b22', border: '0.5px solid #30363d',
-            color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
           }}
         />
       </div>
@@ -346,53 +346,53 @@ export default function CategoriasClient({
       {/* Tabla */}
       {categoriasFiltradas.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           No hay categorías para {empresaActiva.razon_social}.
         </div>
       ) : (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', overflow: 'hidden',
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {([['Código','codigo'],['Descripción','descripcion'],['Convenio','convenio'],['Tipo','tipo'],['Básico','sueldo_basico']] as [string,SortCol][]).map(([label, col]) => (
                   <th key={col} onClick={() => toggleSort(col)} style={{
                     textAlign: 'left', padding: '10px 16px',
-                    color: '#8b949e', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+                    color: 'var(--c-text-secondary)', fontWeight: 500, cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
                   }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center' }}>{label}{sortIcon(col)}</span>
                   </th>
                 ))}
-                <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>Estado</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Estado</th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
             <tbody>
               {categoriasFiltradas.map((cat, i) => (
                 <tr key={cat.id} style={{
-                  borderBottom: i < categoriasFiltradas.length - 1 ? '0.5px solid #21262d' : 'none',
+                  borderBottom: i < categoriasFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
                 }}>
                   <td style={{ padding: '10px 16px' }}>
                     <span style={{
-                      background: '#21262d', color: '#e6edf3',
+                      background: 'var(--c-elevated)', color: 'var(--c-text-primary)',
                       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                     }}>{cat.codigo}</span>
                   </td>
-                  <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{cat.descripcion}</td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{cat.convenios.descripcion}</td>
-                  <td style={{ padding: '10px 16px', color: '#8b949e' }}>{cat.tipos_empleado.descripcion}</td>
-                  <td style={{ padding: '10px 16px', color: '#e6edf3' }}>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{cat.descripcion}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{cat.convenios.descripcion}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{cat.tipos_empleado.descripcion}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
                     ${cat.sueldo_basico.toLocaleString('es-AR')}
                   </td>
                   <td style={{ padding: '10px 16px' }}>
                     <span style={{
-                      background: cat.activo ? '#1a3a2a' : '#3a1a1a',
-                      color: cat.activo ? '#3fb950' : '#f85149',
+                      background: cat.activo ? 'var(--c-green-bg)' : 'var(--c-red-bg)',
+                      color: cat.activo ? 'var(--c-green)' : 'var(--c-red)',
                       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                     }}>
                       {cat.activo ? 'Activa' : 'Inactiva'}
@@ -401,12 +401,12 @@ export default function CategoriasClient({
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                     <button onClick={() => abrirEditar(cat)} style={{
                       background: 'transparent', border: 'none',
-                      color: '#8b949e', cursor: 'pointer', fontSize: '12px',
+                      color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px',
                       padding: '4px 8px', borderRadius: '4px',
                     }}>Editar</button>
                     <button onClick={() => eliminar(cat)} style={{
                       background: 'transparent', border: 'none',
-                      color: '#f85149', cursor: 'pointer', fontSize: '12px',
+                      color: 'var(--c-red)', cursor: 'pointer', fontSize: '12px',
                       padding: '4px 8px', borderRadius: '4px',
                     }}>Eliminar</button>
                   </td>

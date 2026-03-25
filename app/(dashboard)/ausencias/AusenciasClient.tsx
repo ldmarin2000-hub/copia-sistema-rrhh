@@ -62,19 +62,19 @@ export default function AusenciasClient({
 
   const selectStyle = {
     padding: '7px 10px', borderRadius: '6px',
-    background: '#161b22', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
 
   const inputStyle = {
     padding: '7px 10px', borderRadius: '6px',
-    background: '#161b22', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
     width: '100%', boxSizing: 'border-box' as const,
   }
 
   const labelStyle: React.CSSProperties = {
-    fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px',
+    fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px',
   }
 
   const legajosFiltrados = legajos
@@ -203,19 +203,19 @@ export default function AusenciasClient({
   }
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
     <div>
       {mostrarForm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'var(--c-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
                 {editandoAus ? 'Editar ausencia' : 'Nueva ausencia'}
               </h2>
-              <button onClick={cerrarForm} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}><X size={18} /></button>
+              <button onClick={cerrarForm} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}><X size={18} /></button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -231,7 +231,7 @@ export default function AusenciasClient({
                 </div>
               )}
               {editandoAus && (
-                <p style={{ fontSize: '13px', color: '#8b949e', margin: 0 }}>
+                <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', margin: 0 }}>
                   {editandoAus.legajos.apellido}, {editandoAus.legajos.nombre}
                 </p>
               )}
@@ -258,7 +258,7 @@ export default function AusenciasClient({
               </div>
 
               {formDesde && formHasta && getDias() > 0 && (
-                <p style={{ fontSize: '12px', color: '#58a6ff', margin: 0 }}>{getDias()} día{getDias() !== 1 ? 's' : ''}</p>
+                <p style={{ fontSize: '12px', color: 'var(--c-blue)', margin: 0 }}>{getDias()} día{getDias() !== 1 ? 's' : ''}</p>
               )}
 
               <div>
@@ -276,7 +276,7 @@ export default function AusenciasClient({
                     <button
                       type="button"
                       onClick={() => verCertificado(editandoAus.certificado_path!)}
-                      style={{ fontSize: '12px', color: '#58a6ff', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 6px', display: 'block' }}
+                      style={{ fontSize: '12px', color: 'var(--c-blue)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 6px', display: 'block' }}
                     >
                       Ver certificado actual
                     </button>
@@ -290,12 +290,12 @@ export default function AusenciasClient({
                 </div>
               )}
 
-              {formError && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{formError}</p>}
+              {formError && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{formError}</p>}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-              <button onClick={cerrarForm} style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardar} disabled={formLoading} style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: formLoading ? 0.6 : 1 }}>
+              <button onClick={cerrarForm} style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={guardar} disabled={formLoading} style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer', opacity: formLoading ? 0.6 : 1 }}>
                 {formLoading ? 'Guardando...' : editandoAus ? 'Guardar cambios' : 'Registrar ausencia'}
               </button>
             </div>
@@ -306,12 +306,12 @@ export default function AusenciasClient({
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Ausencias</h1>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Ausencias</h1>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
             {empresaActiva.razon_social} · {ausenciasFiltradas.length} registro{ausenciasFiltradas.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <button onClick={abrirNuevo} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+        <button onClick={abrirNuevo} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
           <Plus size={14} />
           Nueva ausencia
         </button>
@@ -319,13 +319,13 @@ export default function AusenciasClient({
 
       {/* Filtros */}
       <div style={{
-        background: '#161b22', border: '0.5px solid #30363d',
+        background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
         borderRadius: '8px', padding: '16px 20px',
         display: 'flex', flexWrap: 'wrap' as const, gap: '12px',
         alignItems: 'flex-end', marginBottom: '20px',
       }}>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Empleado</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Empleado</label>
           <select value={filtroLegajo} onChange={(e) => setFiltroLegajo(e.target.value)} style={selectStyle}>
             <option value="">Todos</option>
             {legajosFiltrados.map(l => (
@@ -335,7 +335,7 @@ export default function AusenciasClient({
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Tipo</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Tipo</label>
           <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} style={selectStyle}>
             <option value="">Todos</option>
             {tiposAusencia.map(t => (
@@ -345,12 +345,12 @@ export default function AusenciasClient({
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Desde</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Desde</label>
           <input type="date" value={filtroDesde} onChange={(e) => setFiltroDesde(e.target.value)} style={selectStyle} />
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Hasta</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Hasta</label>
           <input type="date" value={filtroHasta} onChange={(e) => setFiltroHasta(e.target.value)} style={selectStyle} />
         </div>
 
@@ -358,8 +358,8 @@ export default function AusenciasClient({
           <button
             onClick={() => { setFiltroLegajo(''); setFiltroTipo(''); setFiltroDesde(''); setFiltroHasta('') }}
             style={{
-              background: 'transparent', border: '0.5px solid #30363d',
-              color: '#8b949e', borderRadius: '6px', padding: '7px 14px',
+              background: 'transparent', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 14px',
               fontSize: '13px', cursor: 'pointer',
             }}
           >
@@ -371,19 +371,19 @@ export default function AusenciasClient({
       {/* Tabla */}
       {ausenciasFiltradas.length === 0 ? (
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '8px', padding: '48px',
-          textAlign: 'center', color: '#8b949e', fontSize: '14px',
+          textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px',
         }}>
           No hay ausencias para los filtros seleccionados.
         </div>
       ) : (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '0.5px solid #30363d' }}>
+              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
                 {['Empleado', 'Tipo', 'Desde', 'Hasta', 'Días', 'Observación', ''].map((col, i) => (
-                  <th key={i} style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500 }}>{col}</th>
+                  <th key={i} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>{col}</th>
                 ))}
               </tr>
             </thead>
@@ -393,25 +393,25 @@ export default function AusenciasClient({
                 const hasta = new Date(a.fecha_hasta + 'T12:00:00')
                 const dias = Math.round((hasta.getTime() - desde.getTime()) / (1000 * 60 * 60 * 24)) + 1
                 return (
-                  <tr key={a.id} style={{ borderBottom: i < ausenciasFiltradas.length - 1 ? '0.5px solid #21262d' : 'none' }}>
+                  <tr key={a.id} style={{ borderBottom: i < ausenciasFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                     <td style={{ padding: '10px 16px' }}>
-                      <span style={{ color: '#e6edf3', fontWeight: 500 }}>
+                      <span style={{ color: 'var(--c-text-primary)', fontWeight: 500 }}>
                         {a.legajos.apellido}, {a.legajos.nombre}
                       </span>
-                      <span style={{ color: '#484f58', fontSize: '11px', marginLeft: '6px' }}>
+                      <span style={{ color: 'var(--c-text-muted)', fontSize: '11px', marginLeft: '6px' }}>
                         #{String(a.legajos.nro_legajo).padStart(4, '0')}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{a.tipos_ausencia.descripcion}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(a.fecha_desde)}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(a.fecha_hasta)}</td>
-                    <td style={{ padding: '10px 16px', color: '#58a6ff', fontWeight: 500 }}>{dias}</td>
-                    <td style={{ padding: '10px 16px', color: '#8b949e' }}>{a.observacion || '—'}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{a.tipos_ausencia.descripcion}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(a.fecha_desde)}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(a.fecha_hasta)}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-blue)', fontWeight: 500 }}>{dias}</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{a.observacion || '—'}</td>
                     <td style={{ padding: '10px 16px', whiteSpace: 'nowrap', textAlign: 'right' }}>
                       {a.certificado_path ? (
                         <button
                           onClick={() => verCertificado(a.certificado_path!)}
-                          style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#58a6ff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
+                          style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-blue)', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
                         >
                           Cert.
                         </button>
@@ -420,13 +420,13 @@ export default function AusenciasClient({
                       )}
                       <button
                         onClick={() => abrirEditar(a)}
-                        style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
+                        style={{ background: 'transparent', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => eliminar(a)}
-                        style={{ background: 'transparent', border: '0.5px solid #f8514933', color: '#f85149', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
+                        style={{ background: 'transparent', border: '0.5px solid var(--c-red)33', color: 'var(--c-red)', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}
                       >
                         Eliminar
                       </button>

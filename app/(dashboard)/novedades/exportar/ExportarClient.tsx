@@ -447,32 +447,32 @@ export default function ExportarClient({
     filas.reduce((s, f) => s + f[key], 0)
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
     <div>
       <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>Exportar novedades</h1>
-        <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva.razon_social}</span>
+        <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>Exportar novedades</h1>
+        <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
       </div>
 
       {/* Filtros */}
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '16px 20px', display: 'flex', alignItems: 'flex-end', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '16px 20px', display: 'flex', alignItems: 'flex-end', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Mes</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Mes</label>
           <select value={mes} onChange={e => { setMes(e.target.value); setConsultado(false) }} style={selStyle}>
             {MESES.map((m, i) => <option key={i} value={String(i + 1).padStart(2, '0')}>{m}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Año</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Año</label>
           <select value={anio} onChange={e => { setAnio(e.target.value); setConsultado(false) }} style={selStyle}>
             {[2024, 2025, 2026, 2027].map(a => <option key={a} value={a}>{a}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Período</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Período</label>
           <select value={periodo} onChange={e => { setPeriodo(e.target.value); setConsultado(false) }} style={selStyle}>
             <option value="1">1ª quincena (1–15)</option>
             <option value="2">2ª quincena (16–fin)</option>
@@ -480,7 +480,7 @@ export default function ExportarClient({
           </select>
         </div>
         <div style={{ flex: 1, minWidth: '180px' }}>
-          <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Obra</label>
+          <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Obra</label>
           <select value={idObra} onChange={e => { setIdObra(e.target.value); setConsultado(false) }} style={{ ...selStyle, width: '100%' }}>
             <option value="">Todas las obras</option>
             {obrasFiltradas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
@@ -489,41 +489,41 @@ export default function ExportarClient({
         <button
           onClick={consultar}
           disabled={cargando}
-          style={{ background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 18px', fontSize: '13px', cursor: 'pointer', opacity: cargando ? 0.6 : 1, whiteSpace: 'nowrap' as const }}
+          style={{ background: 'var(--c-blue-btn)', color: 'white', border: 'none', borderRadius: '6px', padding: '7px 18px', fontSize: '13px', cursor: 'pointer', opacity: cargando ? 0.6 : 1, whiteSpace: 'nowrap' as const }}
         >
           {cargando ? 'Consultando...' : 'Consultar'}
         </button>
       </div>
 
       {/* Configuración de liquidación */}
-      <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', marginBottom: '20px' }}>
+      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', marginBottom: '20px' }}>
         <div
           onClick={() => setConfigOpen(!configOpen)}
           style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', cursor: 'pointer', userSelect: 'none' as const }}
         >
-          {configOpen ? <ChevronDown size={14} color="#8b949e" /> : <ChevronRight size={14} color="#8b949e" />}
-          <span style={{ fontSize: '13px', fontWeight: 500, color: '#e6edf3' }}>Configuración de liquidación</span>
-          <span style={{ fontSize: '11px', color: '#484f58', marginLeft: '4px' }}>— conceptos del sistema de sueldos</span>
+          {configOpen ? <ChevronDown size={14} color="var(--c-text-secondary)" /> : <ChevronRight size={14} color="var(--c-text-secondary)" />}
+          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>Configuración de liquidación</span>
+          <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', marginLeft: '4px' }}>— conceptos del sistema de sueldos</span>
         </div>
         {configOpen && (
-          <div style={{ borderTop: '0.5px solid #30363d', padding: '16px' }}>
+          <div style={{ borderTop: '0.5px solid var(--c-border)', padding: '16px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0' }}>
               {(() => {
                 const conceptos = getConceptosConfig()
                 const grupos = Array.from(new Set(conceptos.map(c => c.grupo)))
                 return grupos.map(grupo => (
                   <div key={grupo} style={{ marginBottom: '16px', paddingRight: '24px' }}>
-                    <div style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '8px' }}>{grupo}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '8px' }}>{grupo}</div>
                     {conceptos.filter(c => c.grupo === grupo).map(c => (
                       <div key={c.tipo} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '12px', color: '#8b949e', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.label}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.label}</span>
                         <input
                           type="text"
                           maxLength={4}
                           value={configCodigos[c.tipo] || ''}
                           onChange={e => setConfigCodigos(prev => ({ ...prev, [c.tipo]: e.target.value }))}
                           placeholder="0000"
-                          style={{ width: '56px', padding: '4px 8px', background: '#0d1117', border: '0.5px solid #30363d', borderRadius: '4px', color: '#e6edf3', fontSize: '12px', textAlign: 'center', fontFamily: 'monospace' }}
+                          style={{ width: '56px', padding: '4px 8px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', borderRadius: '4px', color: 'var(--c-text-primary)', fontSize: '12px', textAlign: 'center', fontFamily: 'monospace' }}
                         />
                       </div>
                     ))}
@@ -535,7 +535,7 @@ export default function ExportarClient({
               <button
                 onClick={guardarConfig}
                 disabled={configGuardando}
-                style={{ background: configGuardado ? '#1a3a1a' : '#1a2a3a', border: `0.5px solid ${configGuardado ? '#3fb95040' : '#58a6ff40'}`, color: configGuardado ? '#3fb950' : '#58a6ff', borderRadius: '6px', padding: '6px 16px', fontSize: '12px', cursor: 'pointer' }}
+                style={{ background: configGuardado ? '#1a3a1a' : 'var(--c-blue-bg)', border: `0.5px solid ${configGuardado ? 'var(--c-green)40' : 'var(--c-blue)40'}`, color: configGuardado ? 'var(--c-green)' : 'var(--c-blue)', borderRadius: '6px', padding: '6px 16px', fontSize: '12px', cursor: 'pointer' }}
               >
                 {configGuardado ? '✓ Guardado' : configGuardando ? 'Guardando...' : 'Guardar configuración'}
               </button>
@@ -546,7 +546,7 @@ export default function ExportarClient({
 
       {/* Resumen */}
       {consultado && filas.length === 0 && (
-        <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '48px', textAlign: 'center', color: '#8b949e', fontSize: '14px' }}>
+        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '48px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '14px' }}>
           No hay novedades registradas para {periodoLabel}.
         </div>
       )}
@@ -556,8 +556,8 @@ export default function ExportarClient({
           {/* Header resumen */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
             <div>
-              <span style={{ fontSize: '14px', fontWeight: 500, color: '#e6edf3' }}>{periodoLabel}</span>
-              <span style={{ fontSize: '12px', color: '#8b949e', marginLeft: '12px' }}>{filas.length} empleado{filas.length !== 1 ? 's' : ''}</span>
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--c-text-primary)' }}>{periodoLabel}</span>
+              <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)', marginLeft: '12px' }}>{filas.length} empleado{filas.length !== 1 ? 's' : ''}</span>
               {feriadosDelPeriodo.length > 0 && (
                 <span style={{ fontSize: '12px', color: '#d29922', marginLeft: '12px' }}>
                   {feriadosDelPeriodo.length} feriado{feriadosDelPeriodo.length !== 1 ? 's' : ''}: {feriadosDelPeriodo.map(f => f.descripcion).join(', ')}
@@ -567,13 +567,13 @@ export default function ExportarClient({
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
               <button
                 onClick={exportarExcel}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#1a3a1a', border: '0.5px solid #3fb95040', color: '#3fb950', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#1a3a1a', border: '0.5px solid var(--c-green)40', color: 'var(--c-green)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
               >
                 <Download size={14} /> Resumen Excel
               </button>
               <button
                 onClick={() => exportarLiquidacion('excel')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#1a2a3a', border: '0.5px solid #58a6ff40', color: '#58a6ff', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-blue-bg)', border: '0.5px solid var(--c-blue)40', color: 'var(--c-blue)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
               >
                 <Download size={14} /> Liquidación Excel
               </button>
@@ -587,10 +587,10 @@ export default function ExportarClient({
           </div>
 
           {/* Tabla */}
-          <div style={{ overflowX: 'auto', background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px' }}>
+          <div style={{ overflowX: 'auto', background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', whiteSpace: 'nowrap' as const }}>
               <thead>
-                <tr style={{ background: '#0d1117', borderBottom: '0.5px solid #30363d' }}>
+                <tr style={{ background: 'var(--c-base)', borderBottom: '0.5px solid var(--c-border)' }}>
                   <th style={thStyle}>Legajo</th>
                   <th style={{ ...thStyle, textAlign: 'left', minWidth: '160px' }}>Empleado</th>
                   {!idObra && <th style={{ ...thStyle, textAlign: 'left', minWidth: '140px' }}>Obra</th>}
@@ -599,48 +599,48 @@ export default function ExportarClient({
                   <th style={thStyle}>Hs. 100%</th>
                   <th style={thStyle}>Hs. Noct.</th>
                   {adicionalesEnPeriodo.map(a => (
-                    <th key={a.id} style={{ ...thStyle, color: '#58a6ff' }}>{a.descripcion}</th>
+                    <th key={a.id} style={{ ...thStyle, color: 'var(--c-blue)' }}>{a.descripcion}</th>
                   ))}
                   {tiposEnPeriodo.map(t => (
-                    <th key={t.id} style={{ ...thStyle, color: '#f85149' }}>
+                    <th key={t.id} style={{ ...thStyle, color: 'var(--c-red)' }}>
                       {t.descripcion}
-                      <span style={{ color: '#484f58', fontWeight: 400, marginLeft: '4px' }}>
+                      <span style={{ color: 'var(--c-text-muted)', fontWeight: 400, marginLeft: '4px' }}>
                         ({t.cuenta_dias_corridos ? 'corr.' : 'háb.'})
                       </span>
                     </th>
                   ))}
-                  <th style={{ ...thStyle, color: '#3fb950' }}>Vacaciones</th>
+                  <th style={{ ...thStyle, color: 'var(--c-green)' }}>Vacaciones</th>
                   <th style={{ ...thStyle, color: '#d29922' }}>Feriados</th>
                 </tr>
               </thead>
               <tbody>
                 {filas.map((fila, i) => (
-                  <tr key={fila.idLegajo} style={{ borderBottom: i < filas.length - 1 ? '0.5px solid #21262d' : 'none' }}>
-                    <td style={{ ...tdStyle, color: '#484f58' }}>
+                  <tr key={fila.idLegajo} style={{ borderBottom: i < filas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+                    <td style={{ ...tdStyle, color: 'var(--c-text-muted)' }}>
                       {String(fila.nroLegajo).padStart(4, '0')}
                     </td>
-                    <td style={{ ...tdStyle, textAlign: 'left', fontWeight: 500, color: '#e6edf3' }}>
+                    <td style={{ ...tdStyle, textAlign: 'left', fontWeight: 500, color: 'var(--c-text-primary)' }}>
                       {fila.apellido}, {fila.nombre}
                     </td>
-                    {!idObra && <td style={{ ...tdStyle, textAlign: 'left', color: '#8b949e' }}>{fila.obra}</td>}
-                    <td style={tdStyle}>{fila.hs_normales || <span style={{ color: '#484f58' }}>—</span>}</td>
-                    <td style={{ ...tdStyle, color: fila.hs_extra_50 > 0 ? '#58a6ff' : '#484f58' }}>{fila.hs_extra_50 || '—'}</td>
-                    <td style={{ ...tdStyle, color: fila.hs_extra_100 > 0 ? '#58a6ff' : '#484f58' }}>{fila.hs_extra_100 || '—'}</td>
-                    <td style={{ ...tdStyle, color: fila.hs_nocturnas > 0 ? '#58a6ff' : '#484f58' }}>{fila.hs_nocturnas || '—'}</td>
+                    {!idObra && <td style={{ ...tdStyle, textAlign: 'left', color: 'var(--c-text-secondary)' }}>{fila.obra}</td>}
+                    <td style={tdStyle}>{fila.hs_normales || <span style={{ color: 'var(--c-text-muted)' }}>—</span>}</td>
+                    <td style={{ ...tdStyle, color: fila.hs_extra_50 > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{fila.hs_extra_50 || '—'}</td>
+                    <td style={{ ...tdStyle, color: fila.hs_extra_100 > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{fila.hs_extra_100 || '—'}</td>
+                    <td style={{ ...tdStyle, color: fila.hs_nocturnas > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{fila.hs_nocturnas || '—'}</td>
                     {adicionalesEnPeriodo.map(a => (
-                      <td key={a.id} style={{ ...tdStyle, color: fila.adicionales[a.id] > 0 ? '#58a6ff' : '#484f58' }}>
+                      <td key={a.id} style={{ ...tdStyle, color: fila.adicionales[a.id] > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>
                         {fila.adicionales[a.id] || '—'}
                       </td>
                     ))}
                     {tiposEnPeriodo.map(t => (
-                      <td key={t.id} style={{ ...tdStyle, color: fila.ausencias[t.id] > 0 ? '#f85149' : '#484f58' }}>
+                      <td key={t.id} style={{ ...tdStyle, color: fila.ausencias[t.id] > 0 ? 'var(--c-red)' : 'var(--c-text-muted)' }}>
                         {fila.ausencias[t.id] ? `${fila.ausencias[t.id]}d` : '—'}
                       </td>
                     ))}
-                    <td style={{ ...tdStyle, color: fila.vacaciones > 0 ? '#3fb950' : '#484f58' }}>
+                    <td style={{ ...tdStyle, color: fila.vacaciones > 0 ? 'var(--c-green)' : 'var(--c-text-muted)' }}>
                       {fila.vacaciones ? `${fila.vacaciones}d` : '—'}
                     </td>
-                    <td style={{ ...tdStyle, color: fila.feriados > 0 ? '#d29922' : '#484f58' }}>
+                    <td style={{ ...tdStyle, color: fila.feriados > 0 ? '#d29922' : 'var(--c-text-muted)' }}>
                       {fila.feriados ? `${fila.feriados}d` : '—'}
                     </td>
                   </tr>
@@ -648,22 +648,22 @@ export default function ExportarClient({
               </tbody>
               {/* Fila totales */}
               <tfoot>
-                <tr style={{ borderTop: '0.5px solid #30363d', background: '#0d1117' }}>
-                  <td colSpan={!idObra ? 3 : 2} style={{ padding: '8px 12px', color: '#8b949e', fontSize: '12px', fontWeight: 600 }}>TOTAL</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: '#e6edf3' }}>{totalFilas('hs_normales')}</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_extra_50') > 0 ? '#58a6ff' : '#484f58' }}>{totalFilas('hs_extra_50') || '—'}</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_extra_100') > 0 ? '#58a6ff' : '#484f58' }}>{totalFilas('hs_extra_100') || '—'}</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_nocturnas') > 0 ? '#58a6ff' : '#484f58' }}>{totalFilas('hs_nocturnas') || '—'}</td>
+                <tr style={{ borderTop: '0.5px solid var(--c-border)', background: 'var(--c-base)' }}>
+                  <td colSpan={!idObra ? 3 : 2} style={{ padding: '8px 12px', color: 'var(--c-text-secondary)', fontSize: '12px', fontWeight: 600 }}>TOTAL</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: 'var(--c-text-primary)' }}>{totalFilas('hs_normales')}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_extra_50') > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{totalFilas('hs_extra_50') || '—'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_extra_100') > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{totalFilas('hs_extra_100') || '—'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_nocturnas') > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{totalFilas('hs_nocturnas') || '—'}</td>
                   {adicionalesEnPeriodo.map(a => {
                     const t = filas.reduce((s, f) => s + (f.adicionales[a.id] || 0), 0)
-                    return <td key={a.id} style={{ ...tdStyle, fontWeight: 700, color: t > 0 ? '#58a6ff' : '#484f58' }}>{t || '—'}</td>
+                    return <td key={a.id} style={{ ...tdStyle, fontWeight: 700, color: t > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{t || '—'}</td>
                   })}
                   {tiposEnPeriodo.map(t => {
                     const tot = filas.reduce((s, f) => s + (f.ausencias[t.id] || 0), 0)
-                    return <td key={t.id} style={{ ...tdStyle, fontWeight: 700, color: tot > 0 ? '#f85149' : '#484f58' }}>{tot ? `${tot}d` : '—'}</td>
+                    return <td key={t.id} style={{ ...tdStyle, fontWeight: 700, color: tot > 0 ? 'var(--c-red)' : 'var(--c-text-muted)' }}>{tot ? `${tot}d` : '—'}</td>
                   })}
-                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('vacaciones') > 0 ? '#3fb950' : '#484f58' }}>{totalFilas('vacaciones') ? `${totalFilas('vacaciones')}d` : '—'}</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('feriados') > 0 ? '#d29922' : '#484f58' }}>{totalFilas('feriados') ? `${totalFilas('feriados')}d` : '—'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('vacaciones') > 0 ? 'var(--c-green)' : 'var(--c-text-muted)' }}>{totalFilas('vacaciones') ? `${totalFilas('vacaciones')}d` : '—'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('feriados') > 0 ? '#d29922' : 'var(--c-text-muted)' }}>{totalFilas('feriados') ? `${totalFilas('feriados')}d` : '—'}</td>
                 </tr>
               </tfoot>
             </table>
@@ -676,13 +676,13 @@ export default function ExportarClient({
 
 const selStyle = {
   padding: '7px 10px', borderRadius: '6px',
-  background: '#0d1117', border: '0.5px solid #30363d',
-  color: '#e6edf3', fontSize: '13px',
+  background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+  color: 'var(--c-text-primary)', fontSize: '13px',
 }
 const thStyle = {
-  padding: '8px 12px', color: '#8b949e', fontWeight: 500,
+  padding: '8px 12px', color: 'var(--c-text-secondary)', fontWeight: 500,
   textAlign: 'center' as const, fontSize: '12px',
 }
 const tdStyle = {
-  padding: '8px 12px', textAlign: 'center' as const, color: '#e6edf3',
+  padding: '8px 12px', textAlign: 'center' as const, color: 'var(--c-text-primary)',
 }

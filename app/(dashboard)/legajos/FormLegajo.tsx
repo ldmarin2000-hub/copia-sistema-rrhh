@@ -115,18 +115,18 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
   }
 
   const selectStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
-    background: '#0d1117', border: '0.5px solid #30363d',
-    color: '#e6edf3', fontSize: '13px',
+    background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+    color: 'var(--c-text-primary)', fontSize: '13px',
   }
 
   const labelStyle = {
-    fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px'
+    fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px'
   }
 
   const categoriasFiltradas = categorias.filter(c => c.id_empresa === empresaActiva?.id)
@@ -208,17 +208,17 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
       {/* Modal baja */}
       {mostrarModalBaja && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)',
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
         }}>
           <div style={{
-            background: '#161b22', border: '0.5px solid #f85149',
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-red)',
             borderRadius: '10px', width: '100%', maxWidth: '440px', padding: '24px',
           }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#f85149', margin: '0 0 4px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-red)', margin: '0 0 4px' }}>
               Registrar baja
             </h2>
-            <p style={{ fontSize: '13px', color: '#8b949e', margin: '0 0 20px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', margin: '0 0 20px' }}>
               Completá los datos del egreso del empleado.
             </p>
 
@@ -265,8 +265,8 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                   setEstado(editando ? legajoEditar!.estado : 'Activo')
                 }}
                 style={{
-                  background: 'transparent', border: '0.5px solid #30363d',
-                  color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+                  background: 'transparent', border: '0.5px solid var(--c-border)',
+                  color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
                   fontSize: '13px', cursor: 'pointer',
                 }}
               >
@@ -276,7 +276,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                 onClick={() => setMostrarModalBaja(false)}
                 disabled={!fechaEgreso || !motivoBaja}
                 style={{
-                  background: '#f85149', color: 'white', border: 'none',
+                  background: 'var(--c-red)', color: 'white', border: 'none',
                   borderRadius: '6px', padding: '7px 16px',
                   fontSize: '13px', cursor: 'pointer',
                 }}
@@ -290,22 +290,22 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
 
       {/* Formulario principal */}
       <div style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+        position: 'fixed', inset: 0, background: 'var(--c-overlay)',
         display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
         zIndex: 50, overflowY: 'auto', paddingTop: '20px', paddingBottom: '20px',
       }}>
         <div style={{
-          background: '#161b22', border: '0.5px solid #30363d',
+          background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
           borderRadius: '10px', width: '100%', maxWidth: '620px', padding: '24px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: '0 0 2px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 2px' }}>
                 {editando ? `Editar — ${legajoEditar.apellido}, ${legajoEditar.nombre}` : 'Nuevo legajo'}
               </h2>
-              <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva?.razon_social}</span>
+              <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva?.razon_social}</span>
             </div>
-            <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+            <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
               <X size={18} />
             </button>
           </div>
@@ -314,7 +314,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
 
             {/* Identificación */}
             <div>
-              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Identificación</p>
+              <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Identificación</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={labelStyle}>Nro Legajo *</label>
@@ -347,7 +347,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
 
             {/* Datos personales */}
             <div>
-              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos personales</p>
+              <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos personales</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
@@ -381,14 +381,14 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                         placeholder="Ej: 20-12345678-9"
                         style={{
                           ...inputStyle,
-                          border: `0.5px solid ${cuilValido === false ? '#f85149' : cuilValido === true ? '#3fb950' : '#30363d'}`,
+                          border: `0.5px solid ${cuilValido === false ? 'var(--c-red)' : cuilValido === true ? 'var(--c-green)' : 'var(--c-border)'}`,
                         }}
                       />
                       {cuilValido !== null && (
                         <span style={{
                           position: 'absolute', right: '10px', top: '50%',
                           transform: 'translateY(-50%)',
-                          color: cuilValido ? '#3fb950' : '#f85149',
+                          color: cuilValido ? 'var(--c-green)' : 'var(--c-red)',
                         }}>
                           {cuilValido ? '✓' : '✗'}
                         </span>
@@ -435,7 +435,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
 
             {/* Domicilio */}
             <div>
-              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Domicilio</p>
+              <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Domicilio</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
                   <div>
@@ -462,7 +462,7 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
 
             {/* Datos laborales */}
             <div>
-              <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos laborales</p>
+              <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Datos laborales</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   {!editando && (
@@ -516,20 +516,20 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
               </div>
             </div>
 
-            {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
+            {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
             <button onClick={onCerrar} style={{
-              background: 'transparent', border: '0.5px solid #30363d',
-              color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+              background: 'transparent', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
               fontSize: '13px', cursor: 'pointer',
             }}>Cancelar</button>
             <button
               onClick={guardar}
               disabled={loading || !nroLegajo || !apellido || !nombre || !cuil || cuilValido === false || (!editando && !fechaIngreso)}
               style={{
-                background: '#2563eb', color: 'white', border: 'none',
+                background: 'var(--c-blue-btn)', color: 'white', border: 'none',
                 borderRadius: '6px', padding: '7px 16px',
                 fontSize: '13px', cursor: 'pointer',
                 opacity: loading ? 0.6 : 1,

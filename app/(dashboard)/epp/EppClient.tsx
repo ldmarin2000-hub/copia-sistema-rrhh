@@ -33,7 +33,7 @@ export default function EppClient({
   const [tabActiva, setTabActiva] = useState('stock')
 
   if (!empresaActiva) {
-    return <div style={{ color: '#8b949e', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   const idEmpresa = empresaActiva.id
@@ -52,26 +52,26 @@ export default function EppClient({
   return (
     <>
       <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: 500, color: '#e6edf3', margin: '0 0 4px' }}>EPP y Ropa de trabajo</h1>
+        <h1 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 4px' }}>EPP y Ropa de trabajo</h1>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '12px', color: '#8b949e' }}>{empresaActiva.razon_social}</span>
+          <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
           {porVencer.length > 0 && (
             <span style={{ fontSize: '12px', color: '#d29922' }}>⚠ {porVencer.length} EPP por vencer en 30 días</span>
           )}
           {stockBajo.length > 0 && (
-            <span style={{ fontSize: '12px', color: '#f85149' }}>⚠ {stockBajo.length} item{stockBajo.length !== 1 ? 's' : ''} con stock bajo</span>
+            <span style={{ fontSize: '12px', color: 'var(--c-red)' }}>⚠ {stockBajo.length} item{stockBajo.length !== 1 ? 's' : ''} con stock bajo</span>
           )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '0.5px solid #30363d' }}>
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '0.5px solid var(--c-border)' }}>
         {TABS.map(tab => (
           <button key={tab.id} onClick={() => setTabActiva(tab.id)} style={{
             display: 'flex', alignItems: 'center', gap: '6px',
             padding: '8px 16px', background: 'transparent', border: 'none',
-            borderBottom: tabActiva === tab.id ? '2px solid #58a6ff' : '2px solid transparent',
-            color: tabActiva === tab.id ? '#58a6ff' : '#8b949e',
+            borderBottom: tabActiva === tab.id ? '2px solid var(--c-blue)' : '2px solid transparent',
+            color: tabActiva === tab.id ? 'var(--c-blue)' : 'var(--c-text-secondary)',
             fontSize: '13px', cursor: 'pointer', marginBottom: '-1px', whiteSpace: 'nowrap',
           }}>
             <tab.icon size={14} />

@@ -96,7 +96,7 @@ export default function MapaObra({ latitud, longitud, onChange }: Props) {
   return (
     <div
       ref={containerRef}
-      style={{ height: '300px', borderRadius: '6px', border: '0.5px solid #30363d' }}
+      style={{ height: '300px', borderRadius: '6px', border: '0.5px solid var(--c-border)' }}
     />
   )
 }

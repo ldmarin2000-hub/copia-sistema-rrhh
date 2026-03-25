@@ -85,10 +85,10 @@ type Obra = {
 
 const badgeEstado = (estado: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
-    Activo: { bg: '#1a3a2a', color: '#3fb950' },
-    Baja:   { bg: '#3a1a1a', color: '#f85149' },
+    Activo: { bg: 'var(--c-green-bg)', color: 'var(--c-green)' },
+    Baja:   { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
   }
-  const c = colores[estado] || { bg: '#21262d', color: '#8b949e' }
+  const c = colores[estado] || { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' }
   
   return (
     <span style={{
@@ -577,8 +577,8 @@ export default function FichaClient({
 
   const dato = (label: string, valor?: string | null) => (
     <div>
-      <p style={{ fontSize: '11px', color: '#484f58', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>
-      <p style={{ fontSize: '13px', color: valor ? '#e6edf3' : '#484f58', margin: 0 }}>
+      <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>
+      <p style={{ fontSize: '13px', color: valor ? 'var(--c-text-primary)' : 'var(--c-text-muted)', margin: 0 }}>
         {valor || '—'}
       </p>
     </div>
@@ -588,7 +588,7 @@ export default function FichaClient({
     <div>
       {/* Header ficha */}
       <div style={{ marginBottom: '24px' }}>
-        <Link href={rol === 'JEFE_OBRA' ? '/personal-obra' : '/legajos'} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#8b949e', fontSize: '13px', marginBottom: '16px' }}>
+        <Link href={rol === 'JEFE_OBRA' ? '/personal-obra' : '/legajos'} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--c-text-secondary)', fontSize: '13px', marginBottom: '16px' }}>
           <ArrowLeft size={14} />
           {rol === 'JEFE_OBRA' ? 'Volver a personal de obra' : 'Volver a legajos'}
         </Link>
@@ -597,27 +597,27 @@ export default function FichaClient({
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
               width: '48px', height: '48px', borderRadius: '50%',
-              background: '#1a2a3a', border: '0.5px solid #30363d',
+              background: 'var(--c-blue-bg)', border: '0.5px solid var(--c-border)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <span style={{ fontSize: '18px', color: '#58a6ff', fontWeight: 500 }}>
+              <span style={{ fontSize: '18px', color: 'var(--c-blue)', fontWeight: 500 }}>
                 {legajo.apellido.charAt(0)}
               </span>
             </div>
             <div>
-              <h1 style={{ fontSize: '20px', fontWeight: 500, color: '#e6edf3', margin: '0 0 4px' }}>
+              <h1 style={{ fontSize: '20px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 4px' }}>
                 {legajo.apellido}, {legajo.nombre}
               </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '12px', color: '#8b949e' }}>
+                <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
                   Legajo {String(legajo.nro_legajo).padStart(4, '0')}
                 </span>
                 {legajo.codigo_externo && (
-                  <span style={{ fontSize: '12px', color: '#8b949e' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
                     · Ext: {legajo.codigo_externo}
                   </span>
                 )}
-                <span style={{ fontSize: '12px', color: '#8b949e' }}>· {legajo.cuil}</span>
+                <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>· {legajo.cuil}</span>
                 {badgeEstado(legajoEstado)}
               </div>
             </div>
@@ -629,8 +629,8 @@ export default function FichaClient({
             onClick={() => setMostrarForm(true)}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              background: '#21262d', border: '0.5px solid #30363d',
-              color: '#e6edf3', borderRadius: '6px', padding: '7px 14px',
+              background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-text-primary)', borderRadius: '6px', padding: '7px 14px',
               fontSize: '13px', cursor: 'pointer',
             }}
           >
@@ -641,7 +641,7 @@ export default function FichaClient({
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '0.5px solid #30363d', paddingBottom: '0' }}>
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '0.5px solid var(--c-border)', paddingBottom: '0' }}>
         {tabsVisibles.map((tab) => (
           <button
             key={tab.id}
@@ -649,8 +649,8 @@ export default function FichaClient({
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               padding: '8px 16px', background: 'transparent', border: 'none',
-              borderBottom: tabActiva === tab.id ? '2px solid #58a6ff' : '2px solid transparent',
-              color: tabActiva === tab.id ? '#58a6ff' : '#8b949e',
+              borderBottom: tabActiva === tab.id ? '2px solid var(--c-blue)' : '2px solid transparent',
+              color: tabActiva === tab.id ? 'var(--c-blue)' : 'var(--c-text-secondary)',
               fontSize: '13px', cursor: 'pointer', marginBottom: '-1px',
             }}
           >
@@ -665,8 +665,8 @@ export default function FichaClient({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
           {/* Datos laborales */}
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '20px' }}>
-            <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 16px' }}>Datos laborales</p>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '20px' }}>
+            <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 16px' }}>Datos laborales</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {dato('Fecha ingreso', legajoFechaIngreso ? formatFecha(legajoFechaIngreso) : null)}
               {dato('Categoría', legajoCatDesc || undefined)}
@@ -676,8 +676,8 @@ export default function FichaClient({
           </div>
 
           {/* Datos personales */}
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '20px' }}>
-            <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 16px' }}>Datos personales</p>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '20px' }}>
+            <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 16px' }}>Datos personales</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {dato('Fecha nacimiento', legajo.fecha_nacimiento ? formatFecha(legajo.fecha_nacimiento) : null)}
 
@@ -691,8 +691,8 @@ export default function FichaClient({
           </div>
 
           {/* Domicilio */}
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', padding: '20px' }}>
-            <p style={{ fontSize: '11px', color: '#484f58', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 16px' }}>Domicilio</p>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '20px' }}>
+            <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 16px' }}>Domicilio</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {dato('Dirección', legajo.direccion)}
               {dato('CP', legajo.cp)}
@@ -725,13 +725,13 @@ export default function FichaClient({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
           {/* Historial laboral */}
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '0.5px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontSize: '13px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Historial laboral</p>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Historial laboral</p>
               {ultimoHistorico?.fecha_egreso && !mostrarNuevaAlta && (
                 <button
                   onClick={() => { setMostrarNuevaAlta(true); setNuevaAltaFecha(hoyLocal) }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#1a3a2a', border: '0.5px solid #3fb950', color: '#3fb950', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', cursor: 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--c-green-bg)', border: '0.5px solid var(--c-green)', color: 'var(--c-green)', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', cursor: 'pointer' }}
                 >
                   <Plus size={12} />
                   Nueva Alta
@@ -741,91 +741,91 @@ export default function FichaClient({
 
             {/* Modal Nueva Alta */}
             {mostrarNuevaAlta && (
-              <div style={{ padding: '16px 20px', borderBottom: '0.5px solid #30363d', background: '#0d1117' }}>
+              <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--c-border)', background: 'var(--c-base)' }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                   <div>
-                    <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Fecha de ingreso *</p>
+                    <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Fecha de ingreso *</p>
                     <input type="date" value={nuevaAltaFecha} onChange={e => setNuevaAltaFecha(e.target.value)}
-                      style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '6px 10px', fontSize: '13px' }} />
+                      style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '6px 10px', fontSize: '13px' }} />
                   </div>
                   <div style={{ minWidth: '180px' }}>
-                    <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Categoría *</p>
+                    <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Categoría *</p>
                     <select value={nuevaAltaCatId} onChange={e => setNuevaAltaCatId(e.target.value)}
-                      style={{ width: '100%', background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '6px 8px', fontSize: '13px' }}>
+                      style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '6px 8px', fontSize: '13px' }}>
                       <option value="">Seleccionar...</option>
                       {categoriasFiltradas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
                     </select>
                   </div>
                   <div style={{ minWidth: '180px' }}>
-                    <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Obra *</p>
+                    <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Obra *</p>
                     <select value={nuevaAltaObraId} onChange={e => setNuevaAltaObraId(e.target.value)}
-                      style={{ width: '100%', background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '6px 8px', fontSize: '13px' }}>
+                      style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '6px 8px', fontSize: '13px' }}>
                       <option value="">Seleccionar...</option>
                       {obrasFiltradas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                     </select>
                   </div>
                   <div style={{ flex: 1, minWidth: '140px' }}>
-                    <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Observación</p>
+                    <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Observación</p>
                     <input type="text" value={nuevaAltaObs} onChange={e => setNuevaAltaObs(e.target.value)} placeholder="Opcional"
-                      style={{ width: '100%', background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '6px 10px', fontSize: '13px', boxSizing: 'border-box' }} />
+                      style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '6px 10px', fontSize: '13px', boxSizing: 'border-box' }} />
                   </div>
                   <button onClick={guardarNuevaAlta} disabled={loadingAlta}
                     style={{ background: '#238636', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
                     {loadingAlta ? 'Guardando...' : 'Guardar'}
                   </button>
                   <button onClick={() => { setMostrarNuevaAlta(false); setErrorAlta('') }}
-                    style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+                    style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
                     Cancelar
                   </button>
                 </div>
               </div>
             )}
-            {errorAlta && <div style={{ padding: '8px 20px', background: '#3a1a1a', color: '#f85149', fontSize: '12px' }}>{errorAlta}</div>}
+            {errorAlta && <div style={{ padding: '8px 20px', background: 'var(--c-red-bg)', color: 'var(--c-red)', fontSize: '12px' }}>{errorAlta}</div>}
 
             {errorEdit && editandoId === null && (
-              <div style={{ padding: '8px 20px', background: '#3a1a1a', color: '#f85149', fontSize: '12px' }}>{errorEdit}</div>
+              <div style={{ padding: '8px 20px', background: 'var(--c-red-bg)', color: 'var(--c-red)', fontSize: '12px' }}>{errorEdit}</div>
             )}
 
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
               <thead>
-                <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '18%' }}>Ingreso</th>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '18%' }}>Egreso</th>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '14%' }}>Motivo</th>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '38%' }}>Observación</th>
+                <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '18%' }}>Ingreso</th>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '18%' }}>Egreso</th>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '14%' }}>Motivo</th>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '38%' }}>Observación</th>
                   <th style={{ width: '12%' }}></th>
                 </tr>
               </thead>
               <tbody>
                 {historicoList.map((h, i) => {
                   const motivoColor: Record<string, { bg: string; color: string }> = {
-                    'Alta':       { bg: '#1a3a2a', color: '#3fb950' },
-                    'Reingreso':  { bg: '#1a2a3a', color: '#58a6ff' },
-                    'Renuncia':   { bg: '#3a1a1a', color: '#f85149' },
-                    'Despido':    { bg: '#3a1a1a', color: '#f85149' },
-                    'Abandono':   { bg: '#3a1a1a', color: '#f85149' },
-                    'Fallecimiento': { bg: '#3a1a1a', color: '#f85149' },
+                    'Alta':       { bg: 'var(--c-green-bg)', color: 'var(--c-green)' },
+                    'Reingreso':  { bg: 'var(--c-blue-bg)', color: 'var(--c-blue)' },
+                    'Renuncia':   { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
+                    'Despido':    { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
+                    'Abandono':   { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
+                    'Fallecimiento': { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
                     'Jubilación': { bg: '#3a2a1a', color: '#e3b341' },
-                    'Otro':       { bg: '#21262d', color: '#8b949e' },
-                    'Baja':       { bg: '#3a1a1a', color: '#f85149' },
-                    'Traslado':   { bg: '#21262d', color: '#8b949e' },
+                    'Otro':       { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
+                    'Baja':       { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
+                    'Traslado':   { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
                   }
                   const isEditing = editandoId === h.id
                   return (
-                    <tr key={h.id} style={{ borderBottom: i < historicoList.length - 1 ? '0.5px solid #21262d' : 'none', background: isEditing ? '#0d1117' : 'transparent' }}>
+                    <tr key={h.id} style={{ borderBottom: i < historicoList.length - 1 ? '0.5px solid var(--c-elevated)' : 'none', background: isEditing ? 'var(--c-base)' : 'transparent' }}>
                       {isEditing ? (
                         <>
                           <td style={{ padding: '10px 16px' }}>
                             <input type="date" value={editForm.fecha_ingreso} onChange={e => setEditForm(f => ({ ...f, fecha_ingreso: e.target.value }))}
-                              style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', width: '100%' }} />
+                              style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', width: '100%' }} />
                           </td>
                           <td style={{ padding: '10px 16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <input type="date" value={editForm.fecha_egreso} onChange={e => setEditForm(f => ({ ...f, fecha_egreso: e.target.value }))}
-                                style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', flex: 1 }} />
+                                style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', flex: 1 }} />
                               {editForm.fecha_egreso && (
                                 <button onClick={() => setEditForm(f => ({ ...f, fecha_egreso: '', motivo_baja: '' }))}
-                                  style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', padding: '2px', lineHeight: 1, flexShrink: 0 }}
+                                  style={{ background: 'none', border: 'none', color: 'var(--c-text-secondary)', cursor: 'pointer', padding: '2px', lineHeight: 1, flexShrink: 0 }}
                                   title="Quitar fecha de egreso">
                                   <span style={{ fontSize: '14px' }}>✕</span>
                                 </button>
@@ -835,18 +835,18 @@ export default function FichaClient({
                           <td style={{ padding: '10px 16px' }}>
                             {editForm.fecha_egreso ? (
                               <select value={editForm.motivo_baja} onChange={e => setEditForm(f => ({ ...f, motivo_baja: e.target.value }))}
-                                style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', width: '100%' }}>
+                                style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', width: '100%' }}>
                                 <option value="">Motivo...</option>
                                 {MOTIVOS_BAJA.map(m => <option key={m} value={m}>{m}</option>)}
                               </select>
                             ) : (
-                              <span style={{ fontSize: '12px', color: '#484f58' }}>{h.motivo}</span>
+                              <span style={{ fontSize: '12px', color: 'var(--c-text-muted)' }}>{h.motivo}</span>
                             )}
                           </td>
                           <td style={{ padding: '10px 16px' }}>
                             <input type="text" value={editForm.observacion} onChange={e => setEditForm(f => ({ ...f, observacion: e.target.value }))} placeholder="Observación"
-                              style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', width: '100%', boxSizing: 'border-box' }} />
-                            {errorEdit && <p style={{ fontSize: '11px', color: '#f85149', margin: '4px 0 0' }}>{errorEdit}</p>}
+                              style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', width: '100%', boxSizing: 'border-box' }} />
+                            {errorEdit && <p style={{ fontSize: '11px', color: 'var(--c-red)', margin: '4px 0 0' }}>{errorEdit}</p>}
                           </td>
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
@@ -855,7 +855,7 @@ export default function FichaClient({
                                 {loadingEdit ? '...' : 'OK'}
                               </button>
                               <button onClick={cancelarEdicion}
-                                style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
+                                style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
                                 ✕
                               </button>
                             </div>
@@ -863,25 +863,25 @@ export default function FichaClient({
                         </>
                       ) : (
                         <>
-                          <td style={{ padding: '10px 16px', color: '#e6edf3' }}>{formatFecha(h.fecha_ingreso)}</td>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>{h.fecha_egreso ? formatFecha(h.fecha_egreso) : '—'}</td>
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>{formatFecha(h.fecha_ingreso)}</td>
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{h.fecha_egreso ? formatFecha(h.fecha_egreso) : '—'}</td>
                           <td style={{ padding: '10px 16px' }}>
                             {(() => {
-                              const c = motivoColor[h.motivo] || { bg: '#21262d', color: '#8b949e' }
+                              const c = motivoColor[h.motivo] || { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' }
                               return <span style={{ background: c.bg, color: c.color, fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{h.motivo}</span>
                             })()}
                           </td>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>{h.observacion || '—'}</td>
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{h.observacion || '—'}</td>
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             {editandoId === null && (
                               <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
                                 <button onClick={() => iniciarEdicion(h)}
-                                  style={{ background: 'none', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
+                                  style={{ background: 'none', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
                                   <Pencil size={11} />
                                 </button>
                                 {i === 0 && historicoList.length > 1 && (
                                   <button onClick={eliminarUltimoHistorico}
-                                    style={{ background: 'none', border: '0.5px solid #3a1a1a', color: '#f85149', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
+                                    style={{ background: 'none', border: '0.5px solid var(--c-red-bg)', color: 'var(--c-red)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
                                     <Trash2 size={11} />
                                   </button>
                                 )}
@@ -898,27 +898,27 @@ export default function FichaClient({
           </div>
 
           {/* Histórico categorías */}
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '0.5px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontSize: '13px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Histórico de categorías</p>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Histórico de categorías</p>
               {legajoEstado === 'Activo' && !mostrarNuevaCat && catEditandoId === null && (
                 <button onClick={() => { setMostrarNuevaCat(true); setNuevaCatFecha(hoyLocal); setNuevaCatId('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#1a2a3a', border: '0.5px solid #58a6ff', color: '#58a6ff', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--c-blue-bg)', border: '0.5px solid var(--c-blue)', color: 'var(--c-blue)', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', cursor: 'pointer' }}>
                   <Plus size={12} />Nueva Categoría
                 </button>
               )}
             </div>
             {mostrarNuevaCat && (
-              <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #30363d', background: '#0d1117', display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+              <div style={{ padding: '12px 16px', borderBottom: '0.5px solid var(--c-border)', background: 'var(--c-base)', display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div>
-                  <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Desde</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Desde</p>
                   <input type="date" value={nuevaCatFecha} onChange={e => setNuevaCatFecha(e.target.value)}
-                    style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }} />
+                    style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Categoría</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Categoría</p>
                   <select value={nuevaCatId} onChange={e => setNuevaCatId(e.target.value)}
-                    style={{ width: '100%', background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }}>
+                    style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }}>
                     <option value="">Seleccionar...</option>
                     {categoriasFiltradas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
                   </select>
@@ -928,18 +928,18 @@ export default function FichaClient({
                   {catLoading ? '...' : 'Guardar'}
                 </button>
                 <button onClick={() => setMostrarNuevaCat(false)}
-                  style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+                  style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
                   Cancelar
                 </button>
               </div>
             )}
-            {catError && <div style={{ padding: '8px 16px', background: '#3a1a1a', color: '#f85149', fontSize: '12px' }}>{catError}</div>}
+            {catError && <div style={{ padding: '8px 16px', background: 'var(--c-red-bg)', color: 'var(--c-red)', fontSize: '12px' }}>{catError}</div>}
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
               <thead>
-                <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '45%' }}>Categoría</th>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '22%' }}>Desde</th>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '22%' }}>Hasta</th>
+                <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '45%' }}>Categoría</th>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '22%' }}>Desde</th>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '22%' }}>Hasta</th>
                   <th style={{ width: '11%' }}></th>
                 </tr>
               </thead>
@@ -949,32 +949,32 @@ export default function FichaClient({
                   const canDelete = i < catList.length - 1
                   const esPrimero = i === catList.length - 1
                   return (
-                    <tr key={h.id} style={{ borderBottom: i < catList.length - 1 ? '0.5px solid #21262d' : 'none', background: isEditing ? '#0d1117' : 'transparent' }}>
+                    <tr key={h.id} style={{ borderBottom: i < catList.length - 1 ? '0.5px solid var(--c-elevated)' : 'none', background: isEditing ? 'var(--c-base)' : 'transparent' }}>
                       {isEditing ? (
                         <td style={{ padding: '10px 16px' }}>
                           {esPrimero
                             ? <select value={catEditCatId} onChange={e => setCatEditCatId(e.target.value)}
-                                style={{ width: '100%', background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '4px 8px', fontSize: '12px' }}>
+                                style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px' }}>
                                 <option value="">Seleccionar...</option>
                                 {categoriasFiltradas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
                               </select>
-                            : <span style={{ color: '#e6edf3', fontWeight: 500 }}>{h.categorias.descripcion}</span>
+                            : <span style={{ color: 'var(--c-text-primary)', fontWeight: 500 }}>{h.categorias.descripcion}</span>
                           }
                         </td>
                       ) : (
-                        <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{h.categorias.descripcion}</td>
+                        <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{h.categorias.descripcion}</td>
                       )}
                       {isEditing ? (
                         <>
                           <td style={{ padding: '10px 16px' }}>
                             {esPrimero
-                              ? <span style={{ color: '#8b949e', fontSize: '12px' }}>{formatFecha(h.fecha_desde)}</span>
+                              ? <span style={{ color: 'var(--c-text-secondary)', fontSize: '12px' }}>{formatFecha(h.fecha_desde)}</span>
                               : <input type="date" value={catEditFecha} onChange={e => setCatEditFecha(e.target.value)}
-                                  style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', width: '100%' }} />
+                                  style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', width: '100%' }} />
                             }
                           </td>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>
-                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: '#3fb950', fontSize: '11px' }}>Actual</span>}
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
+                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: 'var(--c-green)', fontSize: '11px' }}>Actual</span>}
                           </td>
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
@@ -983,26 +983,26 @@ export default function FichaClient({
                                 {catLoading ? '...' : 'OK'}
                               </button>
                               <button onClick={() => setCatEditandoId(null)}
-                                style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>✕</button>
+                                style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>✕</button>
                             </div>
                           </td>
                         </>
                       ) : (
                         <>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(h.fecha_desde)}</td>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>
-                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: '#3fb950', fontSize: '11px' }}>Actual</span>}
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(h.fecha_desde)}</td>
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
+                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: 'var(--c-green)', fontSize: '11px' }}>Actual</span>}
                           </td>
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             {catEditandoId === null && (
                               <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
                                 <button onClick={() => { setCatEditandoId(h.id); setCatEditFecha(h.fecha_desde); setCatEditCatId(String(h.id_categoria)); setCatError('') }}
-                                  style={{ background: 'none', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
+                                  style={{ background: 'none', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
                                   <Pencil size={11} />
                                 </button>
                                 {canDelete && (
                                   <button onClick={() => eliminarCat(h, i)} disabled={catLoading}
-                                    style={{ background: 'none', border: '0.5px solid #3a1a1a', color: '#f85149', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
+                                    style={{ background: 'none', border: '0.5px solid var(--c-red-bg)', color: 'var(--c-red)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
                                     <Trash2 size={11} />
                                   </button>
                                 )}
@@ -1019,27 +1019,27 @@ export default function FichaClient({
           </div>
 
           {/* Histórico obras */}
-          <div style={{ background: '#161b22', border: '0.5px solid #30363d', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '0.5px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontSize: '13px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>Histórico de obras</p>
+          <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Histórico de obras</p>
               {legajoEstado === 'Activo' && !mostrarNuevaObra && obraEditandoId === null && (
                 <button onClick={() => { setMostrarNuevaObra(true); setNuevaObraFecha(hoyLocal); setNuevaObraId('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#1a2a3a', border: '0.5px solid #58a6ff', color: '#58a6ff', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--c-blue-bg)', border: '0.5px solid var(--c-blue)', color: 'var(--c-blue)', borderRadius: '6px', padding: '5px 12px', fontSize: '12px', cursor: 'pointer' }}>
                   <Plus size={12} />Nueva Obra
                 </button>
               )}
             </div>
             {mostrarNuevaObra && (
-              <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #30363d', background: '#0d1117', display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+              <div style={{ padding: '12px 16px', borderBottom: '0.5px solid var(--c-border)', background: 'var(--c-base)', display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <div>
-                  <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Desde</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Desde</p>
                   <input type="date" value={nuevaObraFecha} onChange={e => setNuevaObraFecha(e.target.value)}
-                    style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }} />
+                    style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '11px', color: '#8b949e', margin: '0 0 4px' }}>Obra</p>
+                  <p style={{ fontSize: '11px', color: 'var(--c-text-secondary)', margin: '0 0 4px' }}>Obra</p>
                   <select value={nuevaObraId} onChange={e => setNuevaObraId(e.target.value)}
-                    style={{ width: '100%', background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }}>
+                    style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '5px 8px', fontSize: '13px' }}>
                     <option value="">Seleccionar...</option>
                     {obrasFiltradas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                   </select>
@@ -1049,18 +1049,18 @@ export default function FichaClient({
                   {obraLoading ? '...' : 'Guardar'}
                 </button>
                 <button onClick={() => setMostrarNuevaObra(false)}
-                  style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+                  style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
                   Cancelar
                 </button>
               </div>
             )}
-            {obraError && <div style={{ padding: '8px 16px', background: '#3a1a1a', color: '#f85149', fontSize: '12px' }}>{obraError}</div>}
+            {obraError && <div style={{ padding: '8px 16px', background: 'var(--c-red-bg)', color: 'var(--c-red)', fontSize: '12px' }}>{obraError}</div>}
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
               <thead>
-                <tr style={{ borderBottom: '0.5px solid #30363d' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '45%' }}>Obra</th>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '22%' }}>Desde</th>
-                  <th style={{ textAlign: 'left', padding: '10px 16px', color: '#8b949e', fontWeight: 500, width: '22%' }}>Hasta</th>
+                <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '45%' }}>Obra</th>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '22%' }}>Desde</th>
+                  <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, width: '22%' }}>Hasta</th>
                   <th style={{ width: '11%' }}></th>
                 </tr>
               </thead>
@@ -1070,32 +1070,32 @@ export default function FichaClient({
                   const canDelete = i < obraList.length - 1
                   const esPrimero = i === obraList.length - 1
                   return (
-                    <tr key={h.id} style={{ borderBottom: i < obraList.length - 1 ? '0.5px solid #21262d' : 'none', background: isEditing ? '#0d1117' : 'transparent' }}>
+                    <tr key={h.id} style={{ borderBottom: i < obraList.length - 1 ? '0.5px solid var(--c-elevated)' : 'none', background: isEditing ? 'var(--c-base)' : 'transparent' }}>
                       {isEditing ? (
                         <td style={{ padding: '10px 16px' }}>
                           {esPrimero
                             ? <select value={obraEditObraId} onChange={e => setObraEditObraId(e.target.value)}
-                                style={{ width: '100%', background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '4px 8px', fontSize: '12px' }}>
+                                style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px' }}>
                                 <option value="">Seleccionar...</option>
                                 {obrasFiltradas.map(o => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                               </select>
-                            : <span style={{ color: '#e6edf3', fontWeight: 500 }}>{h.obras.nombre}</span>
+                            : <span style={{ color: 'var(--c-text-primary)', fontWeight: 500 }}>{h.obras.nombre}</span>
                           }
                         </td>
                       ) : (
-                        <td style={{ padding: '10px 16px', color: '#e6edf3', fontWeight: 500 }}>{h.obras.nombre}</td>
+                        <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{h.obras.nombre}</td>
                       )}
                       {isEditing ? (
                         <>
                           <td style={{ padding: '10px 16px' }}>
                             {esPrimero
-                              ? <span style={{ color: '#8b949e', fontSize: '12px' }}>{formatFecha(h.fecha_desde)}</span>
+                              ? <span style={{ color: 'var(--c-text-secondary)', fontSize: '12px' }}>{formatFecha(h.fecha_desde)}</span>
                               : <input type="date" value={obraEditFecha} onChange={e => setObraEditFecha(e.target.value)}
-                                  style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#e6edf3', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', width: '100%' }} />
+                                  style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', width: '100%' }} />
                             }
                           </td>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>
-                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: '#3fb950', fontSize: '11px' }}>Actual</span>}
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
+                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: 'var(--c-green)', fontSize: '11px' }}>Actual</span>}
                           </td>
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
@@ -1104,26 +1104,26 @@ export default function FichaClient({
                                 {obraLoading ? '...' : 'OK'}
                               </button>
                               <button onClick={() => setObraEditandoId(null)}
-                                style={{ background: '#21262d', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>✕</button>
+                                style={{ background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>✕</button>
                             </div>
                           </td>
                         </>
                       ) : (
                         <>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(h.fecha_desde)}</td>
-                          <td style={{ padding: '10px 16px', color: '#8b949e' }}>
-                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: '#3fb950', fontSize: '11px' }}>Actual</span>}
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(h.fecha_desde)}</td>
+                          <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
+                            {h.fecha_hasta ? formatFecha(h.fecha_hasta) : <span style={{ color: 'var(--c-green)', fontSize: '11px' }}>Actual</span>}
                           </td>
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             {obraEditandoId === null && (
                               <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
                                 <button onClick={() => { setObraEditandoId(h.id); setObraEditFecha(h.fecha_desde); setObraEditObraId(String(h.id_obra)); setObraError('') }}
-                                  style={{ background: 'none', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
+                                  style={{ background: 'none', border: '0.5px solid var(--c-border)', color: 'var(--c-text-secondary)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
                                   <Pencil size={11} />
                                 </button>
                                 {canDelete && (
                                   <button onClick={() => eliminarObra(h, i)} disabled={obraLoading}
-                                    style={{ background: 'none', border: '0.5px solid #3a1a1a', color: '#f85149', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
+                                    style={{ background: 'none', border: '0.5px solid var(--c-red-bg)', color: 'var(--c-red)', borderRadius: '5px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>
                                     <Trash2 size={11} />
                                   </button>
                                 )}

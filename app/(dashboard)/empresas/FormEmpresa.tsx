@@ -59,8 +59,8 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
       placeholder={placeholder}
       style={{
         width: '100%', padding: '7px 10px', borderRadius: '6px',
-        background: '#0d1117', border: '0.5px solid #30363d',
-        color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+        background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+        color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
       }}
     />
   )
@@ -154,22 +154,22 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+      position: 'fixed', inset: 0, background: 'var(--c-overlay)',
       display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
       zIndex: 50, overflowY: 'auto', paddingTop: '20px', paddingBottom: '20px',
     }}>
       <div style={{
-        background: '#161b22', border: '0.5px solid #30363d',
+        background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
         borderRadius: '10px', width: '100%', maxWidth: '520px', padding: '24px',
       }}>
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#e6edf3', margin: 0 }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>
             {editando ? 'Editar empresa' : 'Nueva empresa'}
           </h2>
           {onCerrar && (
-            <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+            <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-secondary)' }}>
               <X size={18} />
             </button>
           )}
@@ -180,11 +180,11 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
           {/* Código y CUIT */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Código *</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Código *</label>
               {input(codigo, setCodigo, 'Ej: CONST01')}
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>CUIT *</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>CUIT *</label>
               <div style={{ position: 'relative' }}>
                 <input
                   value={cuit}
@@ -203,16 +203,16 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
                   placeholder="Ej: 30-12345678-9"
                   style={{
                     width: '100%', padding: '7px 10px', borderRadius: '6px',
-                    background: '#0d1117',
-                    border: `0.5px solid ${cuitValido === false ? '#f85149' : cuitValido === true ? '#3fb950' : '#30363d'}`,
-                    color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+                    background: 'var(--c-base)',
+                    border: `0.5px solid ${cuitValido === false ? 'var(--c-red)' : cuitValido === true ? 'var(--c-green)' : 'var(--c-border)'}`,
+                    color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
                   }}
                 />
                 {cuitValido !== null && (
                   <span style={{
                     position: 'absolute', right: '10px', top: '50%',
                     transform: 'translateY(-50%)',
-                    color: cuitValido ? '#3fb950' : '#f85149',
+                    color: cuitValido ? 'var(--c-green)' : 'var(--c-red)',
                     fontSize: '14px',
                   }}>
                     {cuitValido ? '✓' : '✗'}
@@ -220,7 +220,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
                 )}
               </div>
               {cuitValido === false && (
-                <span style={{ fontSize: '11px', color: '#f85149', marginTop: '3px', display: 'block' }}>
+                <span style={{ fontSize: '11px', color: 'var(--c-red)', marginTop: '3px', display: 'block' }}>
                   CUIT inválido
                 </span>
               )}
@@ -229,26 +229,26 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
 
           {/* Razón social */}
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Razón Social *</label>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Razón Social *</label>
             {input(razonSocial, setRazonSocial, 'Ej: Constructora SA')}
           </div>
 
           {/* CBU y Fecha inicio */}
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>CBU</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>CBU</label>
               {input(cbu, setCbu, '22 dígitos')}
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Fecha inicio</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Fecha inicio</label>
               <input
                 type="date"
                 value={fechaInicio}
                 onChange={(e) => setFechaInicio(e.target.value)}
                 style={{
                   width: '100%', padding: '7px 10px', borderRadius: '6px',
-                  background: '#0d1117', border: '0.5px solid #30363d',
-                  color: '#e6edf3', fontSize: '13px', boxSizing: 'border-box' as const,
+                  background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+                  color: 'var(--c-text-primary)', fontSize: '13px', boxSizing: 'border-box' as const,
                 }}
               />
             </div>
@@ -257,11 +257,11 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
           {/* Dirección y CP */}
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Dirección</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Dirección</label>
               {input(direccion, setDireccion, 'Calle y número')}
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>CP</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>CP</label>
               {input(cp, setCp, 'Ej: 3000')}
             </div>
           </div>
@@ -269,11 +269,11 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
           {/* Localidad y Provincia */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Localidad</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Localidad</label>
               {input(localidad, setLocalidad, 'Ciudad')}
             </div>
             <div>
-              <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Provincia</label>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Provincia</label>
               {input(provincia, setProvincia, 'Provincia')}
             </div>
           </div>
@@ -284,8 +284,8 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
             disabled={buscandoDireccion || !direccion}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              background: 'transparent', border: '0.5px solid #30363d',
-              color: '#58a6ff', borderRadius: '6px', padding: '7px 12px',
+              background: 'transparent', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-blue)', borderRadius: '6px', padding: '7px 12px',
               fontSize: '13px', cursor: 'pointer', width: 'fit-content',
               opacity: !direccion ? 0.4 : 1,
             }}
@@ -296,7 +296,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
 
           {/* Mapa */}
           <div>
-            <label style={{ fontSize: '12px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+            <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>
               Ubicación — clickeá para ubicar en el mapa
             </label>
             <MapaObra
@@ -305,14 +305,14 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
               onChange={(lat, lng) => { setLatitud(lat); setLongitud(lng) }}
             />
             {latitud && longitud && (
-              <span style={{ fontSize: '11px', color: '#8b949e', marginTop: '4px', display: 'block' }}>
+              <span style={{ fontSize: '11px', color: 'var(--c-text-secondary)', marginTop: '4px', display: 'block' }}>
                 {latitud.toFixed(6)}, {longitud.toFixed(6)}
               </span>
             )}
           </div>
 
           {error && (
-            <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>
+            <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>
           )}
         </div>
 
@@ -324,7 +324,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
               checked={activo}
               onChange={(e) => setActivo(e.target.checked)}
             />
-            <label htmlFor="activo" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+            <label htmlFor="activo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>
               Empresa activa
             </label>
           </div>
@@ -335,7 +335,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
               checked={permiteEditarEpp}
               onChange={(e) => setPermiteEditarEpp(e.target.checked)}
             />
-            <label htmlFor="permiteEditarEpp" style={{ fontSize: '13px', color: '#8b949e', cursor: 'pointer' }}>
+            <label htmlFor="permiteEditarEpp" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>
               Permite editar y borrar movimientos de EPP
             </label>
           </div>
@@ -345,8 +345,8 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
           {onCerrar && (
             <button onClick={onCerrar} style={{
-              background: 'transparent', border: '0.5px solid #30363d',
-              color: '#8b949e', borderRadius: '6px', padding: '7px 16px',
+              background: 'transparent', border: '0.5px solid var(--c-border)',
+              color: 'var(--c-text-secondary)', borderRadius: '6px', padding: '7px 16px',
               fontSize: '13px', cursor: 'pointer',
             }}>
               Cancelar
@@ -356,7 +356,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
             onClick={guardar}
             disabled={loading || !codigo || !razonSocial || !cuit}
             style={{
-              background: '#2563eb', color: 'white', border: 'none',
+              background: 'var(--c-blue-btn)', color: 'white', border: 'none',
               borderRadius: '6px', padding: '7px 16px',
               fontSize: '13px', cursor: 'pointer', opacity: loading ? 0.6 : 1,
             }}
