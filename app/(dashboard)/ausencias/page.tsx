@@ -8,10 +8,10 @@ export default async function Ausencias() {
     { data: legajos },
   ] = await Promise.all([
     supabase.from('ausencias_periodo')
-      .select('*, tipos_ausencia(descripcion), legajos(apellido, nombre, nro_legajo, id_empresa, id_obra)')
+      .select('*, tipos_ausencia(descripcion, requiere_certificado), legajos(apellido, nombre, nro_legajo, id_empresa, id_obra)')
       .order('fecha_desde', { ascending: false }),
     supabase.from('tipos_ausencia')
-      .select('id, descripcion').eq('activo', true).order('descripcion'),
+      .select('id, descripcion, requiere_certificado').eq('activo', true).order('descripcion'),
     supabase.from('legajos')
       .select('id, id_empresa, apellido, nombre, nro_legajo, id_obra')
       .eq('estado', 'Activo').order('apellido'),

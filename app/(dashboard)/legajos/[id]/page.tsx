@@ -43,11 +43,11 @@ export default async function FichaLegajo({
     supabase.from('obras')
       .select('id, id_empresa, nombre').eq('estado', 'Activa').order('nombre'),
     supabase.from('ausencias_periodo')
-      .select('*, tipos_ausencia(descripcion)')
+      .select('*, tipos_ausencia(descripcion, requiere_certificado)')
       .eq('id_legajo', id)
       .order('fecha_desde', { ascending: false }),
     supabase.from('tipos_ausencia')
-      .select('id, descripcion').eq('activo', true).order('descripcion'),
+      .select('id, descripcion, requiere_certificado').eq('activo', true).order('descripcion'),
     supabase.from('vacaciones_periodo')
       .select('*')
       .eq('id_legajo', id)

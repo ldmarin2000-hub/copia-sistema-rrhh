@@ -13,12 +13,14 @@ type Ausencia = {
   fecha_desde: string
   fecha_hasta: string
   observacion?: string
-  tipos_ausencia: { descripcion: string }
+  certificado_path?: string
+  tipos_ausencia: { descripcion: string, requiere_certificado: boolean }
 }
 
 type TipoAusencia = {
   id: number
   descripcion: string
+  requiere_certificado: boolean
 }
 
 type Props = {
@@ -36,6 +38,7 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
   const [fechaDesde, setFechaDesde] = useState('')
   const [fechaHasta, setFechaHasta] = useState('')
   const [observacion, setObservacion] = useState('')
+  const [formArchivo, setFormArchivo] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -61,6 +64,7 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
     setFechaDesde('')
     setFechaHasta('')
     setObservacion('')
+    setFormArchivo(null)
     setError('')
     setMostrarForm(true)
   }
@@ -71,6 +75,7 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
     setFechaDesde(a.fecha_desde)
     setFechaHasta(a.fecha_hasta)
     setObservacion(a.observacion || '')
+    setFormArchivo(null)
     setError('')
     setMostrarForm(true)
   }
@@ -78,6 +83,7 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
   function cerrar() {
     setMostrarForm(false)
     setEditando(null)
+    setFormArchivo(null)
   }
 
   function getDias(): number {
@@ -101,25 +107,43 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
     setError('')
     const supabase = createClient()
 
-    const datos = {
+    const datos: any = {
       id_tipo_ausencia: parseInt(idTipoAusencia),
       fecha_desde: fechaDesde,
       fecha_hasta: fechaHasta,
       observacion: observacion || null,
     }
 
+    let savedId: number | null = editando?.id ?? null
+
     if (editando) {
-      const { error } = await supabase
-        .from('ausencias_periodo').update(datos).eq('id', editando.id)
+      const { error } = await supabase.from('ausencias_periodo').update(datos).eq('id', editando.id)
       if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
-      const { error } = await supabase
-        .from('ausencias_periodo').insert({
-          ...datos,
-          id_empresa: idEmpresa,
-          id_legajo: idLegajo,
-        })
+      const { data: nueva, error } = await supabase.from('ausencias_periodo').insert({
+        ...datos,
+        id_empresa: idEmpresa,
+        id_legajo: idLegajo,
+      }).select('id').single()
       if (error) { setError(traducirError(error.message)); setLoading(false); return }
+      savedId = nueva?.id ?? null
+    }
+
+    // Subir certificado si hay archivo nuevo
+    if (formArchivo && savedId) {
+      if (editando?.certificado_path) {
+        await supabase.storage.from('documentos').remove([editando.certificado_path])
+      }
+      const path = `ausencias/${idLegajo}/${Date.now()}_${formArchivo.name}`
+      const { error: uploadError } = await supabase.storage.from('documentos').upload(path, formArchivo)
+      if (uploadError) {
+        setError('Ausencia guardada, pero no se pudo subir el certificado.')
+        setLoading(false)
+        router.refresh()
+        cerrar()
+        return
+      }
+      await supabase.from('ausencias_periodo').update({ certificado_path: path }).eq('id', savedId)
     }
 
     router.refresh()
@@ -130,9 +154,18 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
   async function eliminar(a: Ausencia) {
     if (!confirm(`¿Eliminar ausencia del ${formatFecha(a.fecha_desde)} al ${formatFecha(a.fecha_hasta)}?`)) return
     const supabase = createClient()
+    if (a.certificado_path) {
+      await supabase.storage.from('documentos').remove([a.certificado_path])
+    }
     const { error } = await supabase.from('ausencias_periodo').delete().eq('id', a.id)
     if (error) alert('No se puede eliminar: ' + traducirError(error.message))
     else router.refresh()
+  }
+
+  async function verCertificado(path: string) {
+    const supabase = createClient()
+    const { data } = await supabase.storage.from('documentos').createSignedUrl(path, 3600)
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
   }
 
   return (
@@ -193,6 +226,29 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
                   style={{ ...inputStyle, resize: 'vertical' as const }}
                 />
               </div>
+
+              {tiposAusencia.find(t => t.id === parseInt(idTipoAusencia))?.requiere_certificado && (
+                <div>
+                  <label style={labelStyle}>
+                    Certificado {editando?.certificado_path ? '(subir nuevo reemplaza el anterior)' : '*'}
+                  </label>
+                  {editando?.certificado_path && !formArchivo && (
+                    <button
+                      type="button"
+                      onClick={() => verCertificado(editando.certificado_path!)}
+                      style={{ fontSize: '12px', color: '#58a6ff', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 6px', display: 'block' }}
+                    >
+                      Ver certificado actual
+                    </button>
+                  )}
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={e => setFormArchivo(e.target.files?.[0] ?? null)}
+                    style={{ ...inputStyle, padding: '5px 8px' }}
+                  />
+                </div>
+              )}
 
               {error && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
@@ -264,6 +320,14 @@ export default function AusenciasTab({ idLegajo, idEmpresa, ausencias, tiposAuse
                     <td style={{ padding: '10px 16px', color: '#58a6ff' }}>{dias}</td>
                     <td style={{ padding: '10px 16px', color: '#8b949e' }}>{a.observacion || '—'}</td>
                     <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                      {a.certificado_path && (
+                        <button
+                          onClick={() => verCertificado(a.certificado_path!)}
+                          style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#58a6ff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
+                        >
+                          Cert.
+                        </button>
+                      )}
                       <button onClick={() => abrirEditar(a)} style={{ background: 'transparent', border: 'none', color: '#8b949e', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Editar</button>
                       <button onClick={() => eliminar(a)} style={{ background: 'transparent', border: 'none', color: '#f85149', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Eliminar</button>
                     </td>

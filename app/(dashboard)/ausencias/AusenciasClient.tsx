@@ -16,13 +16,15 @@ type Ausencia = {
   fecha_desde: string
   fecha_hasta: string
   observacion?: string
-  tipos_ausencia: { descripcion: string }
+  certificado_path?: string
+  tipos_ausencia: { descripcion: string, requiere_certificado: boolean }
   legajos: { apellido: string, nombre: string, nro_legajo: number, id_empresa: number, id_obra?: number }
 }
 
 type TipoAusencia = {
   id: number
   descripcion: string
+  requiere_certificado: boolean
 }
 
 type Legajo = {
@@ -55,6 +57,7 @@ export default function AusenciasClient({
   const [formDesde, setFormDesde] = useState('')
   const [formHasta, setFormHasta] = useState('')
   const [formObs, setFormObs] = useState('')
+  const [formArchivo, setFormArchivo] = useState<File | null>(null)
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
 
@@ -94,6 +97,7 @@ export default function AusenciasClient({
     setFormDesde('')
     setFormHasta('')
     setFormObs('')
+    setFormArchivo(null)
     setFormError('')
     setMostrarForm(true)
   }
@@ -105,6 +109,7 @@ export default function AusenciasClient({
     setFormDesde(a.fecha_desde)
     setFormHasta(a.fecha_hasta)
     setFormObs(a.observacion || '')
+    setFormArchivo(null)
     setFormError('')
     setMostrarForm(true)
   }
@@ -112,6 +117,7 @@ export default function AusenciasClient({
   function cerrarForm() {
     setMostrarForm(false)
     setEditandoAus(null)
+    setFormArchivo(null)
   }
 
   function getDias(): number {
@@ -137,23 +143,42 @@ export default function AusenciasClient({
     const legajo = legajosFiltrados.find(l => l.id === parseInt(formIdLegajo))
     if (!legajo) { setFormError('Legajo no encontrado.'); setFormLoading(false); return }
 
-    const datos = {
+    const datos: any = {
       id_tipo_ausencia: parseInt(formIdTipo),
       fecha_desde: formDesde,
       fecha_hasta: formHasta,
       observacion: formObs || null,
     }
 
+    let savedId: number | null = editandoAus?.id ?? null
+
     if (editandoAus) {
       const { error } = await supabase.from('ausencias_periodo').update(datos).eq('id', editandoAus.id)
       if (error) { setFormError(traducirError(error.message)); setFormLoading(false); return }
     } else {
-      const { error } = await supabase.from('ausencias_periodo').insert({
+      const { data: nueva, error } = await supabase.from('ausencias_periodo').insert({
         ...datos,
         id_empresa: legajo.id_empresa,
         id_legajo: legajo.id,
-      })
+      }).select('id').single()
       if (error) { setFormError(traducirError(error.message)); setFormLoading(false); return }
+      savedId = nueva?.id ?? null
+    }
+
+    if (formArchivo && savedId) {
+      if (editandoAus?.certificado_path) {
+        await supabase.storage.from('documentos').remove([editandoAus.certificado_path])
+      }
+      const path = `ausencias/${legajo.id}/${Date.now()}_${formArchivo.name}`
+      const { error: uploadError } = await supabase.storage.from('documentos').upload(path, formArchivo)
+      if (uploadError) {
+        setFormError('Ausencia guardada, pero no se pudo subir el certificado.')
+        setFormLoading(false)
+        router.refresh()
+        cerrarForm()
+        return
+      }
+      await supabase.from('ausencias_periodo').update({ certificado_path: path }).eq('id', savedId)
     }
 
     router.refresh()
@@ -164,9 +189,18 @@ export default function AusenciasClient({
   async function eliminar(a: Ausencia) {
     if (!confirm(`¿Eliminar ausencia del ${formatFecha(a.fecha_desde)} al ${formatFecha(a.fecha_hasta)}?`)) return
     const supabase = createClient()
+    if (a.certificado_path) {
+      await supabase.storage.from('documentos').remove([a.certificado_path])
+    }
     const { error } = await supabase.from('ausencias_periodo').delete().eq('id', a.id)
     if (error) alert(traducirError(error.message))
     else router.refresh()
+  }
+
+  async function verCertificado(path: string) {
+    const supabase = createClient()
+    const { data } = await supabase.storage.from('documentos').createSignedUrl(path, 3600)
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
   }
 
   if (!empresaActiva) {
@@ -233,6 +267,29 @@ export default function AusenciasClient({
                 <textarea value={formObs} onChange={e => setFormObs(e.target.value)} rows={2}
                   style={{ ...inputStyle, resize: 'vertical' as const }} />
               </div>
+
+              {tiposAusencia.find(t => t.id === parseInt(formIdTipo))?.requiere_certificado && (
+                <div>
+                  <label style={labelStyle}>
+                    Certificado {editandoAus?.certificado_path ? '(subir nuevo reemplaza el anterior)' : ''}
+                  </label>
+                  {editandoAus?.certificado_path && !formArchivo && (
+                    <button
+                      type="button"
+                      onClick={() => verCertificado(editandoAus.certificado_path!)}
+                      style={{ fontSize: '12px', color: '#58a6ff', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 6px', display: 'block' }}
+                    >
+                      Ver certificado actual
+                    </button>
+                  )}
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={e => setFormArchivo(e.target.files?.[0] ?? null)}
+                    style={{ ...inputStyle, padding: '5px 8px' }}
+                  />
+                </div>
+              )}
 
               {formError && <p style={{ color: '#f85149', fontSize: '12px', margin: 0 }}>{formError}</p>}
             </div>
@@ -354,6 +411,14 @@ export default function AusenciasClient({
                     <td style={{ padding: '10px 16px', color: '#58a6ff', fontWeight: 500 }}>{dias}</td>
                     <td style={{ padding: '10px 16px', color: '#8b949e' }}>{a.observacion || '—'}</td>
                     <td style={{ padding: '10px 16px', whiteSpace: 'nowrap' }}>
+                      {a.certificado_path && (
+                        <button
+                          onClick={() => verCertificado(a.certificado_path!)}
+                          style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#58a6ff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
+                        >
+                          Cert.
+                        </button>
+                      )}
                       <button
                         onClick={() => abrirEditar(a)}
                         style={{ background: 'transparent', border: '0.5px solid #30363d', color: '#8b949e', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer', marginRight: '6px' }}
