@@ -6,7 +6,6 @@ import { useEmpresa } from '../context/EmpresaContext'
 import { formatFecha } from '@/lib/fecha'
 import { createClient } from '@/lib/supabase-browser'
 import { traducirError } from '@/lib/errores'
-import Link from 'next/link'
 import { X, Plus } from 'lucide-react'
 
 type Ausencia = {
@@ -396,14 +395,12 @@ export default function AusenciasClient({
                 return (
                   <tr key={a.id} style={{ borderBottom: i < ausenciasFiltradas.length - 1 ? '0.5px solid #21262d' : 'none' }}>
                     <td style={{ padding: '10px 16px' }}>
-                      <Link href={`/legajos/${a.id_legajo}`} style={{ textDecoration: 'none' }}>
-                        <span style={{ color: '#e6edf3', fontWeight: 500 }}>
-                          {a.legajos.apellido}, {a.legajos.nombre}
-                        </span>
-                        <span style={{ color: '#484f58', fontSize: '11px', marginLeft: '6px' }}>
-                          #{String(a.legajos.nro_legajo).padStart(4, '0')}
-                        </span>
-                      </Link>
+                      <span style={{ color: '#e6edf3', fontWeight: 500 }}>
+                        {a.legajos.apellido}, {a.legajos.nombre}
+                      </span>
+                      <span style={{ color: '#484f58', fontSize: '11px', marginLeft: '6px' }}>
+                        #{String(a.legajos.nro_legajo).padStart(4, '0')}
+                      </span>
                     </td>
                     <td style={{ padding: '10px 16px', color: '#8b949e' }}>{a.tipos_ausencia.descripcion}</td>
                     <td style={{ padding: '10px 16px', color: '#8b949e' }}>{formatFecha(a.fecha_desde)}</td>
