@@ -118,7 +118,7 @@ export default function CategoriasClient({
     setError('')
     setMostrarForm(true)
     setActivo(true)
-    const [idPlantilla, setIdPlantilla] = useState('')
+    setIdPlantilla('')
   }
 
   function abrirEditar(cat: Categoria) {
