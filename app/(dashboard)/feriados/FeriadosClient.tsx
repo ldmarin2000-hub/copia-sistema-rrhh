@@ -42,8 +42,8 @@ const badgeTipo = (tipo: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
     nacional:             { bg: 'var(--c-blue-bg)', color: 'var(--c-blue)' },
     no_laborable:         { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
-    provincial_municipal: { bg: '#2a1a3a', color: '#bc8cff' },
-    sindical:             { bg: '#3a2f1a', color: '#d29922' },
+    provincial_municipal: { bg: 'var(--c-purple-bg)', color: 'var(--c-purple)' },
+    sindical:             { bg: 'var(--c-orange-bg)', color: 'var(--c-orange)' },
   }
   const c = colores[tipo] || colores.nacional
   const label = TIPOS.find(t => t.value === tipo)?.label || tipo

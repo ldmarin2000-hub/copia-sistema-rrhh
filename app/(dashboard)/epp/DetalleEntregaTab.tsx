@@ -568,7 +568,7 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
                   {r.firmado ? (
                     <span style={{ background: 'var(--c-green-bg)', color: 'var(--c-green)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Firmado</span>
                   ) : (
-                    <span style={{ background: '#3a2f1a', color: '#d29922', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Pendiente firma</span>
+                    <span style={{ background: 'var(--c-orange-bg)', color: 'var(--c-orange)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Pendiente firma</span>
                   )}
                   <span style={{ fontSize: '12px', color: 'var(--c-text-muted)' }}>
                     {r.epp_detalle_entregas_items.length} item{r.epp_detalle_entregas_items.length !== 1 ? 's' : ''}
@@ -633,7 +633,7 @@ export default function DetalleEntregaTab({ catalogo, talles, detalleEntregas, l
                           <tr key={item.id} style={{ borderBottom: i < r.epp_detalle_entregas_items.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                             <td style={{ padding: '8px 16px 8px 40px', color: 'var(--c-text-primary)' }}>{item.epp_catalogo.descripcion}</td>
                             <td style={{ padding: '8px 16px', color: 'var(--c-text-secondary)' }}>
-                              {item.talle ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{item.talle}</span> : '—'}
+                              {item.talle ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{item.talle}</span> : '—'}
                             </td>
                             <td style={{ padding: '8px 16px', color: 'var(--c-text-secondary)' }}>{item.cantidad}</td>
                             <td style={{ padding: '8px 16px', color: 'var(--c-text-secondary)' }}>{item.fecha_vencimiento ? formatFecha(item.fecha_vencimiento) : '—'}</td>

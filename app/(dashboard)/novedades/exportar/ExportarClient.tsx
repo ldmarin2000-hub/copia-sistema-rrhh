@@ -535,7 +535,7 @@ export default function ExportarClient({
               <button
                 onClick={guardarConfig}
                 disabled={configGuardando}
-                style={{ background: configGuardado ? '#1a3a1a' : 'var(--c-blue-bg)', border: `0.5px solid ${configGuardado ? 'var(--c-green)40' : 'var(--c-blue)40'}`, color: configGuardado ? 'var(--c-green)' : 'var(--c-blue)', borderRadius: '6px', padding: '6px 16px', fontSize: '12px', cursor: 'pointer' }}
+                style={{ background: configGuardado ? 'var(--c-green-bg)' : 'var(--c-blue-bg)', border: `0.5px solid ${configGuardado ? 'var(--c-green)40' : 'var(--c-blue)40'}`, color: configGuardado ? 'var(--c-green)' : 'var(--c-blue)', borderRadius: '6px', padding: '6px 16px', fontSize: '12px', cursor: 'pointer' }}
               >
                 {configGuardado ? '✓ Guardado' : configGuardando ? 'Guardando...' : 'Guardar configuración'}
               </button>
@@ -559,7 +559,7 @@ export default function ExportarClient({
               <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--c-text-primary)' }}>{periodoLabel}</span>
               <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)', marginLeft: '12px' }}>{filas.length} empleado{filas.length !== 1 ? 's' : ''}</span>
               {feriadosDelPeriodo.length > 0 && (
-                <span style={{ fontSize: '12px', color: '#d29922', marginLeft: '12px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--c-orange)', marginLeft: '12px' }}>
                   {feriadosDelPeriodo.length} feriado{feriadosDelPeriodo.length !== 1 ? 's' : ''}: {feriadosDelPeriodo.map(f => f.descripcion).join(', ')}
                 </span>
               )}
@@ -567,7 +567,7 @@ export default function ExportarClient({
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
               <button
                 onClick={exportarExcel}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#1a3a1a', border: '0.5px solid var(--c-green)40', color: 'var(--c-green)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-green-bg)', border: '0.5px solid var(--c-green)40', color: 'var(--c-green)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
               >
                 <Download size={14} /> Resumen Excel
               </button>
@@ -579,7 +579,7 @@ export default function ExportarClient({
               </button>
               <button
                 onClick={() => exportarLiquidacion('txt')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#1a1500', border: '0.5px solid #d2992240', color: '#d29922', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--c-row-orange)', border: '0.5px solid var(--c-orange)40', color: 'var(--c-orange)', borderRadius: '6px', padding: '7px 16px', fontSize: '13px', cursor: 'pointer' }}
               >
                 <FileText size={14} /> Liquidación TXT
               </button>
@@ -610,7 +610,7 @@ export default function ExportarClient({
                     </th>
                   ))}
                   <th style={{ ...thStyle, color: 'var(--c-green)' }}>Vacaciones</th>
-                  <th style={{ ...thStyle, color: '#d29922' }}>Feriados</th>
+                  <th style={{ ...thStyle, color: 'var(--c-orange)' }}>Feriados</th>
                 </tr>
               </thead>
               <tbody>
@@ -640,7 +640,7 @@ export default function ExportarClient({
                     <td style={{ ...tdStyle, color: fila.vacaciones > 0 ? 'var(--c-green)' : 'var(--c-text-muted)' }}>
                       {fila.vacaciones ? `${fila.vacaciones}d` : '—'}
                     </td>
-                    <td style={{ ...tdStyle, color: fila.feriados > 0 ? '#d29922' : 'var(--c-text-muted)' }}>
+                    <td style={{ ...tdStyle, color: fila.feriados > 0 ? 'var(--c-orange)' : 'var(--c-text-muted)' }}>
                       {fila.feriados ? `${fila.feriados}d` : '—'}
                     </td>
                   </tr>
@@ -663,7 +663,7 @@ export default function ExportarClient({
                     return <td key={t.id} style={{ ...tdStyle, fontWeight: 700, color: tot > 0 ? 'var(--c-red)' : 'var(--c-text-muted)' }}>{tot ? `${tot}d` : '—'}</td>
                   })}
                   <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('vacaciones') > 0 ? 'var(--c-green)' : 'var(--c-text-muted)' }}>{totalFilas('vacaciones') ? `${totalFilas('vacaciones')}d` : '—'}</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('feriados') > 0 ? '#d29922' : 'var(--c-text-muted)' }}>{totalFilas('feriados') ? `${totalFilas('feriados')}d` : '—'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('feriados') > 0 ? 'var(--c-orange)' : 'var(--c-text-muted)' }}>{totalFilas('feriados') ? `${totalFilas('feriados')}d` : '—'}</td>
                 </tr>
               </tfoot>
             </table>

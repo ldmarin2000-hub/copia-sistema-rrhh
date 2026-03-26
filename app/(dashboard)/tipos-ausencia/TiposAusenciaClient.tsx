@@ -289,7 +289,7 @@ export default function TiposAusenciaClient({ tipos }: { tipos: TipoAusencia[] }
                 <td style={{ padding: '10px 16px' }}>{badge(t.cuenta_dias_corridos, 'Corridos', 'Hábiles')}</td>
                 <td style={{ padding: '10px 16px' }}>
                   {!t.id_empresa ? (
-                    <span style={{ background: '#2a1a3a', color: '#bc8cff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Global</span>
+                    <span style={{ background: 'var(--c-purple-bg)', color: 'var(--c-purple)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Global</span>
                   ) : (
                     <span style={{ background: 'var(--c-blue-bg)', color: 'var(--c-blue)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Empresa</span>
                   )}

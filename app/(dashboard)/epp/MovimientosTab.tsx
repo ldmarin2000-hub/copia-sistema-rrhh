@@ -55,7 +55,7 @@ const TIPOS = [
 const TIPO_LABEL: Record<string, { label: string, color: string, bg: string }> = {
   stock_inicial: { label: 'Stock inicial', color: 'var(--c-blue)', bg: 'var(--c-blue-bg)' },
   compra:        { label: 'Compra',        color: 'var(--c-green)', bg: 'var(--c-green-bg)' },
-  devolucion:    { label: 'Devolución',    color: '#d29922', bg: '#3a2f1a' },
+  devolucion:    { label: 'Devolución',    color: 'var(--c-orange)', bg: 'var(--c-orange-bg)' },
   entrega:       { label: 'Entrega',       color: 'var(--c-red)', bg: 'var(--c-red-bg)' },
 }
 
@@ -393,7 +393,7 @@ export default function MovimientosTab({ catalogo, talles, movimientos, idEmpres
                           <tr key={item.id} style={{ borderBottom: i < mov.epp_movimientos_items.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                             <td style={{ padding: '8px 16px 8px 40px', color: 'var(--c-text-primary)' }}>{item.epp_catalogo.descripcion}</td>
                             <td style={{ padding: '8px 16px', color: 'var(--c-text-secondary)' }}>
-                              {item.talle ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{item.talle}</span> : '—'}
+                              {item.talle ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{item.talle}</span> : '—'}
                             </td>
                             <td style={{ padding: '8px 16px', textAlign: 'right', fontWeight: 500, color: item.cantidad >= 0 ? 'var(--c-green)' : 'var(--c-red)' }}>
                               {item.cantidad > 0 ? `+${item.cantidad}` : item.cantidad}

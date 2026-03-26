@@ -202,9 +202,9 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
     return {
       padding: '6px 0', textAlign: 'center' as const, fontSize: '11px',
       fontWeight: 500, minWidth: '38px', width: '38px',
-      color: esFeriado ? '#d29922' : esFinSemana ? 'var(--c-text-muted)' : 'var(--c-text-secondary)',
-      borderBottom: `2px solid ${esFeriado ? '#d2992240' : esFinSemana ? 'var(--c-elevated)' : 'var(--c-border)'}`,
-      background: esFinSemana ? '#0a0d12' : 'transparent',
+      color: esFeriado ? 'var(--c-orange)' : esFinSemana ? 'var(--c-text-muted)' : 'var(--c-text-secondary)',
+      borderBottom: `2px solid ${esFeriado ? 'var(--c-orange)40' : esFinSemana ? 'var(--c-elevated)' : 'var(--c-border)'}`,
+      background: esFinSemana ? 'var(--c-weekend-bg)' : 'transparent',
       position: 'sticky' as const, top: 0, zIndex: 1,
     }
   }
@@ -215,7 +215,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
     const esFeriado = feriadosFechas.has(fecha)
     return {
       padding: '5px 2px', textAlign: 'center' as const, fontSize: '12px',
-      background: esFeriado ? '#3a2f1a20' : esFinSemana ? '#0a0d12' : 'transparent',
+      background: esFeriado ? 'var(--c-orange-bg)20' : esFinSemana ? 'var(--c-weekend-bg)' : 'transparent',
       color: highlight || (esFinSemana ? 'var(--c-text-muted)' : 'var(--c-text-primary)'),
       borderBottom: '0.5px solid var(--c-elevated)',
     }
@@ -283,7 +283,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                             <th key={fecha} style={thDia(fecha)} title={esFeriado ? feriado?.descripcion : undefined}>
                               <div>{DIAS_SEMANA[dow]}</div>
                               <div style={{ fontWeight: 600, fontSize: '12px' }}>{parseInt(dia)}</div>
-                              {esFeriado && <div style={{ fontSize: '9px', color: '#d29922' }}>F</div>}
+                              {esFeriado && <div style={{ fontSize: '9px', color: 'var(--c-orange)' }}>F</div>}
                             </th>
                           )
                         })}
@@ -298,8 +298,8 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                         const total = totalHoras(fila.key, novsObra)
                         if (total === 0 && fila.key !== 'hs_normales') return null
                         return (
-                          <tr key={fila.key} style={{ background: fi % 2 === 0 ? 'transparent' : '#0a0d1240' }}>
-                            <td style={{ padding: '7px 14px', color: 'var(--c-text-secondary)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: fi % 2 === 0 ? 'var(--c-surface)' : '#0f131a', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
+                          <tr key={fila.key} style={{ background: fi % 2 === 0 ? 'transparent' : 'var(--c-weekend-bg)40' }}>
+                            <td style={{ padding: '7px 14px', color: 'var(--c-text-secondary)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: fi % 2 === 0 ? 'var(--c-surface)' : 'var(--c-row-stripe)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
                               {fila.label}
                             </td>
                             {dias.map(fecha => {
@@ -314,7 +314,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                                 </td>
                               )
                             })}
-                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: total > 0 ? 'var(--c-text-primary)' : 'var(--c-text-muted)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: fi % 2 === 0 ? 'var(--c-surface)' : '#0f131a' }}>
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: total > 0 ? 'var(--c-text-primary)' : 'var(--c-text-muted)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: fi % 2 === 0 ? 'var(--c-surface)' : 'var(--c-row-stripe)' }}>
                               {total > 0 ? total : '—'}
                             </td>
                           </tr>
@@ -326,7 +326,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                         const total = totalAdicional(adic.id, idsNovObra)
                         return (
                           <tr key={adic.id} style={{ background: 'var(--c-blue-bg)20' }}>
-                            <td style={{ padding: '7px 14px', color: 'var(--c-blue)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#0d1420', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
+                            <td style={{ padding: '7px 14px', color: 'var(--c-blue)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: 'var(--c-row-blue)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
                               {adic.descripcion}
                             </td>
                             {dias.map(fecha => {
@@ -334,12 +334,12 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                               const adicsNov = nov ? novedadesAdicionales.filter((na: any) => na.id_novedad === nov.id && na.id_adicional === adic.id) : []
                               const val = adicsNov.reduce((s: number, na: any) => s + na.cantidad, 0)
                               return (
-                                <td key={fecha} style={{ ...tdDia(fecha, val > 0 ? val : null, 'var(--c-blue)'), background: '#0d1420' }}>
+                                <td key={fecha} style={{ ...tdDia(fecha, val > 0 ? val : null, 'var(--c-blue)'), background: 'var(--c-row-blue)' }}>
                                   {val > 0 ? <span style={{ color: 'var(--c-blue)' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)' }}>—</span>}
                                 </td>
                               )
                             })}
-                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-blue)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: '#0d1420' }}>
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-blue)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: 'var(--c-row-blue)' }}>
                               {total}
                             </td>
                           </tr>
@@ -357,7 +357,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                         const totalAus = diasTipoObra.filter(d => cuentaCorridos ? true : esDiaLaboral(d)).length
                         return (
                           <tr key={`aus-${tipo.id}`}>
-                            <td style={{ padding: '7px 14px', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#1a0a0a', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
+                            <td style={{ padding: '7px 14px', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: 'var(--c-red-bg)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
                               <span style={{ color: 'var(--c-red)' }}>{tipo.descripcion}</span>
                               <span style={{ color: 'var(--c-text-muted)', fontSize: '10px', marginLeft: '5px' }}>
                                 {cuentaCorridos ? 'corridos' : 'hábiles'}
@@ -368,16 +368,16 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                               const esEstaObra = getObraIdParaFecha(fecha) === idObra
                               const cuenta = aus && esEstaObra ? (cuentaCorridos ? true : esDiaLaboral(fecha)) : false
                               return (
-                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: aus && esEstaObra ? 'var(--c-red-bg)40' : '#1a0a0a', borderBottom: '0.5px solid var(--c-elevated)' }}>
+                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: aus && esEstaObra ? 'var(--c-red-bg)40' : 'var(--c-red-bg)', borderBottom: '0.5px solid var(--c-elevated)' }}>
                                   {aus && esEstaObra ? (
-                                    <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? 'var(--c-red)' : '#4a2020', background: cuenta ? 'var(--c-red-bg)' : '#1f1010', padding: '1px 5px', borderRadius: '3px' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? 'var(--c-red)' : 'var(--c-red-dim)', background: cuenta ? 'var(--c-red-bg)' : 'var(--c-red-dim-bg)', padding: '1px 5px', borderRadius: '3px' }}>
                                       {tipo.codigo || 'AUS'}
                                     </span>
                                   ) : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>}
                                 </td>
                               )
                             })}
-                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-red)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: '#1a0a0a' }}>
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-red)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: 'var(--c-red-bg)' }}>
                               {totalAus}d
                             </td>
                           </tr>
@@ -390,7 +390,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                         if (feriadosObra.length === 0) return null
                         return (
                           <tr>
-                            <td style={{ padding: '7px 14px', color: '#d29922', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#1a1500', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
+                            <td style={{ padding: '7px 14px', color: 'var(--c-orange)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: 'var(--c-row-orange)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
                               Feriados
                             </td>
                             {dias.map(fecha => {
@@ -400,14 +400,14 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                               const vac = enVacaciones(fecha)
                               const cuenta = feriado && esEstaObra && !ausencia && !vac
                               return (
-                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: feriado && esEstaObra ? '#2a200040' : '#1a1500', borderBottom: '0.5px solid var(--c-elevated)' }} title={feriado?.descripcion}>
+                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: feriado && esEstaObra ? 'var(--c-orange-active-bg)40' : 'var(--c-row-orange)', borderBottom: '0.5px solid var(--c-elevated)' }} title={feriado?.descripcion}>
                                   {feriado && esEstaObra ? (
-                                    <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? '#d29922' : '#3a2a00', background: cuenta ? '#2a2000' : '#1a1500', padding: '1px 5px', borderRadius: '3px' }}>FER</span>
+                                    <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? 'var(--c-orange)' : 'var(--c-orange-dim)', background: cuenta ? 'var(--c-orange-active-bg)' : 'var(--c-row-orange)', padding: '1px 5px', borderRadius: '3px' }}>FER</span>
                                   ) : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>}
                                 </td>
                               )
                             })}
-                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: '#d29922', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: '#1a1500' }}>
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-orange)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: 'var(--c-row-orange)' }}>
                               {feriadosObra.filter(f => !getAusencia(f.fecha) && !enVacaciones(f.fecha)).length}d
                             </td>
                           </tr>
@@ -420,20 +420,20 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                         if (vacObra.length === 0) return null
                         return (
                           <tr>
-                            <td style={{ padding: '7px 14px', color: 'var(--c-green)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: '#0a1a0a', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
+                            <td style={{ padding: '7px 14px', color: 'var(--c-green)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: 'var(--c-row-green)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
                               Vacaciones
                             </td>
                             {dias.map(fecha => {
                               const vac = enVacaciones(fecha) && getObraIdParaFecha(fecha) === idObra
                               return (
-                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: vac ? 'var(--c-green-bg)40' : '#0a1a0a', borderBottom: '0.5px solid var(--c-elevated)' }}>
+                                <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', background: vac ? 'var(--c-green-bg)40' : 'var(--c-row-green)', borderBottom: '0.5px solid var(--c-elevated)' }}>
                                   {vac ? (
                                     <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-green)', background: 'var(--c-green-bg)', padding: '1px 5px', borderRadius: '3px' }}>VAC</span>
                                   ) : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>}
                                 </td>
                               )
                             })}
-                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-green)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: '#0a1a0a' }}>
+                            <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-green)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: 'var(--c-row-green)' }}>
                               {vacObra.length}d
                             </td>
                           </tr>
@@ -452,7 +452,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
       {!cargando && hayDatos && feriados.length > 0 && (
         <div style={{ display: 'flex', gap: '16px', marginTop: '10px', flexWrap: 'wrap' }}>
           {feriados.map((f: any) => (
-            <span key={f.fecha} style={{ fontSize: '11px', color: '#d29922' }}>
+            <span key={f.fecha} style={{ fontSize: '11px', color: 'var(--c-orange)' }}>
               F {parseInt(f.fecha.slice(8))} — {f.descripcion}
             </span>
           ))}

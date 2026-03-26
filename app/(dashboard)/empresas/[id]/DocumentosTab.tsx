@@ -272,7 +272,7 @@ export default function DocumentosTab({
           <button key={s} onClick={() => setSeccion(s)} style={{
             padding: '6px 16px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer',
             border: seccion === s ? '1px solid var(--c-blue-btn)' : '0.5px solid var(--c-border)',
-            background: seccion === s ? '#1e3a5f' : 'transparent',
+            background: seccion === s ? 'var(--c-blue-bg)' : 'transparent',
             color: seccion === s ? 'var(--c-blue)' : 'var(--c-text-secondary)',
           }}>
             {s === 'generales' ? 'Documentos Generales' : 'Presentaciones Mensuales'}

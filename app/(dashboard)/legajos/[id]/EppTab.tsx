@@ -394,7 +394,7 @@ export default function EppTab({
                       {habTallesDelEpp.map(t => <option key={t.id} value={t.talle}>{t.talle}</option>)}
                     </select>
                   ) : (
-                    <p style={{ fontSize: '12px', color: '#d29922', margin: 0 }}>No hay talles definidos. Configurarlos en EPP-Catálogo.</p>
+                    <p style={{ fontSize: '12px', color: 'var(--c-orange)', margin: 0 }}>No hay talles definidos. Configurarlos en EPP-Catálogo.</p>
                   )}
                 </div>
               )}
@@ -440,7 +440,7 @@ export default function EppTab({
                   <td style={{ padding: '8px 16px', color: 'var(--c-text-primary)' }}>{h.epp_catalogo.descripcion}</td>
                   <td style={{ padding: '8px 16px' }}>
                     {h.talle
-                      ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{h.talle}</span>
+                      ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{h.talle}</span>
                       : <span style={{ color: 'var(--c-text-muted)' }}>—</span>}
                   </td>
                   <td style={{ padding: '8px 16px', textAlign: 'right' }}>
@@ -496,7 +496,7 @@ export default function EppTab({
                         <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(e.fecha_entrega)}</td>
                         <td style={{ padding: '10px 16px' }}>
                           {e.fecha_vencimiento ? (
-                            <span style={{ color: vencido ? 'var(--c-red)' : porVencer ? '#d29922' : 'var(--c-text-secondary)' }}>
+                            <span style={{ color: vencido ? 'var(--c-red)' : porVencer ? 'var(--c-orange)' : 'var(--c-text-secondary)' }}>
                               {formatFecha(e.fecha_vencimiento)}
                             </span>
                           ) : '—'}
@@ -504,13 +504,13 @@ export default function EppTab({
                         <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{e.cantidad}</td>
                         <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
                           {e.talle
-                            ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 6px', borderRadius: '4px' }}>{e.talle}</span>
+                            ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 6px', borderRadius: '4px' }}>{e.talle}</span>
                             : '—'}
                         </td>
                         <td style={{ padding: '10px 16px' }}>
                           {e.firmado
                             ? <span style={{ background: 'var(--c-green-bg)', color: 'var(--c-green)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Sí</span>
-                            : <span style={{ background: '#3a2f1a', color: '#d29922', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Pendiente</span>}
+                            : <span style={{ background: 'var(--c-orange-bg)', color: 'var(--c-orange)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>Pendiente</span>}
                         </td>
                         <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                           <button onClick={() => marcarDevuelto(e)} style={{ background: 'transparent', border: 'none', color: 'var(--c-text-secondary)', cursor: 'pointer', fontSize: '12px', padding: '4px 8px' }}>Devuelto</button>

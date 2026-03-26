@@ -770,7 +770,7 @@ export default function FichaClient({
                       style={{ width: '100%', background: 'var(--c-elevated)', border: '0.5px solid var(--c-border)', color: 'var(--c-text-primary)', borderRadius: '6px', padding: '6px 10px', fontSize: '13px', boxSizing: 'border-box' }} />
                   </div>
                   <button onClick={guardarNuevaAlta} disabled={loadingAlta}
-                    style={{ background: '#238636', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+                    style={{ background: 'var(--c-green-btn)', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
                     {loadingAlta ? 'Guardando...' : 'Guardar'}
                   </button>
                   <button onClick={() => { setMostrarNuevaAlta(false); setErrorAlta('') }}
@@ -805,7 +805,7 @@ export default function FichaClient({
                     'Despido':    { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
                     'Abandono':   { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
                     'Fallecimiento': { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
-                    'Jubilación': { bg: '#3a2a1a', color: '#e3b341' },
+                    'Jubilación': { bg: 'var(--c-amber-bg)', color: 'var(--c-amber)' },
                     'Otro':       { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
                     'Baja':       { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
                     'Traslado':   { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
@@ -851,7 +851,7 @@ export default function FichaClient({
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                               <button onClick={() => guardarEdicion(h)} disabled={loadingEdit}
-                                style={{ background: '#238636', border: 'none', color: '#fff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
+                                style={{ background: 'var(--c-green-btn)', border: 'none', color: '#fff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
                                 {loadingEdit ? '...' : 'OK'}
                               </button>
                               <button onClick={cancelarEdicion}
@@ -924,7 +924,7 @@ export default function FichaClient({
                   </select>
                 </div>
                 <button onClick={guardarNuevaCat} disabled={!nuevaCatFecha || !nuevaCatId || catLoading}
-                  style={{ background: '#238636', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+                  style={{ background: 'var(--c-green-btn)', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
                   {catLoading ? '...' : 'Guardar'}
                 </button>
                 <button onClick={() => setMostrarNuevaCat(false)}
@@ -979,7 +979,7 @@ export default function FichaClient({
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
                               <button onClick={() => guardarCatEdicion(h, esPrimero)} disabled={catLoading}
-                                style={{ background: '#238636', border: 'none', color: '#fff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
+                                style={{ background: 'var(--c-green-btn)', border: 'none', color: '#fff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
                                 {catLoading ? '...' : 'OK'}
                               </button>
                               <button onClick={() => setCatEditandoId(null)}
@@ -1045,7 +1045,7 @@ export default function FichaClient({
                   </select>
                 </div>
                 <button onClick={guardarNuevaObra} disabled={!nuevaObraFecha || !nuevaObraId || obraLoading}
-                  style={{ background: '#238636', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
+                  style={{ background: 'var(--c-green-btn)', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}>
                   {obraLoading ? '...' : 'Guardar'}
                 </button>
                 <button onClick={() => setMostrarNuevaObra(false)}
@@ -1100,7 +1100,7 @@ export default function FichaClient({
                           <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
                               <button onClick={() => guardarObraEdicion(h, esPrimero)} disabled={obraLoading}
-                                style={{ background: '#238636', border: 'none', color: '#fff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
+                                style={{ background: 'var(--c-green-btn)', border: 'none', color: '#fff', borderRadius: '5px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
                                 {obraLoading ? '...' : 'OK'}
                               </button>
                               <button onClick={() => setObraEditandoId(null)}

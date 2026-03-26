@@ -38,9 +38,9 @@ const TIPOS = [
 const badgeTipo = (tipo: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
     epp:         { bg: 'var(--c-blue-bg)', color: 'var(--c-blue)' },
-    ropa:        { bg: '#3a2f1a', color: '#d29922' },
+    ropa:        { bg: 'var(--c-orange-bg)', color: 'var(--c-orange)' },
     herramienta: { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
-    otro:        { bg: '#2a1a3a', color: '#bc8cff' },
+    otro:        { bg: 'var(--c-purple-bg)', color: 'var(--c-purple)' },
   }
   const c = colores[tipo] || colores.otro
   return (

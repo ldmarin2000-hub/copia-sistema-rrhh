@@ -34,7 +34,7 @@ const ESTADOS = ['Activa', 'Pausada', 'Finalizada', 'Cancelada']
 const badgeEstado = (estado: string) => {
   const colores: Record<string, { bg: string, color: string }> = {
     Activa:     { bg: 'var(--c-green-bg)', color: 'var(--c-green)' },
-    Pausada:    { bg: '#3a2f1a', color: '#d29922' },
+    Pausada:    { bg: 'var(--c-orange-bg)', color: 'var(--c-orange)' },
     Finalizada: { bg: 'var(--c-elevated)', color: 'var(--c-text-secondary)' },
     Cancelada:  { bg: 'var(--c-red-bg)', color: 'var(--c-red)' },
   }

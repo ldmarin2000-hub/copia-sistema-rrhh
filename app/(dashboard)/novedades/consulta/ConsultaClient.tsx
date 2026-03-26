@@ -246,9 +246,9 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
     const fer = feriadosFechas.has(fecha)
     return {
       textAlign: 'center' as const, padding: '6px 2px', minWidth: '38px', width: '38px',
-      color: fer ? '#d29922' : fds ? 'var(--c-text-muted)' : 'var(--c-text-secondary)',
-      background: fds ? '#0a0d12' : 'transparent',
-      borderBottom: `2px solid ${fer ? '#d2992240' : fds ? 'var(--c-elevated)' : 'var(--c-border)'}`,
+      color: fer ? 'var(--c-orange)' : fds ? 'var(--c-text-muted)' : 'var(--c-text-secondary)',
+      background: fds ? 'var(--c-weekend-bg)' : 'transparent',
+      borderBottom: `2px solid ${fer ? 'var(--c-orange)40' : fds ? 'var(--c-elevated)' : 'var(--c-border)'}`,
       position: 'sticky' as const, top: 0, zIndex: 1,
     }
   }
@@ -256,7 +256,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
   function tdBg(fecha: string) {
     const dow = new Date(fecha + 'T00:00:00').getDay()
     const fds = dow === 0 || dow === 6
-    return fds ? '#0a0d12' : 'transparent'
+    return fds ? 'var(--c-weekend-bg)' : 'transparent'
   }
 
   return (
@@ -322,7 +322,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                     <th key={fecha} style={thDiaStyle(fecha)} title={fer?.descripcion}>
                       <div>{DIAS_SEMANA[dow]}</div>
                       <div style={{ fontWeight: 600, fontSize: '12px' }}>{parseInt(fecha.slice(8))}</div>
-                      {fer && <div style={{ fontSize: '9px', color: '#d29922' }}>F</div>}
+                      {fer && <div style={{ fontSize: '9px', color: 'var(--c-orange)' }}>F</div>}
                     </th>
                   )
                 })}
@@ -384,7 +384,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                                 {(aus as any).tipos_ausencia?.codigo || 'AUS'}
                               </span>
                             ) : fer ? (
-                              <span style={{ fontSize: '10px', fontWeight: 600, color: '#d29922' }}>FER</span>
+                              <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-orange)' }}>FER</span>
                             ) : nov?.ausente ? (
                               <span style={{ fontSize: '10px', color: 'var(--c-red)' }}>A</span>
                             ) : nov ? (
@@ -434,7 +434,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
 
                       // Hs. Normales
                       conceptos.push(filaConcepto(
-                        'Hs. Normales', 'var(--c-text-secondary)', '#0a0d12',
+                        'Hs. Normales', 'var(--c-text-secondary)', 'var(--c-weekend-bg)',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_normales || 0
@@ -446,7 +446,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
 
                       // Hs. Extra 50%
                       if (totalExtra50 > 0) conceptos.push(filaConcepto(
-                        'Hs. Extra 50%', 'var(--c-blue)', '#0a0d12',
+                        'Hs. Extra 50%', 'var(--c-blue)', 'var(--c-weekend-bg)',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_50 || 0
@@ -458,7 +458,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
 
                       // Hs. Extra 100%
                       if (totalExtra100 > 0) conceptos.push(filaConcepto(
-                        'Hs. Extra 100%', 'var(--c-blue)', '#0a0d12',
+                        'Hs. Extra 100%', 'var(--c-blue)', 'var(--c-weekend-bg)',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_100 || 0
@@ -470,7 +470,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
 
                       // Hs. Nocturnas
                       if (totalNoct > 0) conceptos.push(filaConcepto(
-                        'Hs. Nocturnas', 'var(--c-blue)', '#0a0d12',
+                        'Hs. Nocturnas', 'var(--c-blue)', 'var(--c-weekend-bg)',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_nocturnas || 0
@@ -487,7 +487,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           return nov && na.id_adicional === adic.id
                         }).reduce((s, na) => s + na.cantidad, 0)
                         conceptos.push(filaConcepto(
-                          adic.descripcion, 'var(--c-blue)', '#0d1420',
+                          adic.descripcion, 'var(--c-blue)', 'var(--c-row-blue)',
                           fecha => {
                             const nov = getNov(idLegajo, fecha)
                             if (!nov) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
@@ -510,7 +510,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           return cuentaCorridos ? true : esDiaLaboral(d, plantilla)
                         }).length
                         conceptos.push(filaConcepto(
-                          tipo.descripcion, 'var(--c-red)', '#1a0a0a',
+                          tipo.descripcion, 'var(--c-red)', 'var(--c-red-bg)',
                           fecha => {
                             const aus = ausenciasPeriodo.find(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= fecha && a.fecha_hasta >= fecha)
                             return aus
@@ -526,7 +526,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                       if (tieneVac) {
                         const totalVac = dias.filter(d => enVacaciones(idLegajo, d)).length
                         conceptos.push(filaConcepto(
-                          'Vacaciones', 'var(--c-green)', '#0a1a0a',
+                          'Vacaciones', 'var(--c-green)', 'var(--c-row-green)',
                           fecha => enVacaciones(idLegajo, fecha)
                             ? <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-green)', background: 'var(--c-green-bg)', padding: '1px 5px', borderRadius: '3px' }}>VAC</span>
                             : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>,
@@ -543,16 +543,16 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           !enVacaciones(idLegajo, d)
                         ).length
                         conceptos.push(filaConcepto(
-                          'Feriados', '#d29922', '#1a1500',
+                          'Feriados', 'var(--c-orange)', 'var(--c-row-orange)',
                           fecha => {
                             const fer = feriadosFechas.has(fecha)
                             if (!fer) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                             const aus = getAusencia(idLegajo, fecha)
                             const vac = enVacaciones(idLegajo, fecha)
                             const cuenta = !aus && !vac
-                            return <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? '#d29922' : '#3a2a00', background: cuenta ? '#2a2000' : '#1a1500', padding: '1px 5px', borderRadius: '3px' }}>FER</span>
+                            return <span style={{ fontSize: '10px', fontWeight: 600, color: cuenta ? 'var(--c-orange)' : 'var(--c-orange-dim)', background: cuenta ? 'var(--c-orange-active-bg)' : 'var(--c-row-orange)', padding: '1px 5px', borderRadius: '3px' }}>FER</span>
                           },
-                          <span style={{ color: '#d29922' }}>{totalFerPagados}d</span>,
+                          <span style={{ color: 'var(--c-orange)' }}>{totalFerPagados}d</span>,
                           true
                         ))
                       }
@@ -571,7 +571,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
       {buscado && feriadosPeriodo.length > 0 && (
         <div style={{ display: 'flex', gap: '16px', marginTop: '10px', flexWrap: 'wrap' as const }}>
           {feriadosPeriodo.map(f => (
-            <span key={f.fecha} style={{ fontSize: '11px', color: '#d29922' }}>
+            <span key={f.fecha} style={{ fontSize: '11px', color: 'var(--c-orange)' }}>
               F {parseInt(f.fecha.slice(8))} — {f.descripcion}
             </span>
           ))}

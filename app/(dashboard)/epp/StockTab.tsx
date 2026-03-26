@@ -141,7 +141,7 @@ export default function StockTab({ stock, movimientos, idEmpresa }: Props) {
                         <td style={{ padding: '10px 16px' }}>
                           <span style={{
                             fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                            background: item.mov.tipo === 'entrega' ? 'var(--c-red-bg)' : '#1a2a1a',
+                            background: item.mov.tipo === 'entrega' ? 'var(--c-red-bg)' : 'var(--c-row-green-alt)',
                             color: item.mov.tipo === 'entrega' ? 'var(--c-red)' : 'var(--c-green)',
                           }}>
                             {TIPO_LABEL[item.mov.tipo] || item.mov.tipo}
@@ -207,7 +207,7 @@ export default function StockTab({ stock, movimientos, idEmpresa }: Props) {
             const hayAlerta = rows.some(r => r.cantidad_disponible <= r.cantidad_minima)
 
             return (
-              <div key={idEpp} style={{ background: 'var(--c-surface)', border: `0.5px solid ${hayAlerta ? '#5a1a1a' : 'var(--c-border)'}`, borderRadius: '8px', overflow: 'hidden' }}>
+              <div key={idEpp} style={{ background: 'var(--c-surface)', border: `0.5px solid ${hayAlerta ? 'var(--c-red)' : 'var(--c-border)'}`, borderRadius: '8px', overflow: 'hidden' }}>
                 <div
                   onClick={() => toggleExpand(idEpp)}
                   style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', cursor: 'pointer' }}
@@ -244,7 +244,7 @@ export default function StockTab({ stock, movimientos, idEmpresa }: Props) {
                           <tr key={row.id} style={{ borderBottom: i < rows.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                             <td style={{ padding: '8px 16px 8px 42px', color: 'var(--c-text-primary)' }}>
                               {row.talle
-                                ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{row.talle}</span>
+                                ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{row.talle}</span>
                                 : <span style={{ color: 'var(--c-text-muted)' }}>Sin talle</span>}
                             </td>
                             <td style={{ padding: '8px 16px', fontWeight: 600, color: row.cantidad_disponible <= row.cantidad_minima ? 'var(--c-red)' : 'var(--c-text-primary)' }}>

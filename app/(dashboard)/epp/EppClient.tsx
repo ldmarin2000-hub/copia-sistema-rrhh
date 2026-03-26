@@ -56,7 +56,7 @@ export default function EppClient({
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{empresaActiva.razon_social}</span>
           {porVencer.length > 0 && (
-            <span style={{ fontSize: '12px', color: '#d29922' }}>⚠ {porVencer.length} EPP por vencer en 30 días</span>
+            <span style={{ fontSize: '12px', color: 'var(--c-orange)' }}>⚠ {porVencer.length} EPP por vencer en 30 días</span>
           )}
           {stockBajo.length > 0 && (
             <span style={{ fontSize: '12px', color: 'var(--c-red)' }}>⚠ {stockBajo.length} item{stockBajo.length !== 1 ? 's' : ''} con stock bajo</span>

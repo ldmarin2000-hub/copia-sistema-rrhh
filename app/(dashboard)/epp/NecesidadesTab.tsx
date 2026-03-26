@@ -50,7 +50,7 @@ type Vista = 'epp' | 'empleado' | 'vencimiento'
 const TIPO_INFO: Record<TipoNecesidad, { label: string, color: string, bg: string, orden: number }> = {
   sin_entrega: { label: 'Sin entrega', color: 'var(--c-red)', bg: 'var(--c-red-bg)', orden: 1 },
   vencido:     { label: 'Vencido',     color: 'var(--c-red)', bg: 'var(--c-red-bg)', orden: 2 },
-  por_vencer:  { label: 'Por vencer',  color: '#d29922', bg: '#3a2f1a', orden: 3 },
+  por_vencer:  { label: 'Por vencer',  color: 'var(--c-orange)', bg: 'var(--c-orange-bg)', orden: 3 },
   vigente:     { label: 'Vigente',     color: 'var(--c-green)', bg: 'var(--c-green-bg)', orden: 4 },
 }
 
@@ -135,7 +135,7 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
         </td>
         <td style={{ padding: '8px 16px' }}>
           {n.talle
-            ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
+            ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
             : <span style={{ color: 'var(--c-text-muted)' }}>—</span>}
         </td>
         <td style={{ padding: '8px 16px' }}>
@@ -217,7 +217,7 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
                   <td style={{ padding: '8px 16px', color: 'var(--c-text-primary)' }}>{n.descEpp}</td>
                   <td style={{ padding: '8px 16px' }}>
                     {n.talle
-                      ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
+                      ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
                       : <span style={{ color: 'var(--c-text-muted)' }}>—</span>}
                   </td>
                   <td style={{ padding: '8px 16px' }}>
@@ -273,7 +273,7 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
                   <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{n.descEpp}</td>
                   <td style={{ padding: '10px 16px' }}>
                     {n.talle
-                      ? <span style={{ background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
+                      ? <span style={{ background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>{n.talle}</span>
                       : <span style={{ color: 'var(--c-text-muted)' }}>—</span>}
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>

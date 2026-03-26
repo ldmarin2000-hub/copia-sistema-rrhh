@@ -133,7 +133,7 @@ export default function TiposEmpleadoClient({ tipos }: { tipos: TipoEmpleado[] }
     const colores: Record<string, { bg: string, color: string }> = {
       jornal:       { bg: 'var(--c-blue-bg)', color: 'var(--c-blue)' },
       mensualizado: { bg: 'var(--c-green-bg)', color: 'var(--c-green)' },
-      destajo:      { bg: '#3a2f1a', color: '#d29922' },
+      destajo:      { bg: 'var(--c-orange-bg)', color: 'var(--c-orange)' },
     }
     const c = colores[tipo] || colores.jornal
     return (

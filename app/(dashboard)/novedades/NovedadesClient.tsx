@@ -438,13 +438,13 @@ export default function NovedadesClient({
             {fecha && (
               <span style={{
                 fontSize: '13px', fontWeight: 500,
-                color: feriadoDelDia ? '#e07b39' : ['Sábado', 'Domingo'].includes(getDiaSemana(fecha)) ? '#d29922' : 'var(--c-text-secondary)',
+                color: feriadoDelDia ? 'var(--c-orange-alt)' : ['Sábado', 'Domingo'].includes(getDiaSemana(fecha)) ? 'var(--c-orange)' : 'var(--c-text-secondary)',
               }}>
                 {getDiaSemana(fecha)}
                 {feriadoDelDia && (
                   <span style={{
                     marginLeft: '8px', fontSize: '12px', fontWeight: 400,
-                    background: 'rgba(224,123,57,0.15)', color: '#e07b39',
+                    background: 'rgba(224,123,57,0.15)', color: 'var(--c-orange-alt)',
                     padding: '2px 8px', borderRadius: '4px',
                   }}>
                     Feriado: {feriadoDelDia.descripcion}
@@ -522,7 +522,7 @@ export default function NovedadesClient({
                 {fila.ausenciaActiva.codigo}
               </span>
             ) : feriadoDelDia ? (
-              <span style={{ background: 'rgba(224,123,57,0.15)', color: '#e07b39', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>FER</span>
+              <span style={{ background: 'rgba(224,123,57,0.15)', color: 'var(--c-orange-alt)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>FER</span>
             ) : null}
           </div>
         </td>

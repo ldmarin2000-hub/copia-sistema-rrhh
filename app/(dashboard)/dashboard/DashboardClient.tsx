@@ -96,16 +96,16 @@ export default function DashboardClient({
     {
       label: 'Ausencias activas hoy',
       valor: ausenciasHoy,
-      color: ausenciasHoy > 0 ? '#d29922' : 'var(--c-green)',
-      bg: ausenciasHoy > 0 ? '#3a2f1a' : 'var(--c-green-bg)',
+      color: ausenciasHoy > 0 ? 'var(--c-orange)' : 'var(--c-green)',
+      bg: ausenciasHoy > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)',
       icon: AlertTriangle,
       href: '/ausencias',
     },
     {
       label: 'EPP por vencer (30 días)',
       valor: porVencerFiltrados.length,
-      color: porVencerFiltrados.length > 0 ? '#d29922' : 'var(--c-green)',
-      bg: porVencerFiltrados.length > 0 ? '#3a2f1a' : 'var(--c-green-bg)',
+      color: porVencerFiltrados.length > 0 ? 'var(--c-orange)' : 'var(--c-green)',
+      bg: porVencerFiltrados.length > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)',
       icon: ShieldAlert,
       href: '/epp',
     },
@@ -128,8 +128,8 @@ export default function DashboardClient({
     {
       label: 'Remitos sin firmar',
       valor: remitosSinFirmar,
-      color: remitosSinFirmar > 0 ? '#d29922' : 'var(--c-green)',
-      bg: remitosSinFirmar > 0 ? '#3a2f1a' : 'var(--c-green-bg)',
+      color: remitosSinFirmar > 0 ? 'var(--c-orange)' : 'var(--c-green)',
+      bg: remitosSinFirmar > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)',
       icon: Umbrella,
       href: '/epp',
     },
@@ -240,7 +240,7 @@ export default function DashboardClient({
                   <tr key={s.id} style={{ borderBottom: i < Math.min(stockBajo.length, 6) - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                     <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
                       {s.epp_catalogo.descripcion}
-                      {s.talle && <span style={{ marginLeft: '6px', background: '#1f2937', color: '#93c5fd', fontSize: '11px', padding: '1px 6px', borderRadius: '4px' }}>{s.talle}</span>}
+                      {s.talle && <span style={{ marginLeft: '6px', background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '1px 6px', borderRadius: '4px' }}>{s.talle}</span>}
                     </td>
                     <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <span style={{ fontWeight: 600, color: 'var(--c-red)', fontSize: '14px' }}>{s.cantidad_disponible}</span>
@@ -280,8 +280,8 @@ export default function DashboardClient({
                       </td>
                       <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                         <span style={{
-                          background: diasRestantes <= 7 ? 'var(--c-red-bg)' : '#3a2f1a',
-                          color: diasRestantes <= 7 ? 'var(--c-red)' : '#d29922',
+                          background: diasRestantes <= 7 ? 'var(--c-red-bg)' : 'var(--c-orange-bg)',
+                          color: diasRestantes <= 7 ? 'var(--c-red)' : 'var(--c-orange)',
                           fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                         }}>
                           {diasRestantes}d

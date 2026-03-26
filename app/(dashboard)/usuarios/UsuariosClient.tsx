@@ -347,7 +347,7 @@ export default function UsuariosClient({
                 <td style={{ padding: '10px 16px' }}>
                   {usuario.es_superadmin ? (
                     <span style={{
-                      background: '#2a1a3a', color: '#bc8cff',
+                      background: 'var(--c-purple-bg)', color: 'var(--c-purple)',
                       fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
                     }}>Superadmin</span>
                   ) : (
