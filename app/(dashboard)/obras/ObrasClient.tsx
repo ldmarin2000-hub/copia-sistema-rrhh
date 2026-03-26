@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
-import { X, MapPin, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import { X, MapPin, Search, ChevronUp, ChevronDown, ChevronsUpDown, List, Map } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { traducirError } from '@/lib/errores'
 
 const MapaObra = dynamic(() => import('./MapaObra'), { ssr: false })
+const MapaObras = dynamic(() => import('./MapaObras'), { ssr: false })
 
 type Obra = {
   id: number
@@ -52,6 +53,7 @@ export default function ObrasClient({ obras }: { obras: Obra[] }) {
   const { empresaActiva } = useEmpresa()
   const [mostrarForm, setMostrarForm] = useState(false)
   const [editando, setEditando] = useState<Obra | null>(null)
+  const [vista, setVista] = useState<'lista' | 'mapa'>('lista')
 
   const [codigo, setCodigo] = useState('')
   const [nombre, setNombre] = useState('')
@@ -375,15 +377,45 @@ async function buscarDireccion() {
             {empresaActiva.razon_social} · {obrasFiltradas.length} obra{obrasFiltradas.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <button onClick={abrirNuevo} style={{
-          background: 'var(--c-blue-btn)', color: 'white', border: 'none',
-          borderRadius: '6px', padding: '7px 16px',
-          fontSize: '13px', cursor: 'pointer',
-        }}>
-          + Nueva obra
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Toggle lista/mapa */}
+          <div style={{
+            display: 'flex', border: '0.5px solid var(--c-border)',
+            borderRadius: '6px', overflow: 'hidden',
+          }}>
+            {(['lista', 'mapa'] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setVista(v)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                  padding: '6px 12px', fontSize: '12px', cursor: 'pointer', border: 'none',
+                  background: vista === v ? 'var(--c-elevated)' : 'transparent',
+                  color: vista === v ? 'var(--c-text-primary)' : 'var(--c-text-secondary)',
+                }}
+              >
+                {v === 'lista' ? <List size={13} /> : <Map size={13} />}
+                {v === 'lista' ? 'Lista' : 'Mapa'}
+              </button>
+            ))}
+          </div>
+          <button onClick={abrirNuevo} style={{
+            background: 'var(--c-blue-btn)', color: 'white', border: 'none',
+            borderRadius: '6px', padding: '7px 16px',
+            fontSize: '13px', cursor: 'pointer',
+          }}>
+            + Nueva obra
+          </button>
+        </div>
       </div>
 
+      {/* Vista Mapa */}
+      {vista === 'mapa' && (
+        <MapaObras obras={obrasFiltradas} />
+      )}
+
+      {/* Vista Lista */}
+      {vista === 'lista' && <>
       {/* Buscar */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
         <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--c-text-secondary)' }} />
@@ -482,6 +514,7 @@ async function buscarDireccion() {
           </table>
         </div>
       )}
+      </>}
     </>
   )
 }
