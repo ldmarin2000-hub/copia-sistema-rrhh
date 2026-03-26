@@ -231,14 +231,14 @@ export default function ExportarClient({
     setFeriadosDelPeriodo(feriadosEfectivos)
 
     // Novedades del período
-    const novQ = supabase
+    let novQ = supabase
       .from('novedades_diarias')
       .select('id, id_legajo, fecha, hs_normales, hs_extra_50, hs_extra_100, hs_nocturnas')
       .eq('id_empresa', empresaActiva.id)
       .gte('fecha', desde)
       .lte('fecha', hasta)
       .in('id_legajo', idsLegajos)
-    if (idObra) novQ.eq('id_obra', parseInt(idObra))
+    if (idObra) novQ = novQ.eq('id_obra', parseInt(idObra))
     const { data: novedades } = await novQ
 
     const idsNovedades = (novedades || []).map((n: any) => n.id)
@@ -402,7 +402,7 @@ export default function ExportarClient({
       ...adicionalesEnPeriodo.map(a => filas.reduce((s, f) => s + (f.adicionales[a.id] || 0), 0)),
       ...tiposEnPeriodo.map(t => filas.reduce((s, f) => s + (f.ausencias[t.id] || 0), 0)),
       filas.reduce((s, f) => s + f.vacaciones, 0),
-      feriadosDelPeriodo.length,
+      filas.reduce((s, f) => s + f.feriados, 0),
     ]
 
     const wb = XLSX.utils.book_new()

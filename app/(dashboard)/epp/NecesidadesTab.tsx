@@ -86,7 +86,7 @@ export default function NecesidadesTab({ habitualTodos, entregas, idEmpresa }: P
         tipo = 'vigente'
       }
     } else {
-      continue // activo sin vencimiento → no aparece
+      tipo = 'vigente' // activo sin fecha de vencimiento
     }
 
     todasLasNecesidades.push({

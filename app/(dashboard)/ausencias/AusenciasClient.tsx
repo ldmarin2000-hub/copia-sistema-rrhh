@@ -85,7 +85,7 @@ export default function AusenciasClient({
     .filter(a => a.legajos.id_empresa === empresaActiva?.id)
     .filter(a => rol !== 'JEFE_OBRA' || (a.legajos.id_obra != null && obrasJefe.includes(a.legajos.id_obra)))
     .filter(a => filtroLegajo ? a.id_legajo === parseInt(filtroLegajo) : true)
-    .filter(a => filtroTipo ? a.tipos_ausencia.descripcion === tiposAusencia.find(t => t.id === parseInt(filtroTipo))?.descripcion : true)
+    .filter(a => filtroTipo ? a.id_tipo_ausencia === parseInt(filtroTipo) : true)
     .filter(a => filtroDesde ? a.fecha_hasta >= filtroDesde : true)
     .filter(a => filtroHasta ? a.fecha_desde <= filtroHasta : true)
 

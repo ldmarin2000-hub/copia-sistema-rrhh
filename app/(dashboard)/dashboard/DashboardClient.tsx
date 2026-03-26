@@ -75,6 +75,12 @@ export default function DashboardClient({
     ? stockTodos.filter(s => s.id_empresa === empresaActiva.id)
     : stockTodos
   const stockBajo = stockFiltrado.filter(s => s.cantidad_disponible <= s.cantidad_minima)
+  const vacacionesHoyFiltradas = empresaActiva
+    ? vacacionesHoy.filter(v => v.legajos.id_empresa === empresaActiva.id)
+    : vacacionesHoy
+  const ultimasNovedadesFiltradas = empresaActiva
+    ? ultimasNovedades.filter(n => n.id_empresa === empresaActiva.id)
+    : ultimasNovedades
 
   const cards = [
     {
@@ -301,13 +307,13 @@ export default function DashboardClient({
             <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>En vacaciones hoy</span>
             <Link href="/vacaciones" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver todos ↗</Link>
           </div>
-          {vacacionesHoy.length === 0 ? (
+          {vacacionesHoyFiltradas.length === 0 ? (
             <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>Nadie de vacaciones hoy</div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <tbody>
-                {vacacionesHoy.map((v, i) => (
-                  <tr key={v.id} style={{ borderBottom: i < vacacionesHoy.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+                {vacacionesHoyFiltradas.map((v, i) => (
+                  <tr key={v.id} style={{ borderBottom: i < vacacionesHoyFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                     <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
                       {v.legajos.apellido}, {v.legajos.nombre}
                     </td>
@@ -328,7 +334,7 @@ export default function DashboardClient({
           <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>Últimas novedades cargadas</span>
           <Link href="/novedades/consulta" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver consulta ↗</Link>
         </div>
-        {ultimasNovedades.length === 0 ? (
+        {ultimasNovedadesFiltradas.length === 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>No hay novedades cargadas</div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -340,10 +346,10 @@ export default function DashboardClient({
               </tr>
             </thead>
             <tbody>
-              {ultimasNovedades.map((n, i) => (
-                <tr key={n.id} style={{ borderBottom: i < ultimasNovedades.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
+              {ultimasNovedadesFiltradas.map((n, i) => (
+                <tr key={n.id} style={{ borderBottom: i < ultimasNovedadesFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                   <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>{n.legajos.apellido}, {n.legajos.nombre}</td>
-                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{n.obras.nombre}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{n.obras?.nombre || '—'}</td>
                   <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(n.fecha)}</td>
                 </tr>
               ))}
