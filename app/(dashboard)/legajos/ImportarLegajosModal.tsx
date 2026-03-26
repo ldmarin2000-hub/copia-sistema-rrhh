@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import * as XLSX from 'xlsx'
 import { X, Download, Upload, CheckCircle, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
-import { validarCuit, formatearCuit } from '@/lib/validaciones'
+import { validarCuit, formatearCuit, validarCbu } from '@/lib/validaciones'
 import { useRouter } from 'next/navigation'
 
 type Categoria = { id: number; id_empresa: number; descripcion: string }
@@ -106,7 +106,8 @@ function parsearFilas(
     const cp              = get(row, 'cp')
     const localidad       = get(row, 'localidad')
     const provincia       = get(row, 'provincia')
-    const cbu             = get(row, 'cbu')
+    const cbuRaw          = get(row, 'cbu')
+    const cbu             = cbuRaw.replace(/[^0-9]/g, '')
     const codigo_externo  = get(row, 'codigo_externo')
     const categoriaNombre = get(row, 'categoria')
     const obraNombre      = get(row, 'obra')
@@ -170,6 +171,10 @@ function parsearFilas(
     if (sexo && !['Masculino', 'Femenino', 'Otro'].includes(sexo)) {
       errores.push('sexo debe ser Masculino, Femenino u Otro')
     }
+    if (cbu && !validarCbu(cbu)) {
+      errores.push('CBU inválido (debe tener 22 dígitos con dígito verificador correcto)')
+    }
+
     if (tipo_documento && !['DNI', 'Pasaporte'].includes(tipo_documento)) {
       errores.push('tipo_documento debe ser DNI o Pasaporte')
     }

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
 import { X } from 'lucide-react'
-import { validarCuit, formatearCuit } from '@/lib/validaciones'
+import { validarCuit, formatearCuit, validarCbu } from '@/lib/validaciones'
 
 type Legajo = {
   id: number
@@ -109,6 +109,9 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
   )
   const [estado, setEstado] = useState(legajoEditar?.estado || 'Activo')
   const [cbu, setCbu] = useState(legajoEditar?.cbu || '')
+  const [cbuValido, setCbuValido] = useState<boolean | null>(
+    legajoEditar?.cbu ? validarCbu(legajoEditar.cbu) : null
+  )
   const [codigoExterno, setCodigoExterno] = useState(legajoEditar?.codigo_externo || '')
   const [idPlantilla, setIdPlantilla] = useState(legajoEditar?.id_plantilla ? String(legajoEditar.id_plantilla) : '')
   
@@ -473,7 +476,33 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                   )}
                   <div>
                     <label style={labelStyle}>CBU</label>
-                    <input value={cbu} onChange={(e) => setCbu(e.target.value)} style={inputStyle} />
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        value={cbu}
+                        onChange={(e) => {
+                          const valor = e.target.value.replace(/[^0-9]/g, '')
+                          setCbu(valor)
+                          if (valor.length === 0) setCbuValido(null)
+                          else if (valor.length === 22) setCbuValido(validarCbu(valor))
+                          else setCbuValido(null)
+                        }}
+                        placeholder="22 dígitos"
+                        maxLength={22}
+                        style={{
+                          ...inputStyle,
+                          border: `0.5px solid ${cbuValido === false ? 'var(--c-red)' : cbuValido === true ? 'var(--c-green)' : 'var(--c-border)'}`,
+                        }}
+                      />
+                      {cbuValido !== null && (
+                        <span style={{
+                          position: 'absolute', right: '10px', top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: cbuValido ? 'var(--c-green)' : 'var(--c-red)',
+                        }}>
+                          {cbuValido ? '✓' : '✗'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
