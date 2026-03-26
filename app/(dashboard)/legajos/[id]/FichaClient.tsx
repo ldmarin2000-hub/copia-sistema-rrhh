@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ArrowLeft, User, Clock, FileText, Calendar, Pencil, Umbrella, HardHat, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, User, Clock, FileText, Calendar, Pencil, Umbrella, HardHat, Plus, Trash2, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { formatFecha } from '@/lib/fecha'
 import FormLegajo from '../FormLegajo'
@@ -692,7 +692,29 @@ export default function FichaClient({
 
           {/* Domicilio */}
           <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '20px' }}>
-            <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 16px' }}>Domicilio</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Domicilio</p>
+              {(legajo.direccion || legajo.localidad) && (() => {
+                const partes = [legajo.direccion, legajo.cp, legajo.localidad, legajo.provincia, 'Argentina'].filter(Boolean)
+                const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(partes.join(', '))}`
+                return (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '5px',
+                      fontSize: '12px', color: 'var(--c-blue)',
+                      background: 'transparent', border: '0.5px solid var(--c-border)',
+                      borderRadius: '5px', padding: '4px 10px', textDecoration: 'none',
+                    }}
+                  >
+                    <MapPin size={13} />
+                    Ver en mapa
+                  </a>
+                )
+              })()}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {dato('Dirección', legajo.direccion)}
               {dato('CP', legajo.cp)}
