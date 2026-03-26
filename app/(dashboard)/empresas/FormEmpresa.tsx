@@ -51,6 +51,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
   const [buscandoDireccion, setBuscandoDireccion] = useState(false)
   const [activo, setActivo] = useState(empresaEditar?.activo ?? true)
   const [permiteEditarEpp, setPermiteEditarEpp] = useState((empresaEditar as any)?.permite_editar_epp ?? false)
+  const [numeracionAutomatica, setNumeracionAutomatica] = useState((empresaEditar as any)?.numeracion_automatica_legajos ?? false)
 
   const input = (value: string, onChange: (v: string) => void, placeholder: string) => (
     <input
@@ -127,7 +128,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
       direccion, cp, localidad, provincia,
       fecha_inicio: fechaInicio || null,
       latitud, longitud,
-      activo, permite_editar_epp: permiteEditarEpp,
+      activo, permite_editar_epp: permiteEditarEpp, numeracion_automatica_legajos: numeracionAutomatica,
     }
 
     if (editando) {
@@ -337,6 +338,17 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
             />
             <label htmlFor="permiteEditarEpp" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>
               Permite editar y borrar movimientos de EPP
+            </label>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="checkbox"
+              id="numeracionAutomatica"
+              checked={numeracionAutomatica}
+              onChange={(e) => setNumeracionAutomatica(e.target.checked)}
+            />
+            <label htmlFor="numeracionAutomatica" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>
+              Numeración automática de legajos
             </label>
           </div>
         </div>

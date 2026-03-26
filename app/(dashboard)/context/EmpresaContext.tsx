@@ -6,6 +6,7 @@ type Empresa = {
   id: number
   razon_social: string
   permite_editar_epp?: boolean
+  numeracion_automatica_legajos?: boolean
 }
 
 type RolCodigo = 'SUPERADMIN' | 'ADMIN' | 'RRHH_ADMIN' | 'JEFE_OBRA'

@@ -18,14 +18,14 @@ export default async function DashboardLayout({
     .eq('id', user?.id)
     .single()
 
-  let empresas: { id: number, razon_social: string, permite_editar_epp: boolean }[] = []
+  let empresas: { id: number, razon_social: string, permite_editar_epp: boolean, numeracion_automatica_legajos: boolean }[] = []
   let rol: 'SUPERADMIN' | 'ADMIN' | 'RRHH_ADMIN' | 'JEFE_OBRA' | null = null
   let obrasJefe: number[] = []
 
   if (usuario?.es_superadmin) {
     const { data } = await supabase
       .from('empresas')
-      .select('id, razon_social, permite_editar_epp')
+      .select('id, razon_social, permite_editar_epp, numeracion_automatica_legajos')
       .eq('activo', true)
       .order('razon_social')
     empresas = data || []
@@ -33,7 +33,7 @@ export default async function DashboardLayout({
   } else {
     const { data } = await supabase
       .from('permisos_empresas')
-      .select('empresas(id, razon_social, permite_editar_epp), roles(codigo)')
+      .select('empresas(id, razon_social, permite_editar_epp, numeracion_automatica_legajos), roles(codigo)')
       .eq('id_usuario', user?.id)
     empresas = (data?.map((p: any) => p.empresas) || []).filter(Boolean)
     // Tomar el rol de mayor jerarquía

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
@@ -82,6 +82,23 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
   const [observacionBaja, setObservacionBaja] = useState('')
 
   const [nroLegajo, setNroLegajo] = useState(legajoEditar ? String(legajoEditar.nro_legajo) : '')
+
+  useEffect(() => {
+    if (!editando && empresaActiva?.numeracion_automatica_legajos) {
+      const supabase = createClient()
+      supabase
+        .from('legajos')
+        .select('nro_legajo')
+        .eq('id_empresa', empresaActiva.id)
+        .order('nro_legajo', { ascending: false })
+        .limit(1)
+        .single()
+        .then(({ data }) => {
+          const siguiente = data ? data.nro_legajo + 1 : 1
+          setNroLegajo(String(siguiente))
+        })
+    }
+  }, [editando, empresaActiva?.id, empresaActiva?.numeracion_automatica_legajos])
   const [apellido, setApellido] = useState(legajoEditar?.apellido || '')
   const [nombre, setNombre] = useState(legajoEditar?.nombre || '')
   const [cuil, setCuil] = useState(legajoEditar?.cuil || '')
