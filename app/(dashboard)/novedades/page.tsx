@@ -9,6 +9,7 @@ export default async function Novedades() {
     { data: adicionales },
     { data: plantillas },
     { data: categorias },
+    { data: tiposAusencia },
   ] = await Promise.all([
     supabase.from('legajos')
       .select('id, id_empresa, nro_legajo, apellido, nombre, id_obra, id_categoria, id_plantilla, fecha_ingreso')
@@ -28,6 +29,10 @@ export default async function Novedades() {
     supabase.from('categorias')
       .select('id, id_plantilla')
       .eq('activo', true),
+    supabase.from('tipos_ausencia')
+      .select('id, codigo, descripcion')
+      .eq('activo', true)
+      .order('descripcion'),
   ])
 
   return (
@@ -37,6 +42,7 @@ export default async function Novedades() {
       adicionales={adicionales || []}
       plantillas={plantillas || []}
       categorias={categorias || []}
+      tiposAusencia={tiposAusencia || []}
     />
   )
 }

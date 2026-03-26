@@ -49,6 +49,7 @@ type FilaNovedad = {
   hs_extra_100: string
   hs_nocturnas: string
   ausente: boolean
+  id_tipo_ausencia: number | null
   observaciones: string
   adicionales: AdicionalFila[]
   mostrarAdicionales: boolean
@@ -75,13 +76,14 @@ type Categoria = {
 
 
 export default function NovedadesClient({
-  legajos, obras, adicionales, plantillas, categorias
+  legajos, obras, adicionales, plantillas, categorias, tiposAusencia
 }: {
   legajos: Legajo[]
   obras: Obra[]
   adicionales: Adicional[]
   plantillas: Plantilla[]
   categorias: Categoria[]
+  tiposAusencia: { id: number, codigo: string, descripcion: string }[]
 }) {
   const router = useRouter()
   const { empresaActiva, rol, obrasJefe } = useEmpresa()
@@ -212,7 +214,7 @@ export default function NovedadesClient({
 
     const { data: existentes } = await supabase
       .from('novedades_diarias')
-      .select('*')
+      .select('*, id_tipo_ausencia')
       .eq('id_empresa', empresaActiva.id)
       .eq('id_obra', parseInt(idObra))
       .eq('fecha', fecha)
@@ -255,6 +257,7 @@ export default function NovedadesClient({
         hs_extra_100: existente ? String(existente.hs_extra_100) : '0',
         hs_nocturnas: existente ? String(existente.hs_nocturnas) : '0',
         ausente: existente ? existente.ausente : tieneAusenciaAutomatica,
+        id_tipo_ausencia: existente ? (existente.id_tipo_ausencia || null) : null,
         observaciones: existente ? (existente.observaciones || '') : '',
         adicionales: adicionalesDelEmpleado,
         mostrarAdicionales: false,
@@ -312,6 +315,10 @@ export default function NovedadesClient({
       nuevasFilas[index].hs_extra_100 = '0'
       nuevasFilas[index].hs_nocturnas = '0'
     }
+    // Si desmarca ausente, limpiar tipo de ausencia
+    if (campo === 'ausente' && valor === false) {
+      nuevasFilas[index].id_tipo_ausencia = null
+    }
 
     setFilas(nuevasFilas)
   }
@@ -338,6 +345,7 @@ export default function NovedadesClient({
         hs_extra_100: parseFloat(fila.hs_extra_100) || 0,
         hs_nocturnas: parseFloat(fila.hs_nocturnas) || 0,
         ausente: fila.ausente,
+        id_tipo_ausencia: fila.ausente ? (fila.id_tipo_ausencia || null) : null,
         observaciones: fila.observaciones || null,
         id_usuario_carga: user?.id || null,
         updated_at: new Date().toISOString(),
@@ -486,6 +494,7 @@ export default function NovedadesClient({
                   <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Extra 100%</th>
                   <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Nocturnas</th>
                   <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Ausente</th>
+                  <th style={{ textAlign: 'left', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Tipo ausencia</th>
                   <th style={{ textAlign: 'left', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Observaciones</th>
                   <th style={{ textAlign: 'center', padding: '10px 8px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Adicionales</th>
                 </tr>
@@ -557,6 +566,36 @@ export default function NovedadesClient({
             onChange={(e) => actualizarFila(i, 'ausente', e.target.checked)} />
         </td>
         <td style={{ padding: '8px' }}>
+          {fila.ausente && !fila.ausenciaActiva && !fila.enVacaciones ? (
+            <select
+              value={fila.id_tipo_ausencia ?? ''}
+              onChange={(e) => {
+                const nuevasFilas = [...filas]
+                nuevasFilas[i].id_tipo_ausencia = e.target.value ? parseInt(e.target.value) : null
+                setFilas(nuevasFilas)
+              }}
+              style={{
+                padding: '5px 8px', borderRadius: '6px', fontSize: '12px',
+                background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-primary)', width: '100%',
+              }}
+            >
+              <option value="">— opcional —</option>
+              {tiposAusencia.map(t => (
+                <option key={t.id} value={t.id}>{t.codigo} - {t.descripcion}</option>
+              ))}
+            </select>
+          ) : fila.ausenciaActiva ? (
+            <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
+              {fila.ausenciaActiva.codigo} - {fila.ausenciaActiva.descripcion}
+            </span>
+          ) : fila.enVacaciones ? (
+            <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>Vacaciones</span>
+          ) : (
+            <span style={{ color: 'var(--c-text-muted)', fontSize: '12px' }}>—</span>
+          )}
+        </td>
+        <td style={{ padding: '8px' }}>
           <input value={fila.observaciones}
             onChange={(e) => actualizarFila(i, 'observaciones', e.target.value)}
             placeholder="Opcional..."
@@ -585,7 +624,7 @@ export default function NovedadesClient({
           borderBottom: i < filas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
           background: 'var(--c-base)',
         }}>
-          <td colSpan={8} style={{ padding: '8px 16px 12px 32px' }}>
+          <td colSpan={9} style={{ padding: '8px 16px 12px 32px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {fila.adicionales.map(adic => (
                 <div key={adic.id_adicional} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
