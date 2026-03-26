@@ -288,6 +288,11 @@ async function buscarDireccion() {
                 </div>
               </div>
 
+              <div>
+                <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Dirección</label>
+                <input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Ej: Av. Corrientes 1234" style={inputStyle} />
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>CP</label>

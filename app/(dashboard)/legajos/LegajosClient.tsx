@@ -6,6 +6,7 @@ import { useEmpresa } from '../context/EmpresaContext'
 import { Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import Link from 'next/link'
 import FormLegajo from './FormLegajo'
+import ImportarLegajosModal from './ImportarLegajosModal'
 import { formatFecha } from '@/lib/fecha'
 import { createClient } from '@/lib/supabase-browser'
 
@@ -78,6 +79,7 @@ export default function LegajosClient({
   const { empresaActiva, rol } = useEmpresa()
   const [mostrarForm, setMostrarForm] = useState(false)
   const [legajoEditar, setLegajoEditar] = useState<Legajo | null>(null)
+  const [mostrarImportar, setMostrarImportar] = useState(false)
   const [busqueda, setBusqueda] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('Activo')
   const [sortCol, setSortCol] = useState<SortCol>('nro_legajo')
@@ -194,6 +196,22 @@ export default function LegajosClient({
         />
       )}
 
+      {mostrarImportar && empresaActiva && (
+        <ImportarLegajosModal
+          empresaId={empresaActiva.id}
+          categorias={categorias}
+          obras={obras}
+          plantillas={plantillas}
+          legajosExistentes={legajos.map(l => ({
+            nro_legajo: l.nro_legajo,
+            cuil: l.cuil,
+            id_empresa: l.id_empresa,
+          }))}
+          onCerrar={() => setMostrarImportar(false)}
+          onImportado={() => setMostrarImportar(false)}
+        />
+      )}
+
       {/* Título */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div>
@@ -203,13 +221,25 @@ export default function LegajosClient({
           </span>
         </div>
         {rol !== 'JEFE_OBRA' && (
-          <button onClick={abrirNuevo} style={{
-            background: 'var(--c-blue-btn)', color: 'white', border: 'none',
-            borderRadius: '6px', padding: '7px 16px',
-            fontSize: '13px', cursor: 'pointer',
-          }}>
-            + Nuevo legajo
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setMostrarImportar(true)}
+              style={{
+                background: 'transparent', border: '0.5px solid var(--c-border)',
+                color: 'var(--c-text-primary)', borderRadius: '6px', padding: '7px 14px',
+                fontSize: '13px', cursor: 'pointer',
+              }}
+            >
+              Importar Excel
+            </button>
+            <button onClick={abrirNuevo} style={{
+              background: 'var(--c-blue-btn)', color: 'white', border: 'none',
+              borderRadius: '6px', padding: '7px 16px',
+              fontSize: '13px', cursor: 'pointer',
+            }}>
+              + Nuevo legajo
+            </button>
+          </div>
         )}
       </div>
 
