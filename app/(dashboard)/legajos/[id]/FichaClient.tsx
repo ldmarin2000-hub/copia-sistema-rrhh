@@ -154,6 +154,15 @@ export default function FichaClient({
   const [loadingAlta, setLoadingAlta] = useState(false)
   const [errorAlta, setErrorAlta] = useState('')
 
+  // Checklist EPP devolución
+  const [mostrarChecklistEpp, setMostrarChecklistEpp] = useState(false)
+  const [eppParaDevolver, setEppParaDevolver] = useState<{
+    id: number, id_epp: number, descripcion: string,
+    talle?: string, cantidad: number, controla_stock: boolean, checked: boolean
+  }[]>([])
+  const [fechaDevolucionEpp, setFechaDevolucionEpp] = useState('')
+  const [guardandoEpp, setGuardandoEpp] = useState(false)
+
   const supabase = createClient()
 
   const hoyLocal = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })()
@@ -256,6 +265,26 @@ export default function FichaClient({
         await supabase.from('legajos_historico_obras').update({ fecha_hasta: editForm.fecha_egreso }).eq('id', lastObra[0].id)
       }
       setLegajoEstado('Baja')
+
+      // Verificar si hay EPP pendiente de devolver
+      const { data: eppPendiente } = await supabase
+        .from('epp_entregas')
+        .select('id, id_epp, cantidad, talle, epp_catalogo(descripcion, controla_stock)')
+        .eq('id_legajo', legajo.id)
+        .eq('devuelto', false)
+      if (eppPendiente && eppPendiente.length > 0) {
+        setEppParaDevolver(eppPendiente.map((e: any) => ({
+          id: e.id,
+          id_epp: e.id_epp,
+          descripcion: e.epp_catalogo?.descripcion || '',
+          talle: e.talle || undefined,
+          cantidad: e.cantidad,
+          controla_stock: e.epp_catalogo?.controla_stock || false,
+          checked: true,
+        })))
+        setFechaDevolucionEpp(editForm.fecha_egreso)
+        setMostrarChecklistEpp(true)
+      }
     }
 
     // 4. If fecha_egreso removed: set legajo to Activo, clear fecha_hasta on last categoria and obra
@@ -386,6 +415,51 @@ export default function FichaClient({
     setLegajoEstado(nuevoEstado)
     setLegajoFechaIngreso(ahoraUltimo.fecha_ingreso)
     await refrescarHistoricos()
+  }
+
+  async function procesarDevolucionEpp() {
+    const seleccionados = eppParaDevolver.filter(e => e.checked)
+    if (seleccionados.length === 0) { setMostrarChecklistEpp(false); return }
+    setGuardandoEpp(true)
+
+    // Crear un movimiento de devolución
+    const { data: mov } = await supabase
+      .from('epp_movimientos')
+      .insert({ id_empresa: legajo.id_empresa, fecha: fechaDevolucionEpp, tipo: 'devolucion', id_legajo: legajo.id })
+      .select('id').single()
+
+    for (const item of seleccionados) {
+      // Marcar como devuelto
+      await supabase.from('epp_entregas').update({
+        devuelto: true, fecha_devolucion: fechaDevolucionEpp,
+      }).eq('id', item.id)
+
+      // Item en el movimiento
+      if (mov) {
+        await supabase.from('epp_movimientos_items').insert({
+          id_movimiento: mov.id, id_epp: item.id_epp,
+          talle: item.talle || null, cantidad: item.cantidad,
+        })
+      }
+
+      // Actualizar stock si corresponde
+      if (item.controla_stock) {
+        let q = supabase.from('epp_stock')
+          .select('id, cantidad_disponible')
+          .eq('id_empresa', legajo.id_empresa)
+          .eq('id_epp', item.id_epp)
+        q = item.talle ? (q as any).eq('talle', item.talle) : (q as any).is('talle', null)
+        const { data: stockRow } = await (q as any).maybeSingle()
+        if (stockRow) {
+          await supabase.from('epp_stock')
+            .update({ cantidad_disponible: stockRow.cantidad_disponible + item.cantidad })
+            .eq('id', stockRow.id)
+        }
+      }
+    }
+
+    setGuardandoEpp(false)
+    setMostrarChecklistEpp(false)
   }
 
   const ultimoHistorico = historicoList[0] // ordered DESC, first = most recent
@@ -1199,6 +1273,93 @@ export default function FichaClient({
           plantillas={plantillas}
           onCerrar={() => setMostrarForm(false)}
         />
+      )}
+
+      {/* Modal checklist EPP devolución */}
+      {mostrarChecklistEpp && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'var(--c-overlay)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200,
+        }}>
+          <div style={{
+            background: 'var(--c-surface)', border: '0.5px solid var(--c-border)',
+            borderRadius: '10px', width: '100%', maxWidth: '480px', padding: '24px',
+          }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: '0 0 4px' }}>
+              Devolución de EPP
+            </h2>
+            <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', margin: '0 0 20px' }}>
+              El empleado tiene los siguientes ítems pendientes de devolución. Tildá los que fueron devueltos.
+            </p>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Fecha de devolución</label>
+              <input
+                type="date"
+                value={fechaDevolucionEpp}
+                onChange={(e) => setFechaDevolucionEpp(e.target.value)}
+                style={{
+                  padding: '7px 10px', borderRadius: '6px',
+                  background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+                  color: 'var(--c-text-primary)', fontSize: '13px',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+              {eppParaDevolver.map((item, i) => (
+                <label key={item.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '10px 12px', borderRadius: '6px',
+                  background: item.checked ? 'var(--c-green-bg)' : 'var(--c-elevated)',
+                  cursor: 'pointer',
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={item.checked}
+                    onChange={(e) => {
+                      const next = [...eppParaDevolver]
+                      next[i] = { ...next[i], checked: e.target.checked }
+                      setEppParaDevolver(next)
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: '13px', color: 'var(--c-text-primary)' }}>{item.descripcion}</span>
+                    {item.talle && (
+                      <span style={{ fontSize: '11px', color: 'var(--c-text-secondary)', marginLeft: '8px' }}>Talle: {item.talle}</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>x{item.cantidad}</span>
+                </label>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button
+                onClick={() => setMostrarChecklistEpp(false)}
+                style={{
+                  background: 'transparent', border: '0.5px solid var(--c-border)',
+                  color: 'var(--c-text-secondary)', borderRadius: '6px',
+                  padding: '7px 16px', fontSize: '13px', cursor: 'pointer',
+                }}
+              >
+                Omitir
+              </button>
+              <button
+                onClick={procesarDevolucionEpp}
+                disabled={guardandoEpp || !fechaDevolucionEpp}
+                style={{
+                  background: 'var(--c-blue-btn)', color: 'white', border: 'none',
+                  borderRadius: '6px', padding: '7px 16px',
+                  fontSize: '13px', cursor: 'pointer',
+                  opacity: guardandoEpp ? 0.6 : 1,
+                }}
+              >
+                {guardandoEpp ? 'Guardando...' : `Confirmar devolución (${eppParaDevolver.filter(e => e.checked).length})`}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
