@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
@@ -492,8 +492,8 @@ export default function NovedadesClient({
               </thead>
               <tbody>
   {filas.map((fila, i) => (
-    <>
-      <tr key={fila.id_legajo} style={{
+    <Fragment key={fila.id_legajo}>
+      <tr style={{
         borderBottom: fila.mostrarAdicionales ? 'none' : (i < filas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none'),
         background: fila.enVacaciones
           ? 'rgba(88,166,255,0.05)'
@@ -581,7 +581,7 @@ export default function NovedadesClient({
 
       {/* Fila adicionales */}
       {fila.mostrarAdicionales && (
-        <tr key={`adicionales-${fila.id_legajo}`} style={{
+        <tr style={{
           borderBottom: i < filas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none',
           background: 'var(--c-base)',
         }}>
@@ -623,7 +623,7 @@ export default function NovedadesClient({
           </td>
         </tr>
       )}
-    </>
+    </Fragment>
   ))}
 </tbody>
             </table>
