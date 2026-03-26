@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import PlantillasClient from './PlantillasClient'
 
 export default async function PlantillasJornada() {
+  const supabase = await createSupabaseServer()
   const [
     { data: plantillas },
     { data: convenios },

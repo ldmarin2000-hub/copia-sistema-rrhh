@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import AdicionalesClient from './AdicionalesClient'
 
 export default async function Adicionales() {
+  const supabase = await createSupabaseServer()
   const [
     { data: adicionales },
     { data: convenios },

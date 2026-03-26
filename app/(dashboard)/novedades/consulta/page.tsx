@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import ConsultaClient from './ConsultaClient'
 
 export default async function ConsultaNovedades() {
+  const supabase = await createSupabaseServer()
   const [
     { data: obras },
     { data: adicionales },

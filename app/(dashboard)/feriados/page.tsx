@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import FeriadosClient from './FeriadosClient'
 
 export default async function Feriados() {
+  const supabase = await createSupabaseServer()
   const [
     { data: feriados },
     { data: convenios },

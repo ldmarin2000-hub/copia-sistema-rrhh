@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import CategoriasClient from './CategoriasClient'
 
 export default async function Categorias() {
+  const supabase = await createSupabaseServer()
   const [
     { data: categorias },
     { data: convenios },

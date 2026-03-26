@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import LegajosClient from './LegajosClient'
 
 export default async function Legajos() {
+  const supabase = await createSupabaseServer()
   const [
     { data: legajos },
     { data: categorias },

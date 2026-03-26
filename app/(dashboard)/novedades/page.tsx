@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import NovedadesClient from './NovedadesClient'
 
 export default async function Novedades() {
+  const supabase = await createSupabaseServer()
   const [
     { data: legajos },
     { data: obras },

@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import EppCatalogoClient from './EppCatalogoClient'
 
 export default async function EppCatalogoPage() {
+  const supabase = await createSupabaseServer()
   const [
     { data: catalogo },
     { data: talles },

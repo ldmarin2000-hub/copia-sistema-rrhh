@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import ExportarClient from './ExportarClient'
 
 export default async function ExportarNovedades() {
+  const supabase = await createSupabaseServer()
   const [
     { data: obras },
     { data: adicionales },

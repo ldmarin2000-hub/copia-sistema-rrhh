@@ -1,22 +1,10 @@
-import { supabase } from '@/lib/supabase'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import DashboardClient from './DashboardClient'
 
 export default async function Dashboard() {
-  const cookieStore = await cookies()
-  const supabaseServer = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() },
-        setAll() {},
-      },
-    }
-  )
+  const supabase = await createSupabaseServer()
 
-  const { data: { user } } = await supabaseServer.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   const { data: usuario } = await supabase
     .from('usuarios')
     .select('es_superadmin')

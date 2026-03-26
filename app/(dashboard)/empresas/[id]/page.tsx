@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import FichaEmpresaClient from './FichaEmpresaClient'
 
@@ -7,6 +7,7 @@ export default async function FichaEmpresa({
 }: {
   params: Promise<{ id: string }>
 }) {
+  const supabase = await createSupabaseServer()
   const { id } = await params
 
   const [

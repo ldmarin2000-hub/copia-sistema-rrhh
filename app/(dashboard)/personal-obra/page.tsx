@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import PersonalObraClient from './PersonalObraClient'
 
 export default async function PersonalObraPage() {
+  const supabase = await createSupabaseServer()
   const [
     { data: categorias },
     { data: obras },

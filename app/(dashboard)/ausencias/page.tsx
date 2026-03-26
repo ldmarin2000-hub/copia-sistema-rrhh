@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import AusenciasClient from './AusenciasClient'
 
 export default async function Ausencias() {
+  const supabase = await createSupabaseServer()
   const [
     { data: ausencias },
     { data: tiposAusencia },

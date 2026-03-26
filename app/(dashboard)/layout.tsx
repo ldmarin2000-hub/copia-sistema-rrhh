@@ -1,6 +1,4 @@
-import { supabase } from '@/lib/supabase'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import { EmpresaProvider } from './context/EmpresaContext'
@@ -10,20 +8,9 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const cookieStore = await cookies()
+  const supabase = await createSupabaseServer()
 
-  const supabaseServer = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() },
-        setAll() {},
-      },
-    }
-  )
-
-  const { data: { user } } = await supabaseServer.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { data: usuario } = await supabase
     .from('usuarios')
@@ -48,7 +35,7 @@ export default async function DashboardLayout({
       .from('permisos_empresas')
       .select('empresas(id, razon_social, permite_editar_epp), roles(codigo)')
       .eq('id_usuario', user?.id)
-    empresas = data?.map((p: any) => p.empresas) || []
+    empresas = (data?.map((p: any) => p.empresas) || []).filter(Boolean)
     // Tomar el rol de mayor jerarquía
     const roles = data?.map((p: any) => p.roles?.codigo) || []
     if (roles.includes('ADMIN')) rol = 'ADMIN'

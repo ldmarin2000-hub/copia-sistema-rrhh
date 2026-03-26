@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import UsuariosClient from './UsuariosClient'
 
 export default async function Usuarios() {
+  const supabase = await createSupabaseServer()
   const [
     { data: usuarios },
     { data: empresas },

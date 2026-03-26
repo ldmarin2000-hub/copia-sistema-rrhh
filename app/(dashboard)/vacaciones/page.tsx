@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import VacacionesGeneralClient from './VacacionesGeneralClient'
 
 export default async function VacacionesGeneral() {
+  const supabase = await createSupabaseServer()
   const [
     { data: vacaciones },
     { data: legajos },

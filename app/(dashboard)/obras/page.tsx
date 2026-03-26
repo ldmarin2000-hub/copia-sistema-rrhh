@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { createSupabaseServer } from '@/lib/supabase-server'
 import ObrasClient from './ObrasClient'
 
 export default async function Obras() {
+  const supabase = await createSupabaseServer()
   const { data: obras, error } = await supabase
     .from('obras')
     .select('*, empresas(razon_social)')
