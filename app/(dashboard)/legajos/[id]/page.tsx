@@ -26,6 +26,7 @@ export default async function FichaLegajo({
     { data: eppTalles },
     { data: eppHabitual },
     { data: documentos },
+    { data: bancoHoras },
   ] = await Promise.all([
     supabase.from('legajos')
       .select('*, categorias(descripcion), obras(nombre)')
@@ -77,6 +78,10 @@ export default async function FichaLegajo({
       .select('*')
       .eq('id_legajo', id)
       .order('created_at', { ascending: false }),
+    supabase.from('banco_horas_movimientos')
+      .select('id, fecha, tipo, horas, concepto')
+      .eq('id_legajo', id)
+      .order('fecha', { ascending: false }),
   ])
 
   if (!legajo) notFound()
@@ -98,6 +103,7 @@ export default async function FichaLegajo({
       eppTalles={eppTalles || []}
       eppHabitual={eppHabitual || []}
       documentos={documentos || []}
+      bancoHoras={bancoHoras || []}
     />
   )
 }
