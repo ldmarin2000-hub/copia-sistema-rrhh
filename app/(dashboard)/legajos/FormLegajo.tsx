@@ -131,7 +131,16 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
   )
   const [codigoExterno, setCodigoExterno] = useState(legajoEditar?.codigo_externo || '')
   const [idPlantilla, setIdPlantilla] = useState(legajoEditar?.id_plantilla ? String(legajoEditar.id_plantilla) : '')
-  
+  const [fechaReconocida, setFechaReconocida] = useState((legajoEditar as any)?.fecha_reconocida || '')
+  const [idMetodoVacaciones, setIdMetodoVacaciones] = useState<number | null>((legajoEditar as any)?.id_metodo_vacaciones ?? null)
+  const [metodosVacaciones, setMetodosVacaciones] = useState<{ id: number; nombre: string }[]>([])
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.from('metodos_vacaciones').select('id, nombre').eq('activo', true).order('id')
+      .then(({ data }) => setMetodosVacaciones(data || []))
+  }, [])
+
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -184,6 +193,8 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
       cbu: cbu || null,
       codigo_externo: codigoExterno || null,
       id_plantilla: idPlantilla ? parseInt(idPlantilla) : null,
+      id_metodo_vacaciones: idMetodoVacaciones,
+      fecha_reconocida: fechaReconocida || null,
       ...(!editando && {
         fecha_ingreso: fechaIngreso,
         id_categoria: idCategoria ? parseInt(idCategoria) : null,
@@ -492,6 +503,17 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                     </div>
                   )}
                   <div>
+                    <label style={labelStyle}>Fecha reconocida</label>
+                    <input
+                      type="date"
+                      value={fechaReconocida}
+                      onChange={e => setFechaReconocida(e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
                     <label style={labelStyle}>CBU</label>
                     <div style={{ position: 'relative' }}>
                       <input
@@ -535,6 +557,22 @@ export default function FormLegajo({ legajoEditar, categorias, obras, plantillas
                     }
                   </select>
                 </div>
+
+                {metodosVacaciones.length > 0 && (
+                  <div>
+                    <label style={labelStyle}>Método de vacaciones (sobreescribe el del convenio)</label>
+                    <select
+                      value={idMetodoVacaciones ?? ''}
+                      onChange={e => setIdMetodoVacaciones(e.target.value ? parseInt(e.target.value) : null)}
+                      style={selectStyle}
+                    >
+                      <option value="">Usar el de la empresa</option>
+                      {metodosVacaciones.map(m => (
+                        <option key={m.id} value={m.id}>{m.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 
                 {!editando && (

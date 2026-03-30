@@ -113,7 +113,8 @@ const MOTIVOS_BAJA = ['Renuncia', 'Despido', 'Abandono', 'Fallecimiento', 'Jubil
 export default function FichaClient({
   legajo, historico_laboral, historico_categorias,
   historico_obras, categorias, obras, ausencias, tiposAusencia,
-  vacaciones, plantillas, eppEntregas, eppCatalogo, eppTalles, eppHabitual, documentos
+  vacaciones, plantillas, eppEntregas, eppCatalogo, eppTalles, eppHabitual, documentos,
+  tramosVacaciones, metodoNombre, saldoInicial, fechaBaja, fechaReconocida, feriados,
 }: {
   legajo: Legajo
   historico_laboral: HistoricoLaboral[]
@@ -130,6 +131,12 @@ export default function FichaClient({
   eppTalles: any[]
   eppHabitual: any[]
   documentos: any[]
+  tramosVacaciones: { id: number; anios_desde: number; anios_hasta: number | null; dias: number }[]
+  metodoNombre: string
+  saldoInicial: { fecha_corte: string; saldo_dias: number; observacion?: string } | null
+  fechaBaja?: string
+  fechaReconocida?: string
+  feriados: string[]
 }){
   const { rol } = useEmpresa()
   const searchParams = useSearchParams()
@@ -812,7 +819,14 @@ export default function FichaClient({
         <VacacionesTab
           idLegajo={legajo.id}
           idEmpresa={legajo.id_empresa}
+          fechaIngreso={legajo.fecha_ingreso}
+          fechaReconocida={fechaReconocida}
+          fechaBaja={fechaBaja}
           vacaciones={vacaciones}
+          tramosVacaciones={tramosVacaciones}
+          metodoNombre={metodoNombre}
+          saldoInicial={saldoInicial}
+          feriados={feriados}
         />
       )}
 
