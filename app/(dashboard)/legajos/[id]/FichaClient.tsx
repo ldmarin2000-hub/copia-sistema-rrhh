@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ArrowLeft, User, Clock, FileText, Calendar, Pencil, Umbrella, HardHat, Plus, Trash2, MapPin } from 'lucide-react'
+import { ArrowLeft, User, Clock, FileText, Calendar, Pencil, Umbrella, HardHat, Plus, Trash2, MapPin, Timer } from 'lucide-react'
 import Link from 'next/link'
 import { formatFecha } from '@/lib/fecha'
 import FormLegajo from '../FormLegajo'
@@ -11,6 +11,7 @@ import VacacionesTab from './VacacionesTab'
 import EppTab from './EppTab'
 import DocumentosLegajoTab from './DocumentosLegajoTab'
 import NovedadesTab from './NovedadesTab'
+import BancoHorasTab from './BancoHorasTab'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../../context/EmpresaContext'
 
@@ -106,6 +107,7 @@ const tabs = [
   { id: 'documentos',label: 'Documentos', icon: FileText },
   { id: 'novedades', label: 'Novedades',  icon: Calendar },
   { id: 'epp', label: 'EPP', icon: HardHat },
+  { id: 'banco_horas', label: 'Banco de horas', icon: Timer },
 ]
 
 const MOTIVOS_BAJA = ['Renuncia', 'Despido', 'Abandono', 'Fallecimiento', 'Jubilación', 'Otro']
@@ -114,7 +116,7 @@ export default function FichaClient({
   legajo, historico_laboral, historico_categorias,
   historico_obras, categorias, obras, ausencias, tiposAusencia,
   vacaciones, plantillas, eppEntregas, eppCatalogo, eppTalles, eppHabitual, documentos,
-  tramosVacaciones, metodoNombre, saldoInicial, fechaBaja, fechaReconocida, feriados,
+  tramosVacaciones, metodoNombre, saldoInicial, fechaBaja, fechaReconocida, feriados, bancoHoras
 }: {
   legajo: Legajo
   historico_laboral: HistoricoLaboral[]
@@ -137,6 +139,7 @@ export default function FichaClient({
   fechaBaja?: string
   fechaReconocida?: string
   feriados: string[]
+  bancoHoras: any[]
 }){
   const { rol } = useEmpresa()
   const searchParams = useSearchParams()
@@ -1276,6 +1279,14 @@ export default function FichaClient({
           talles={eppTalles}
           habitual={eppHabitual}
           obras={obras}
+        />
+      )}
+
+      {tabActiva === 'banco_horas' && (
+        <BancoHorasTab
+          idLegajo={legajo.id}
+          idEmpresa={legajo.id_empresa}
+          movimientos={bancoHoras}
         />
       )}
 

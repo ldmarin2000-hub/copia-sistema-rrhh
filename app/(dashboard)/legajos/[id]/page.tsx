@@ -27,6 +27,7 @@ export default async function FichaLegajo({
     { data: eppHabitual },
     { data: documentos },
     { data: feriadosData },
+    { data: bancoHoras },
   ] = await Promise.all([
     supabase.from('legajos')
       .select('*, categorias(descripcion), obras(nombre)')
@@ -80,6 +81,10 @@ export default async function FichaLegajo({
       .order('created_at', { ascending: false }),
     supabase.from('feriados')
       .select('fecha'),
+    supabase.from('banco_horas_movimientos')
+      .select('id, fecha, tipo, horas, concepto')
+      .eq('id_legajo', id)
+      .order('fecha', { ascending: false }),
   ])
 
   if (!legajo) notFound()
@@ -149,6 +154,7 @@ export default async function FichaLegajo({
       fechaBaja={fechaBaja}
       fechaReconocida={fechaReconocida}
       feriados={feriados}
+      bancoHoras={bancoHoras || []}
     />
   )
 }
