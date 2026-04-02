@@ -140,6 +140,15 @@ export default function BancoHorasTab({ idLegajo, idEmpresa, movimientos: movimi
       .eq('codigo', 'FRANCO_BH')
       .maybeSingle()
 
+    // Eliminar ausencia FRANCO_BH previa para ese día (evita duplicados)
+    if (tipoFranco) {
+      await supabase.from('ausencias_periodo')
+        .delete()
+        .eq('id_legajo', idLegajo)
+        .eq('id_tipo_ausencia', tipoFranco.id)
+        .eq('fecha_desde', francoFecha)
+    }
+
     const [{ data, error: err }] = await Promise.all([
       supabase
         .from('banco_horas_movimientos')
@@ -158,7 +167,7 @@ export default function BancoHorasTab({ idLegajo, idEmpresa, movimientos: movimi
         })
         .select()
         .single(),
-      // Crear ausencia FRANCO_BH si existe el tipo
+      // Crear ausencia FRANCO_BH
       tipoFranco
         ? supabase.from('ausencias_periodo').insert({
             id_legajo: idLegajo,
@@ -220,8 +229,23 @@ export default function BancoHorasTab({ idLegajo, idEmpresa, movimientos: movimi
 
   async function eliminarMovimiento(id: number) {
     if (!confirm('¿Eliminar este movimiento?')) return
+    const mov = movimientos.find(m => m.id === id)
     const { error: err } = await supabase.from('banco_horas_movimientos').delete().eq('id', id)
     if (err) { alert(traducirError(err.message)); return }
+
+    // Si era un descuento manual, eliminar también la ausencia FRANCO_BH del día
+    if (mov?.tipo === 'descuento' && mov?.origen === 'manual') {
+      const { data: tipoFranco } = await supabase
+        .from('tipos_ausencia').select('id').eq('codigo', 'FRANCO_BH').maybeSingle()
+      if (tipoFranco) {
+        await supabase.from('ausencias_periodo')
+          .delete()
+          .eq('id_legajo', idLegajo)
+          .eq('id_tipo_ausencia', tipoFranco.id)
+          .eq('fecha_desde', mov.fecha)
+      }
+    }
+
     setMovimientos(prev => prev.filter(m => m.id !== id))
   }
 
