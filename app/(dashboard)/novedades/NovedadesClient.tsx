@@ -56,6 +56,7 @@ type FilaNovedad = {
   ausenciaActiva?: { codigo: string, descripcion: string } | null
   enVacaciones?: boolean
   tieneAcuerdoBH?: boolean
+  francoBH?: boolean
 }
 
 type Plantilla = {
@@ -242,7 +243,13 @@ export default function NovedadesClient({
 
     const nuevasFilas: FilaNovedad[] = empleadosObra.map(emp => {
       const existente = existentes?.find(n => n.id_legajo === emp.id)
-      const ausenciaDelDia = ausenciasActivas?.find(a => a.id_legajo === emp.id)
+      // FRANCO_BH es parcial: no se trata como ausencia total
+      const ausenciaDelDia = ausenciasActivas?.find(
+        a => a.id_legajo === emp.id && a.tipos_ausencia?.codigo !== 'FRANCO_BH'
+      )
+      const francoBHDelDia = ausenciasActivas?.find(
+        a => a.id_legajo === emp.id && a.tipos_ausencia?.codigo === 'FRANCO_BH'
+      )
       const vacacionDelDia = vacacionesActivas?.find(v => v.id_legajo === emp.id)
       const tieneAusenciaOVacacion = !existente && (!!ausenciaDelDia || !!vacacionDelDia)
       const aplicaFeriado = !existente && esFeriado && !ausenciaDelDia && !vacacionDelDia
@@ -277,6 +284,7 @@ export default function NovedadesClient({
           : null,
         enVacaciones: !!vacacionDelDia,
         tieneAcuerdoBH: idsConAcuerdoBH.has(emp.id),
+        francoBH: !!francoBHDelDia,
       }
     })
 
@@ -596,7 +604,10 @@ export default function NovedadesClient({
             ) : feriadoDelDia ? (
               <span style={{ background: 'rgba(224,123,57,0.15)', color: 'var(--c-orange-alt)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>FER</span>
             ) : null}
-            {fila.tieneAcuerdoBH && (
+            {fila.francoBH && (
+              <span style={{ background: 'rgba(156,97,249,0.15)', color: '#9c61f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }} title="Franco banco de horas">FRANCO BH</span>
+            )}
+            {!fila.francoBH && fila.tieneAcuerdoBH && (
               <span style={{ background: 'rgba(156,97,249,0.15)', color: '#9c61f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }} title="Banco de horas activo">BH</span>
             )}
           </div>
