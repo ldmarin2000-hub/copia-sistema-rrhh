@@ -82,12 +82,26 @@ export default async function FichaLegajo({
     supabase.from('feriados')
       .select('fecha'),
     supabase.from('banco_horas_movimientos')
-      .select('id, fecha, tipo, horas, concepto')
+      .select('id, fecha, tipo, origen, horas, horas_reales, horas_banco, concepto, iniciativa_descuento, saldo_resultante')
       .eq('id_legajo', id)
       .order('fecha', { ascending: false }),
   ])
 
   if (!legajo) notFound()
+
+  const [{ data: acuerdoBH }, { data: configBH }] = await Promise.all([
+    supabase.from('banco_horas_acuerdos')
+      .select('id, fecha_inicio, fecha_fin, activo, modalidad, observacion')
+      .eq('legajo_id', id)
+      .eq('activo', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from('banco_horas_config_empresa')
+      .select('modalidad, tope_mensual_horas, tope_anual_horas, tope_acumulado_banco')
+      .eq('empresa_id', legajo.id_empresa)
+      .maybeSingle(),
+  ])
 
   const feriados = (feriadosData || []).map((f: any) => f.fecha as string)
   const fechaReconocida: string | undefined = (legajo as any).fecha_reconocida ?? undefined
@@ -155,6 +169,8 @@ export default async function FichaLegajo({
       fechaReconocida={fechaReconocida}
       feriados={feriados}
       bancoHoras={bancoHoras || []}
+      acuerdoBH={acuerdoBH ?? null}
+      configBH={configBH ?? null}
     />
   )
 }

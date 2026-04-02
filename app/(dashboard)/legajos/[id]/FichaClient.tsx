@@ -116,7 +116,7 @@ export default function FichaClient({
   legajo, historico_laboral, historico_categorias,
   historico_obras, categorias, obras, ausencias, tiposAusencia,
   vacaciones, plantillas, eppEntregas, eppCatalogo, eppTalles, eppHabitual, documentos,
-  tramosVacaciones, metodoNombre, saldoInicial, fechaBaja, fechaReconocida, feriados, bancoHoras
+  tramosVacaciones, metodoNombre, saldoInicial, fechaBaja, fechaReconocida, feriados, bancoHoras, acuerdoBH, configBH
 }: {
   legajo: Legajo
   historico_laboral: HistoricoLaboral[]
@@ -140,6 +140,8 @@ export default function FichaClient({
   fechaReconocida?: string
   feriados: string[]
   bancoHoras: any[]
+  acuerdoBH: any | null
+  configBH: any | null
 }){
   const { rol } = useEmpresa()
   const searchParams = useSearchParams()
@@ -1287,6 +1289,8 @@ export default function FichaClient({
           idLegajo={legajo.id}
           idEmpresa={legajo.id_empresa}
           movimientos={bancoHoras}
+          acuerdo={acuerdoBH}
+          configEmpresa={configBH}
         />
       )}
 
