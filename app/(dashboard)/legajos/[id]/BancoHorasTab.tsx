@@ -166,7 +166,7 @@ export default function BancoHorasTab({ idLegajo, idEmpresa, movimientos: movimi
             id_tipo_ausencia: tipoFranco.id,
             fecha_desde: francoFecha,
             fecha_hasta: francoFecha,
-            observacion: francoObservacion || null,
+            observacion: francoObservacion ? `${hsNum} — ${francoObservacion}` : String(hsNum),
           })
         : Promise.resolve({ error: null }),
     ])

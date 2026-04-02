@@ -57,6 +57,7 @@ type FilaNovedad = {
   enVacaciones?: boolean
   tieneAcuerdoBH?: boolean
   francoBH?: boolean
+  francoBHHoras?: number | null
 }
 
 type Plantilla = {
@@ -285,6 +286,7 @@ export default function NovedadesClient({
         enVacaciones: !!vacacionDelDia,
         tieneAcuerdoBH: idsConAcuerdoBH.has(emp.id),
         francoBH: !!francoBHDelDia,
+        francoBHHoras: francoBHDelDia ? parseFloat(francoBHDelDia.observacion) || null : null,
       }
     })
 
@@ -605,7 +607,7 @@ export default function NovedadesClient({
               <span style={{ background: 'rgba(224,123,57,0.15)', color: 'var(--c-orange-alt)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>FER</span>
             ) : null}
             {fila.francoBH && (
-              <span style={{ background: 'rgba(156,97,249,0.15)', color: '#9c61f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }} title="Franco banco de horas">FRANCO BH</span>
+              <span style={{ background: 'rgba(156,97,249,0.15)', color: '#9c61f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }} title={fila.francoBHHoras ? `Franco banco de horas: ${fila.francoBHHoras}h` : 'Franco banco de horas'}>FRANCO BH</span>
             )}
             {!fila.francoBH && fila.tieneAcuerdoBH && (
               <span style={{ background: 'rgba(156,97,249,0.15)', color: '#9c61f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }} title="Banco de horas activo">BH</span>
