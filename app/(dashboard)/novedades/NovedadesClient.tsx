@@ -407,7 +407,7 @@ export default function NovedadesClient({
             ? hsExtra50 * 1.5 + hsExtra100 * 2
             : hsReales
 
-          await supabase.from('banco_horas_movimientos').insert({
+          await supabase.from('banco_horas_movimientos').upsert({
             id_legajo: fila.id_legajo,
             id_empresa: empresaActiva.id,
             fecha,
@@ -418,7 +418,7 @@ export default function NovedadesClient({
             horas_banco: hsBanco,
             concepto: `Horas extras — ${modalidad}${hsExtra50 > 0 ? ` · ${hsExtra50}h al 50%` : ''}${hsExtra100 > 0 ? ` · ${hsExtra100}h al 100%` : ''}`,
             novedad_diaria_id: novedad.id,
-          })
+          }, { onConflict: 'novedad_diaria_id' })
         }
       }
 
