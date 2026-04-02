@@ -133,23 +133,43 @@ export default function BancoHorasTab({ idLegajo, idEmpresa, movimientos: movimi
     setError('')
     const nuevoSaldo = saldo - hsNum
 
-    const { data, error: err } = await supabase
-      .from('banco_horas_movimientos')
-      .insert({
-        id_legajo: idLegajo,
-        id_empresa: idEmpresa,
-        fecha: francoFecha,
-        tipo: 'descuento',
-        origen: 'manual',
-        horas: hsNum,
-        horas_reales: hsNum,
-        horas_banco: hsNum,
-        concepto: `Franco banco de horas${francoObservacion ? ' — ' + francoObservacion : ''}`,
-        iniciativa_descuento: francoIniciativa,
-        saldo_resultante: nuevoSaldo,
-      })
-      .select()
-      .single()
+    // Buscar tipo de ausencia FRANCO_BH
+    const { data: tipoFranco } = await supabase
+      .from('tipos_ausencia')
+      .select('id')
+      .eq('codigo', 'FRANCO_BH')
+      .maybeSingle()
+
+    const [{ data, error: err }] = await Promise.all([
+      supabase
+        .from('banco_horas_movimientos')
+        .insert({
+          id_legajo: idLegajo,
+          id_empresa: idEmpresa,
+          fecha: francoFecha,
+          tipo: 'descuento',
+          origen: 'manual',
+          horas: hsNum,
+          horas_reales: hsNum,
+          horas_banco: hsNum,
+          concepto: `Franco banco de horas${francoObservacion ? ' — ' + francoObservacion : ''}`,
+          iniciativa_descuento: francoIniciativa,
+          saldo_resultante: nuevoSaldo,
+        })
+        .select()
+        .single(),
+      // Crear ausencia FRANCO_BH si existe el tipo
+      tipoFranco
+        ? supabase.from('ausencias_periodo').insert({
+            id_legajo: idLegajo,
+            id_empresa: idEmpresa,
+            id_tipo_ausencia: tipoFranco.id,
+            fecha_desde: francoFecha,
+            fecha_hasta: francoFecha,
+            observacion: francoObservacion || null,
+          })
+        : Promise.resolve({ error: null }),
+    ])
 
     if (err) { setError(traducirError(err.message)); setLoading(false); return }
     setMovimientos(prev => [data as Movimiento, ...prev])
