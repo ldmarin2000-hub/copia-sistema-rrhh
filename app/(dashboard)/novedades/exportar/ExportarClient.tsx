@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../../context/EmpresaContext'
-import { Download, ChevronDown, ChevronRight, FileText } from 'lucide-react'
+import Link from 'next/link'
+import { Download, FileText } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
@@ -54,11 +55,7 @@ export default function ExportarClient({
   const [cargando, setCargando] = useState(false)
   const [consultado, setConsultado] = useState(false)
 
-  // Configuración de liquidación
-  const [configOpen, setConfigOpen] = useState(false)
   const [configCodigos, setConfigCodigos] = useState<Record<string, string>>({})
-  const [configGuardando, setConfigGuardando] = useState(false)
-  const [configGuardado, setConfigGuardado] = useState(false)
 
   const obrasFiltradas = obras.filter(o => o.id_empresa === empresaActiva?.id)
   const adicionalesFiltrados = adicionales.filter(a => a.id_empresa === empresaActiva?.id)
@@ -96,44 +93,22 @@ export default function ExportarClient({
     return (p[clave] as number || 0) > 0
   }
 
-  // ── Conceptos de liquidación ──────────────────────────────
-  function getConceptosConfig() {
-    return [
-      { tipo: 'hs_normales',  label: 'Hs. Normales',   grupo: 'Horas' },
-      { tipo: 'hs_extra_50',  label: 'Hs. Extra 50%',  grupo: 'Horas' },
-      { tipo: 'hs_extra_100', label: 'Hs. Extra 100%', grupo: 'Horas' },
-      { tipo: 'hs_nocturnas', label: 'Hs. Nocturnas',  grupo: 'Horas' },
-      { tipo: 'feriados',     label: 'Feriados',        grupo: 'Otros' },
-      { tipo: 'vacaciones',   label: 'Vacaciones',      grupo: 'Otros' },
-      ...tiposAusencia.map(t => ({ tipo: `aus_${t.id}`, label: t.descripcion, grupo: 'Ausencias' })),
-      ...adicionalesFiltrados.map(a => ({ tipo: `adic_${a.id}`, label: a.descripcion, grupo: 'Adicionales' })),
-    ]
-  }
-
   useEffect(() => {
     if (!empresaActiva) return
     const supabase = createClient()
-    supabase.from('conceptos_liquidacion')
-      .select('tipo, codigo')
+    supabase.from('exportacion_config')
+      .select('concepto_fijo, tipo_ausencia_id, adicional_id, codigo')
       .eq('id_empresa', empresaActiva.id)
       .then(({ data }) => {
         const map: Record<string, string> = {}
-        for (const row of (data || [])) map[row.tipo] = row.codigo || ''
+        for (const row of (data || [])) {
+          if (row.concepto_fijo) map[row.concepto_fijo] = row.codigo || ''
+          else if (row.tipo_ausencia_id) map[`aus_${row.tipo_ausencia_id}`] = row.codigo || ''
+          else if (row.adicional_id) map[`adic_${row.adicional_id}`] = row.codigo || ''
+        }
         setConfigCodigos(map)
       })
   }, [empresaActiva?.id])
-
-  async function guardarConfig() {
-    if (!empresaActiva) return
-    setConfigGuardando(true)
-    const supabase = createClient()
-    const rows = Object.entries(configCodigos)
-      .map(([tipo, codigo]) => ({ id_empresa: empresaActiva.id, tipo, codigo: codigo.trim() }))
-    await supabase.from('conceptos_liquidacion').upsert(rows, { onConflict: 'id_empresa,tipo' })
-    setConfigGuardando(false)
-    setConfigGuardado(true)
-    setTimeout(() => setConfigGuardado(false), 2000)
-  }
 
   function exportarLiquidacion(formato: 'txt' | 'excel') {
     if (!filas.length) return
@@ -495,53 +470,11 @@ export default function ExportarClient({
         </button>
       </div>
 
-      {/* Configuración de liquidación */}
-      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', marginBottom: '20px' }}>
-        <div
-          onClick={() => setConfigOpen(!configOpen)}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', cursor: 'pointer', userSelect: 'none' as const }}
-        >
-          {configOpen ? <ChevronDown size={14} color="var(--c-text-secondary)" /> : <ChevronRight size={14} color="var(--c-text-secondary)" />}
-          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>Configuración de liquidación</span>
-          <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', marginLeft: '4px' }}>— conceptos del sistema de sueldos</span>
-        </div>
-        {configOpen && (
-          <div style={{ borderTop: '0.5px solid var(--c-border)', padding: '16px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0' }}>
-              {(() => {
-                const conceptos = getConceptosConfig()
-                const grupos = Array.from(new Set(conceptos.map(c => c.grupo)))
-                return grupos.map(grupo => (
-                  <div key={grupo} style={{ marginBottom: '16px', paddingRight: '24px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '8px' }}>{grupo}</div>
-                    {conceptos.filter(c => c.grupo === grupo).map(c => (
-                      <div key={c.tipo} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.label}</span>
-                        <input
-                          type="text"
-                          maxLength={4}
-                          value={configCodigos[c.tipo] || ''}
-                          onChange={e => setConfigCodigos(prev => ({ ...prev, [c.tipo]: e.target.value }))}
-                          placeholder="0000"
-                          style={{ width: '56px', padding: '4px 8px', background: 'var(--c-base)', border: '0.5px solid var(--c-border)', borderRadius: '4px', color: 'var(--c-text-primary)', fontSize: '12px', textAlign: 'center', fontFamily: 'monospace' }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ))
-              })()}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-              <button
-                onClick={guardarConfig}
-                disabled={configGuardando}
-                style={{ background: configGuardado ? 'var(--c-green-bg)' : 'var(--c-blue-bg)', border: `0.5px solid ${configGuardado ? 'var(--c-green)40' : 'var(--c-blue)40'}`, color: configGuardado ? 'var(--c-green)' : 'var(--c-blue)', borderRadius: '6px', padding: '6px 16px', fontSize: '12px', cursor: 'pointer' }}
-              >
-                {configGuardado ? '✓ Guardado' : configGuardando ? 'Guardando...' : 'Guardar configuración'}
-              </button>
-            </div>
-          </div>
-        )}
+      {/* Link configuración */}
+      <div style={{ marginBottom: '20px', textAlign: 'right' }}>
+        <Link href="/exportacion-config" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>
+          Configurar códigos →
+        </Link>
       </div>
 
       {/* Resumen */}
