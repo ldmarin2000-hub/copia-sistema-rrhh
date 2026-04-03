@@ -26,7 +26,8 @@ const maestras = [
   { href: '/tipos-ausencia',     label: 'Tipos de ausencia' },
   { href: '/feriados',           label: 'Feriados' },
   { href: '/epp-catalogo',       label: 'EPP catálogo' },
-  { href: '/metodos-vacaciones', label: 'Métodos de vacaciones' },
+  { href: '/metodos-vacaciones',  label: 'Métodos de vacaciones' },
+  { href: '/conceptos-bejerman', label: 'Conceptos Bejerman' },
   { href: '/exportacion-config', label: 'Config. exportación' },
 ]
 

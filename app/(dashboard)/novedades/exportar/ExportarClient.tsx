@@ -99,14 +99,16 @@ export default function ExportarClient({
     if (!empresaActiva) return
     const supabase = createClient()
     supabase.from('exportacion_config')
-      .select('concepto_fijo, tipo_ausencia_id, adicional_id, codigo')
+      .select('concepto_fijo, tipo_ausencia_id, adicional_id, codigo, conceptos_bejerman(codigo)')
       .eq('id_empresa', empresaActiva.id)
       .then(({ data }) => {
         const map: Record<string, string> = {}
         for (const row of (data || [])) {
-          if (row.concepto_fijo) map[row.concepto_fijo] = row.codigo || ''
-          else if (row.tipo_ausencia_id) map[`aus_${row.tipo_ausencia_id}`] = row.codigo || ''
-          else if (row.adicional_id) map[`adic_${row.adicional_id}`] = row.codigo || ''
+          // Preferir código del catálogo Bejerman; fallback al texto libre
+          const codigo = (row as any).conceptos_bejerman?.codigo ?? row.codigo ?? ''
+          if (row.concepto_fijo) map[row.concepto_fijo] = codigo
+          else if (row.tipo_ausencia_id) map[`aus_${row.tipo_ausencia_id}`] = codigo
+          else if (row.adicional_id) map[`adic_${row.adicional_id}`] = codigo
         }
         setConfigCodigos(map)
       })
