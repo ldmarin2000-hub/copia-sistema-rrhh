@@ -13,6 +13,7 @@ import DocumentosLegajoTab from './DocumentosLegajoTab'
 import NovedadesTab from './NovedadesTab'
 import BancoHorasTab from './BancoHorasTab'
 import { createClient } from '@/lib/supabase-browser'
+import { calcularAniosEfectivos, getDiasTramo } from '@/lib/vacaciones'
 import { useEmpresa } from '../../context/EmpresaContext'
 
 
@@ -160,6 +161,7 @@ export default function FichaClient({
   const [errorEdit, setErrorEdit] = useState('')
   const [mostrarNuevaAlta, setMostrarNuevaAlta] = useState(false)
   const [nuevaAltaFecha, setNuevaAltaFecha] = useState('')
+  const [alertaBajaVacaciones, setAlertaBajaVacaciones] = useState<{ mensaje: string; tipo: 'no_gozadas' | 'exceso' } | null>(null)
   const [nuevaAltaCatId, setNuevaAltaCatId] = useState('')
   const [nuevaAltaObraId, setNuevaAltaObraId] = useState('')
   const [nuevaAltaObs, setNuevaAltaObs] = useState('')
@@ -296,6 +298,55 @@ export default function FichaClient({
         })))
         setFechaDevolucionEpp(editForm.fecha_egreso)
         setMostrarChecklistEpp(true)
+      }
+
+      // Calcular vacaciones no gozadas al dar de baja
+      if (tramosVacaciones.length > 0) {
+        const fechaEgresoStr = editForm.fecha_egreso
+        const anoEgreso = new Date(fechaEgresoStr + 'T00:00:00').getFullYear()
+        const fechaBase = fechaReconocida ?? legajo.fecha_ingreso
+
+        // Días proporcionales: antigüedad al 31/12 del año anterior al egreso
+        const aniosEfectivos = calcularAniosEfectivos(fechaBase, `${anoEgreso - 1}-12-31`)
+        const diasTotalesAno = getDiasTramo(aniosEfectivos, tramosVacaciones)
+        const inicioAno = new Date(`${anoEgreso}-01-01T00:00:00`)
+        const egresoDate = new Date(fechaEgresoStr + 'T00:00:00')
+        const diasEnAno = Math.floor((egresoDate.getTime() - inicioAno.getTime()) / 86400000) + 1
+        const mesesTrabajados = Math.round(diasEnAno * 12 / 365)
+        const diasProporcionales = Math.round(diasTotalesAno * (mesesTrabajados / 12) * 10) / 10
+
+        // Días ya consumidos en el año de egreso
+        const { data: consumosAno } = await supabase
+          .from('vacaciones_cuenta_corriente')
+          .select('dias')
+          .eq('legajo_id', legajo.id)
+          .eq('tipo', 'consumo')
+          .eq('año_correspondiente', anoEgreso)
+        const diasConsumidos = Math.abs((consumosAno || []).reduce((s: number, m: any) => s + m.dias, 0))
+
+        const diferencia = Math.round((diasProporcionales - diasConsumidos) * 10) / 10
+
+        if (diferencia !== 0) {
+          const tipoMov = diferencia > 0 ? 'vacaciones_no_gozadas' : 'ajuste'
+          const obs = diferencia > 0
+            ? `Vacaciones no gozadas al egreso ${anoEgreso}: ${diasProporcionales}d proporcionales − ${diasConsumidos}d tomados`
+            : `Ajuste al egreso ${anoEgreso}: ${diasConsumidos}d tomados > ${diasProporcionales}d proporcionales`
+          await supabase.from('vacaciones_cuenta_corriente').insert({
+            legajo_id: legajo.id,
+            empresa_id: legajo.id_empresa,
+            tipo: tipoMov,
+            año_correspondiente: anoEgreso,
+            fecha_movimiento: fechaEgresoStr,
+            dias: diferencia,
+            observacion: obs,
+          })
+          setAlertaBajaVacaciones({
+            mensaje: diferencia > 0
+              ? `${diferencia} día${diferencia !== 1 ? 's' : ''} de vacaciones no gozadas a liquidar`
+              : `El empleado tomó ${Math.abs(diferencia)} día${Math.abs(diferencia) !== 1 ? 's' : ''} en exceso`,
+            tipo: diferencia > 0 ? 'no_gozadas' : 'exceso',
+          })
+        }
       }
     }
 
@@ -834,6 +885,19 @@ export default function FichaClient({
       {/* Tab: Historial */}
       {tabActiva === 'historial' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+          {/* Alerta vacaciones al dar baja */}
+          {alertaBajaVacaciones && (
+            <div style={{ background: alertaBajaVacaciones.tipo === 'no_gozadas' ? 'var(--c-orange-bg, #fff7ed)' : 'var(--c-red-bg)', border: `0.5px solid ${alertaBajaVacaciones.tipo === 'no_gozadas' ? 'var(--c-orange)' : 'var(--c-red)'}40`, borderRadius: '8px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: alertaBajaVacaciones.tipo === 'no_gozadas' ? 'var(--c-orange)' : 'var(--c-red)', margin: '0 0 2px' }}>
+                  {alertaBajaVacaciones.tipo === 'no_gozadas' ? 'Vacaciones no gozadas' : 'Exceso de vacaciones'}
+                </p>
+                <p style={{ fontSize: '12px', color: 'var(--c-text-secondary)', margin: 0 }}>{alertaBajaVacaciones.mensaje}</p>
+              </div>
+              <button onClick={() => setAlertaBajaVacaciones(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-muted)', flexShrink: 0 }}>✕</button>
+            </div>
+          )}
 
           {/* Historial laboral */}
           <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
