@@ -27,6 +27,7 @@ const maestras = [
   { href: '/feriados',           label: 'Feriados' },
   { href: '/epp-catalogo',       label: 'EPP catálogo' },
   { href: '/metodos-vacaciones', label: 'Métodos de vacaciones' },
+  { href: '/exportacion-config', label: 'Config. exportación' },
 ]
 
 const novedadesSubmenu = [
