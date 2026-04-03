@@ -59,7 +59,7 @@ function Card({
   href?: string
 }) {
   const inner = (
-    <div style={{ ...cardStyle, cursor: href ? 'pointer' : 'default' }}>
+    <div style={{ ...cardStyle, cursor: href ? 'pointer' : 'default', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
         <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{label}</span>
         <div style={{ background: bg, borderRadius: '6px', padding: '6px' }}>
@@ -67,7 +67,9 @@ function Card({
         </div>
       </div>
       <span style={{ fontSize: '28px', fontWeight: 500, color }}>{valor}</span>
-      {sub && <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', margin: '4px 0 0' }}>{sub}</p>}
+      <div style={{ height: '18px', marginTop: '4px' }}>
+        {sub && <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', margin: 0 }}>{sub}</p>}
+      </div>
     </div>
   )
   if (href) return <Link href={href} style={{ textDecoration: 'none' }}>{inner}</Link>
