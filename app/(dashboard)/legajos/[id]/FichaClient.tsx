@@ -315,36 +315,27 @@ export default function FichaClient({
         const mesesTrabajados = Math.round(diasEnAno * 12 / 365)
         const diasProporcionales = Math.round(diasTotalesAno * (mesesTrabajados / 12) * 10) / 10
 
-        // Días ya consumidos en el año de egreso
-        const { data: consumosAno } = await supabase
+        // Saldo global de la cuenta corriente
+        const { data: todosMovs } = await supabase
           .from('vacaciones_cuenta_corriente')
           .select('dias')
           .eq('legajo_id', legajo.id)
-          .eq('tipo', 'consumo')
-          .eq('año_correspondiente', anoEgreso)
-        const diasConsumidos = Math.abs((consumosAno || []).reduce((s: number, m: any) => s + m.dias, 0))
+        const saldoGlobal = Math.round((todosMovs || []).reduce((s: number, m: any) => s + m.dias, 0) * 10) / 10
 
-        const diferencia = Math.round((diasProporcionales - diasConsumidos) * 10) / 10
-
-        if (diferencia !== 0) {
-          const tipoMov = diferencia > 0 ? 'vacaciones_no_gozadas' : 'ajuste'
-          const obs = diferencia > 0
-            ? `Vacaciones no gozadas al egreso ${anoEgreso}: ${diasProporcionales}d proporcionales − ${diasConsumidos}d tomados`
-            : `Ajuste al egreso ${anoEgreso}: ${diasConsumidos}d tomados > ${diasProporcionales}d proporcionales`
+        // Si el saldo es >= 0 y hay días proporcionales, registrar vacaciones no gozadas
+        if (saldoGlobal >= 0 && diasProporcionales > 0) {
           await supabase.from('vacaciones_cuenta_corriente').insert({
             legajo_id: legajo.id,
             empresa_id: legajo.id_empresa,
-            tipo: tipoMov,
+            tipo: 'vacaciones_no_gozadas',
             año_correspondiente: anoEgreso,
             fecha_movimiento: fechaEgresoStr,
-            dias: diferencia,
-            observacion: obs,
+            dias: diasProporcionales,
+            observacion: `Vacaciones no gozadas al egreso ${anoEgreso}: ${diasProporcionales}d proporcionales`,
           })
           setAlertaBajaVacaciones({
-            mensaje: diferencia > 0
-              ? `${diferencia} día${diferencia !== 1 ? 's' : ''} de vacaciones no gozadas a liquidar`
-              : `El empleado tomó ${Math.abs(diferencia)} día${Math.abs(diferencia) !== 1 ? 's' : ''} en exceso`,
-            tipo: diferencia > 0 ? 'no_gozadas' : 'exceso',
+            mensaje: `${diasProporcionales} día${diasProporcionales !== 1 ? 's' : ''} de vacaciones no gozadas a liquidar`,
+            tipo: 'no_gozadas',
           })
         }
       }
