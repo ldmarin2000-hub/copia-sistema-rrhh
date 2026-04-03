@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../../context/EmpresaContext'
 import { ChevronRight, ChevronDown } from 'lucide-react'
+import { getFeriadosEfectivos } from '@/lib/feriados'
 
 type Obra = { id: number; id_empresa: number; nombre: string }
 type Adicional = { id: number; id_empresa: number; descripcion: string }
@@ -100,7 +101,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
       { data: adicsData },
       { data: ausData },
       { data: vacData },
-      { data: ferBase },
+      ferEfectivos,
       { data: legData },
     ] = await Promise.all([
       idsNovs.length > 0
@@ -114,25 +115,12 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
         .select('id_legajo, fecha_desde, fecha_hasta')
         .eq('id_empresa', empresaActiva.id)
         .lte('fecha_desde', hasta).gte('fecha_hasta', desde),
-      supabase.from('feriados')
-        .select('id, fecha, descripcion')
-        .eq('activo', true)
-        .gte('fecha', desde).lte('fecha', hasta),
+      getFeriadosEfectivos(supabase, desde, hasta, empresaActiva.id),
       idsLegajos.length > 0
         ? supabase.from('legajos').select('id, id_plantilla, id_categoria').in('id', idsLegajos)
         : { data: [] },
     ])
 
-    // Filtrar feriados por excepción empresa
-    let ferEfectivos: any[] = []
-    if (ferBase && ferBase.length > 0) {
-      const { data: excepciones } = await supabase
-        .from('feriados_empresa').select('id_feriado, trabaja')
-        .eq('id_empresa', empresaActiva.id)
-        .in('id_feriado', ferBase.map((f: any) => f.id))
-      const trabajaIds = new Set((excepciones || []).filter((e: any) => e.trabaja).map((e: any) => e.id_feriado))
-      ferEfectivos = ferBase.filter((f: any) => !trabajaIds.has(f.id))
-    }
 
     // Fetch plantillas y categorias para calcular días hábiles en ausencias
     const legajosArr = legData || []

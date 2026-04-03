@@ -8,7 +8,7 @@ export default async function MetodosVacaciones() {
     { data: tramos },
   ] = await Promise.all([
     supabase.from('metodos_vacaciones')
-      .select('id, id_empresa, nombre, activo')
+      .select('id, id_empresa, nombre, activo, tipo_dias')
       .order('id'),
     supabase.from('metodos_vacaciones_tramos')
       .select('id, id_metodo, anios_desde, anios_hasta, dias')
