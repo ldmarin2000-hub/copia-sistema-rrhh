@@ -25,6 +25,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
   const [feriados, setFeriados] = useState<any[]>([])
   const [historicoObras, setHistoricoObras] = useState<any[]>([])
   const [plantilla, setPlantilla] = useState<Record<string, number> | null>(null)
+  const [bhMovPeriodo, setBhMovPeriodo] = useState<any[]>([])
   const [cargando, setCargando] = useState(false)
 
   function getRango() {
@@ -104,10 +105,18 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
 
     if (novsData && novsData.length > 0) {
       const ids = novsData.map((n: any) => n.id)
-      const { data: adicsNov } = await supabase.from('novedades_adicionales').select('*').in('id_novedad', ids)
+      const [{ data: adicsNov }, { data: bhData }] = await Promise.all([
+        supabase.from('novedades_adicionales').select('*').in('id_novedad', ids),
+        supabase.from('banco_horas_movimientos')
+          .select('id, novedad_diaria_id, fecha, id_legajo, horas_banco, horas_reales, horas, recargo_tipo')
+          .in('novedad_diaria_id', ids)
+          .eq('tipo', 'acreditacion'),
+      ])
       setNovedadesAdicionales(adicsNov || [])
+      setBhMovPeriodo(bhData || [])
     } else {
       setNovedadesAdicionales([])
+      setBhMovPeriodo([])
     }
 
     setCargando(false)
@@ -171,6 +180,15 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
       if (!getAusenciaTipo(d, idTipo)) return false
       return cuentaDiasCorridos ? true : esDiaLaboral(d)
     }).length
+  }
+
+  function getBHMovimiento(fecha: string): any | null {
+    return bhMovPeriodo.find(m => String(m.fecha).slice(0, 10) === fecha) ?? null
+  }
+
+  function tieneBHRecargo(fecha: string, recargo: '50%' | '100%'): boolean {
+    const mov = getBHMovimiento(fecha)
+    return !!(mov && mov.recargo_tipo === recargo)
   }
 
   const FILAS_HORAS = [
@@ -259,6 +277,16 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
             const adicionalesConDatosObra = adicionales.filter(a =>
               novedadesAdicionales.some(na => na.id_adicional === a.id && idsNovObra.has(na.id_novedad))
             )
+            // BH: mapas fecha→hs precomputados para esta obra
+            const bh50PorFecha = new Map<string, number>()
+            const bh100PorFecha = new Map<string, number>()
+            bhMovPeriodo.forEach(m => {
+              const f = String(m.fecha).slice(0, 10)
+              if (!novsObra.some((n: any) => n.fecha === f)) return
+              const hs = Number(m.horas_reales) || Number(m.horas) || 0
+              if (m.recargo_tipo === '50%') bh50PorFecha.set(f, hs)
+              if (m.recargo_tipo === '100%') bh100PorFecha.set(f, hs)
+            })
 
             return (
               <div key={idObra ?? 'sin-obra'}>
@@ -295,7 +323,10 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                     <tbody>
                       {/* Filas de horas */}
                       {FILAS_HORAS.map((fila, fi) => {
-                        const total = totalHoras(fila.key, novsObra)
+                        const bhMap = fila.key === 'hs_extra_50' ? bh50PorFecha : fila.key === 'hs_extra_100' ? bh100PorFecha : null
+                        const total = bhMap
+                          ? novsObra.reduce((sum: number, n: any) => sum + (bhMap.has(n.fecha) ? 0 : (n[fila.key] || 0)), 0)
+                          : totalHoras(fila.key, novsObra)
                         if (total === 0 && fila.key !== 'hs_normales') return null
                         return (
                           <tr key={fila.key} style={{ background: fi % 2 === 0 ? 'transparent' : 'var(--c-weekend-bg)40' }}>
@@ -307,7 +338,8 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                               const val = nov?.[fila.key] || 0
                               const ausencia = getAusencia(fecha)
                               const vac = enVacaciones(fecha)
-                              const celda = ausencia ? null : vac ? null : val > 0 ? val : null
+                              const skipBH = bhMap ? bhMap.has(fecha) : false
+                              const celda = ausencia ? null : vac ? null : skipBH ? null : val > 0 ? val : null
                               return (
                                 <td key={fecha} style={tdDia(fecha, celda, fila.key !== 'hs_normales' && val > 0 ? 'var(--c-blue)' : undefined)}>
                                   {celda !== null ? celda : <span style={{ color: 'var(--c-elevated)' }}>—</span>}
@@ -320,6 +352,52 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
                           </tr>
                         )
                       })}
+
+                      {/* Hs. Banco de Horas 50% y 100% */}
+                      {(() => {
+                        const totalBH50 = Array.from(bh50PorFecha.values()).reduce((s, h) => s + h, 0)
+                        const totalBH100 = Array.from(bh100PorFecha.values()).reduce((s, h) => s + h, 0)
+                        return (
+                          <>
+                            {totalBH50 > 0 && (
+                              <tr key="bh-50">
+                                <td style={{ padding: '7px 14px', color: 'var(--c-purple, #a78bfa)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: 'var(--c-surface)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
+                                  Hs. Banco de Horas 50%
+                                </td>
+                                {dias.map(fecha => {
+                                  const hs = bh50PorFecha.get(fecha) || 0
+                                  return (
+                                    <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', fontSize: '12px', borderBottom: '0.5px solid var(--c-elevated)' }}>
+                                      {hs > 0 ? <span style={{ color: 'var(--c-purple, #a78bfa)' }}>{hs}</span> : <span style={{ color: 'var(--c-elevated)' }}>—</span>}
+                                    </td>
+                                  )
+                                })}
+                                <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-purple, #a78bfa)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: 'var(--c-surface)' }}>
+                                  {totalBH50}
+                                </td>
+                              </tr>
+                            )}
+                            {totalBH100 > 0 && (
+                              <tr key="bh-100">
+                                <td style={{ padding: '7px 14px', color: 'var(--c-purple, #a78bfa)', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: 'var(--c-surface)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)' }}>
+                                  Hs. Banco de Horas 100%
+                                </td>
+                                {dias.map(fecha => {
+                                  const hs = bh100PorFecha.get(fecha) || 0
+                                  return (
+                                    <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', fontSize: '12px', borderBottom: '0.5px solid var(--c-elevated)' }}>
+                                      {hs > 0 ? <span style={{ color: 'var(--c-purple, #a78bfa)' }}>{hs}</span> : <span style={{ color: 'var(--c-elevated)' }}>—</span>}
+                                    </td>
+                                  )
+                                })}
+                                <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-purple, #a78bfa)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: 'var(--c-surface)' }}>
+                                  {totalBH100}
+                                </td>
+                              </tr>
+                            )}
+                          </>
+                        )
+                      })()}
 
                       {/* Filas de adicionales */}
                       {adicionalesConDatosObra.map((adic) => {
@@ -348,12 +426,43 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
 
                       {/* Filas por tipo de ausencia — solo días que corresponden a esta obra */}
                       {tiposEnPeriodo.map(tipo => {
-                        const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
+                        const esFrancoBH = tipo.codigo === 'FRANCO_BH'
                         const diasTipoObra = dias.filter(d => {
                           if (!getAusenciaTipo(d, tipo.id)) return false
                           return getObraIdParaFecha(d) === idObra
                         })
                         if (diasTipoObra.length === 0) return null
+
+                        if (esFrancoBH) {
+                          // Franco BH: mostrar horas (de observacion), nunca días
+                          const totalHsFranco = diasTipoObra.reduce((s: number, d: string) => {
+                            const aus = ausencias.find((a: any) => a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= d && a.fecha_hasta >= d)
+                            return s + (parseFloat((aus as any)?.observacion) || 0)
+                          }, 0)
+                          return (
+                            <tr key={`aus-${tipo.id}`}>
+                              <td style={{ padding: '7px 14px', fontSize: '12px', fontWeight: 500, position: 'sticky', left: 0, background: 'var(--c-surface)', zIndex: 1, borderBottom: '0.5px solid var(--c-elevated)', color: 'var(--c-purple, #a78bfa)' }}>
+                                Franco Banco de Horas
+                              </td>
+                              {dias.map(fecha => {
+                                const aus = getAusenciaTipo(fecha, tipo.id)
+                                const esEstaObra = getObraIdParaFecha(fecha) === idObra
+                                if (!aus || !esEstaObra) return <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', borderBottom: '0.5px solid var(--c-elevated)' }}><span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span></td>
+                                const hs = parseFloat((aus as any).observacion) || null
+                                return (
+                                  <td key={fecha} style={{ padding: '5px 2px', textAlign: 'center', borderBottom: '0.5px solid var(--c-elevated)' }}>
+                                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--c-purple, #a78bfa)' }}>{hs != null ? `${hs}h` : 'BH'}</span>
+                                  </td>
+                                )
+                              })}
+                              <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: 600, color: 'var(--c-purple, #a78bfa)', fontSize: '13px', borderBottom: '0.5px solid var(--c-elevated)', borderLeft: '0.5px solid var(--c-border)', position: 'sticky', right: 0, background: 'var(--c-surface)' }}>
+                                {totalHsFranco > 0 ? `${totalHsFranco}h` : `${diasTipoObra.length}×BH`}
+                              </td>
+                            </tr>
+                          )
+                        }
+
+                        const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
                         const totalAus = diasTipoObra.filter(d => cuentaCorridos ? true : esDiaLaboral(d)).length
                         return (
                           <tr key={`aus-${tipo.id}`}>

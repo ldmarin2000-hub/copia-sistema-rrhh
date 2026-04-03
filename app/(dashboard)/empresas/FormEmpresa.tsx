@@ -353,6 +353,7 @@ export default function FormEmpresa({ empresaEditar, onCerrar }: Props) {
           </div>
         </div>
 
+
         {/* Footer */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
           {onCerrar && (

@@ -159,7 +159,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
     if (idsNovs.length > 0) {
       const { data: bhData } = await supabase
         .from('banco_horas_movimientos')
-        .select('id, novedad_diaria_id, horas_banco, horas_reales, horas, recargo_tipo')
+        .select('id, novedad_diaria_id, fecha, id_legajo, horas_banco, horas_reales, horas, recargo_tipo')
         .in('novedad_diaria_id', idsNovs)
         .eq('tipo', 'acreditacion')
       bhMovs = bhData || []
@@ -242,13 +242,11 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
   }
 
   function getBHMovimiento(idLegajo: number, fecha: string): any | null {
-    const nov = getNov(idLegajo, fecha)
-    if (!nov) return null
-    return bhMovPeriodo.find(m => m.novedad_diaria_id === nov.id) ?? null
+    return bhMovPeriodo.find(m => m.id_legajo === idLegajo && String(m.fecha).slice(0, 10) === fecha) ?? null
   }
 
-  // Retorna true si el día tiene acreditación BH del recargo indicado ('50' o '100')
-  function tieneBHRecargo(idLegajo: number, fecha: string, recargo: '50' | '100'): boolean {
+  // Retorna true si el día tiene acreditación BH del recargo indicado ('50%' o '100%')
+  function tieneBHRecargo(idLegajo: number, fecha: string, recargo: '50%' | '100%'): boolean {
     const mov = getBHMovimiento(idLegajo, fecha)
     return !!(mov && mov.recargo_tipo === recargo)
   }
@@ -432,21 +430,28 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                       const isLast = empIdx === empleados.length - 1
                       const sepStyle = { borderBottom: '0.5px solid var(--c-elevated)' }
 
-                      // BH: acreditaciones de este legajo en el período
-                      const bhMovsLegajo = bhMovPeriodo.filter(m => {
-                        const nov = novedades.find(n => n.id === m.novedad_diaria_id && n.id_legajo === idLegajo)
-                        return !!nov
+                      // BH: acreditaciones de este legajo — mapa fecha→movimiento para lookup directo
+                      const bhMovsLegajo = bhMovPeriodo.filter(m => m.id_legajo === idLegajo)
+                      const bh50PorFecha = new Map<string, number>()
+                      const bh100PorFecha = new Map<string, number>()
+                      const fechasConBH50 = new Set<string>()
+                      const fechasConBH100 = new Set<string>()
+                      bhMovsLegajo.forEach(m => {
+                        const f = String(m.fecha).slice(0, 10)
+                        const hs = Number(m.horas_reales) || Number(m.horas) || 0
+                        if (m.recargo_tipo === '50%') { bh50PorFecha.set(f, hs); fechasConBH50.add(f) }
+                        if (m.recargo_tipo === '100%') { bh100PorFecha.set(f, hs); fechasConBH100.add(f) }
                       })
-                      // horas_reales por recargo (lo que efectivamente trabajó, no lo convertido al banco)
-                      const totalBH50Real = bhMovsLegajo.filter(m => m.recargo_tipo === '50').reduce((s, m) => s + (m.horas_reales ?? m.horas ?? 0), 0)
-                      const totalBH100Real = bhMovsLegajo.filter(m => m.recargo_tipo === '100').reduce((s, m) => s + (m.horas_reales ?? m.horas ?? 0), 0)
-                      // extra que NO fue al banco
-                      const totalExtra50Real = novedades.filter(n => n.id_legajo === idLegajo).reduce((s, n) => {
-                        const bh = bhMovPeriodo.find(m => m.novedad_diaria_id === n.id && m.recargo_tipo === '50')
+                      const totalBH50Real = Array.from(bh50PorFecha.values()).reduce((s, h) => s + h, 0)
+                      const totalBH100Real = Array.from(bh100PorFecha.values()).reduce((s, h) => s + h, 0)
+                      // extra que NO fue al banco (por novedad_diaria_id)
+                      const novsLegajo = novedades.filter(n => n.id_legajo === idLegajo)
+                      const totalExtra50Real = novsLegajo.reduce((s, n) => {
+                        const bh = bhMovPeriodo.find(m => m.novedad_diaria_id === n.id && m.recargo_tipo === '50%')
                         return s + (bh ? 0 : (n.hs_extra_50 || 0))
                       }, 0)
-                      const totalExtra100Real = novedades.filter(n => n.id_legajo === idLegajo).reduce((s, n) => {
-                        const bh = bhMovPeriodo.find(m => m.novedad_diaria_id === n.id && m.recargo_tipo === '100')
+                      const totalExtra100Real = novsLegajo.reduce((s, n) => {
+                        const bh = bhMovPeriodo.find(m => m.novedad_diaria_id === n.id && m.recargo_tipo === '100%')
                         return s + (bh ? 0 : (n.hs_extra_100 || 0))
                       }, 0)
 
@@ -494,7 +499,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_50 || 0
                           if (val <= 0) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
-                          return tieneBHRecargo(idLegajo, fecha, '50')
+                          return fechasConBH50.has(fecha)
                             ? <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                             : <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span>
                         },
@@ -506,9 +511,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                       if (totalBH50Real > 0) conceptos.push(filaConcepto(
                         'Hs. Banco de Horas 50%', 'var(--c-purple, #a78bfa)', 'var(--c-weekend-bg)',
                         fecha => {
-                          const mov = getBHMovimiento(idLegajo, fecha)
-                          if (!mov || mov.recargo_tipo !== '50') return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
-                          const hs = mov.horas_reales ?? mov.horas ?? 0
+                          const hs = bh50PorFecha.get(fecha) || 0
                           return hs > 0
                             ? <span style={{ color: 'var(--c-purple, #a78bfa)', fontSize: '12px' }}>{hs}</span>
                             : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
@@ -524,7 +527,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_100 || 0
                           if (val <= 0) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
-                          return tieneBHRecargo(idLegajo, fecha, '100')
+                          return fechasConBH100.has(fecha)
                             ? <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
                             : <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span>
                         },
@@ -536,9 +539,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                       if (totalBH100Real > 0) conceptos.push(filaConcepto(
                         'Hs. Banco de Horas 100%', 'var(--c-purple, #a78bfa)', 'var(--c-weekend-bg)',
                         fecha => {
-                          const mov = getBHMovimiento(idLegajo, fecha)
-                          if (!mov || mov.recargo_tipo !== '100') return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
-                          const hs = mov.horas_reales ?? mov.horas ?? 0
+                          const hs = bh100PorFecha.get(fecha) || 0
                           return hs > 0
                             ? <span style={{ color: 'var(--c-purple, #a78bfa)', fontSize: '12px' }}>{hs}</span>
                             : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>

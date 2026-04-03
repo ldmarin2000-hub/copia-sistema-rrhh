@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
@@ -13,10 +14,13 @@ type Convenio = {
   codigo: string
   descripcion: string
   activo: boolean
+  id_metodo_vacaciones?: number | null
   empresas: { razon_social: string }
 }
 
-export default function ConveniosClient({ convenios }: { convenios: Convenio[] }) {
+type Metodo = { id: number; nombre: string }
+
+export default function ConveniosClient({ convenios, metodos }: { convenios: Convenio[]; metodos: Metodo[] }) {
   const router = useRouter()
   const { empresaActiva } = useEmpresa()
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -26,6 +30,7 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [activo, setActivo] = useState(editando?.activo ?? true)
+  const [idMetodoVacaciones, setIdMetodoVacaciones] = useState<number | null>(null)
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -62,6 +67,7 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
     setError('')
     setMostrarForm(true)
     setActivo(true)
+    setIdMetodoVacaciones(null)
   }
 
   function abrirEditar(convenio: Convenio) {
@@ -71,6 +77,7 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
     setError('')
     setMostrarForm(true)
     setActivo(convenio.activo)
+    setIdMetodoVacaciones(convenio.id_metodo_vacaciones ?? null)
   }
 
   function cerrar() {
@@ -84,16 +91,13 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
     setError('')
     const supabase = createClient()
 
+    const datos = { codigo, descripcion, activo, id_metodo_vacaciones: idMetodoVacaciones }
+
     if (editando) {
-      const { error } = await supabase
-        .from('convenios')
-        .update({ codigo, descripcion, activo })
-        .eq('id', editando.id)
+      const { error } = await supabase.from('convenios').update(datos).eq('id', editando.id)
       if (error) { setError(traducirError(error.message)); setLoading(false); return }
     } else {
-      const { error } = await supabase
-        .from('convenios')
-        .insert({ id_empresa: empresaActiva.id, codigo, descripcion, activo })
+      const { error } = await supabase.from('convenios').insert({ ...datos, id_empresa: empresaActiva.id })
       if (error) { setError(traducirError(error.message)); setLoading(false); return }
     }
 
@@ -165,6 +169,23 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
                   style={inputStyle}
                 />
               </div>
+              {metodos.length > 0 && (
+                <div>
+                  <label style={{ fontSize: '12px', color: 'var(--c-text-secondary)', display: 'block', marginBottom: '4px' }}>Método de vacaciones</label>
+                  <select
+                    value={idMetodoVacaciones ?? ''}
+                    onChange={e => setIdMetodoVacaciones(e.target.value ? parseInt(e.target.value) : null)}
+                    style={{
+                      width: '100%', padding: '7px 10px', borderRadius: '6px',
+                      background: 'var(--c-base)', border: '0.5px solid var(--c-border)',
+                      color: 'var(--c-text-primary)', fontSize: '13px',
+                    }}
+                  >
+                    <option value="">Sin método asignado</option>
+                    {metodos.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                  </select>
+                </div>
+              )}
               {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
             </div>
 
@@ -261,6 +282,7 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
                   </th>
                 ))}
                 <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Estado</th>
+                <th style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>Vacaciones</th>
                 <th style={{ padding: '10px 16px' }}></th>
               </tr>
             </thead>
@@ -284,6 +306,11 @@ export default function ConveniosClient({ convenios }: { convenios: Convenio[] }
                     }}>
                       {convenio.activo ? 'Activo' : 'Inactivo'}
                     </span>
+                  </td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)', fontSize: '12px' }}>
+                    {convenio.id_metodo_vacaciones
+                      ? (metodos.find(m => m.id === convenio.id_metodo_vacaciones)?.nombre ?? '—')
+                      : '—'}
                   </td>
                   <td style={{ padding: '10px 16px', textAlign: 'right' }}>
                     <button onClick={() => abrirEditar(convenio)} style={{

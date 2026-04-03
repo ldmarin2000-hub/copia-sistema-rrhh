@@ -55,6 +55,9 @@ type FilaNovedad = {
   mostrarAdicionales: boolean
   ausenciaActiva?: { codigo: string, descripcion: string } | null
   enVacaciones?: boolean
+  tieneAcuerdoBH?: boolean
+  francoBH?: boolean
+  francoBHHoras?: number | null
 }
 
 type Plantilla = {
@@ -227,11 +230,27 @@ export default function NovedadesClient({
           .in('id_novedad', idsNovedades)
       : { data: [] }
 
+    const { data: acuerdosBH } = await supabase
+      .from('banco_horas_acuerdos')
+      .select('legajo_id')
+      .in('legajo_id', idsLegajos)
+      .eq('activo', true)
+      .lte('fecha_inicio', fecha)
+      .or(`fecha_fin.is.null,fecha_fin.gte.${fecha}`)
+
+    const idsConAcuerdoBH = new Set((acuerdosBH || []).map((a: any) => a.legajo_id))
+
     const diaSemana = new Date(fecha + 'T00:00:00').getDay()
 
     const nuevasFilas: FilaNovedad[] = empleadosObra.map(emp => {
       const existente = existentes?.find(n => n.id_legajo === emp.id)
-      const ausenciaDelDia = ausenciasActivas?.find(a => a.id_legajo === emp.id)
+      // FRANCO_BH es parcial: no se trata como ausencia total
+      const ausenciaDelDia = ausenciasActivas?.find(
+        a => a.id_legajo === emp.id && a.tipos_ausencia?.codigo !== 'FRANCO_BH'
+      )
+      const francoBHDelDia = ausenciasActivas?.find(
+        a => a.id_legajo === emp.id && a.tipos_ausencia?.codigo === 'FRANCO_BH'
+      )
       const vacacionDelDia = vacacionesActivas?.find(v => v.id_legajo === emp.id)
       const tieneAusenciaOVacacion = !existente && (!!ausenciaDelDia || !!vacacionDelDia)
       const aplicaFeriado = !existente && esFeriado && !ausenciaDelDia && !vacacionDelDia
@@ -265,6 +284,9 @@ export default function NovedadesClient({
           ? { codigo: ausenciaDelDia.tipos_ausencia.codigo, descripcion: ausenciaDelDia.tipos_ausencia.descripcion }
           : null,
         enVacaciones: !!vacacionDelDia,
+        tieneAcuerdoBH: idsConAcuerdoBH.has(emp.id),
+        francoBH: !!francoBHDelDia,
+        francoBHHoras: francoBHDelDia ? parseFloat(francoBHDelDia.observacion) || null : null,
       }
     })
 
@@ -332,6 +354,31 @@ export default function NovedadesClient({
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
+    // Pre-fetch acuerdos BH y config empresa para empleados con acuerdo activo
+    const idsConBH = filas.filter(f => f.tieneAcuerdoBH).map(f => f.id_legajo)
+    let acuerdosBHMap: Record<number, { modalidad: string }> = {}
+
+    if (idsConBH.length > 0) {
+      const [{ data: acuerdos }, { data: cfgEmpresa }] = await Promise.all([
+        supabase.from('banco_horas_acuerdos')
+          .select('legajo_id, modalidad')
+          .in('legajo_id', idsConBH)
+          .eq('activo', true)
+          .lte('fecha_inicio', fecha)
+          .or(`fecha_fin.is.null,fecha_fin.gte.${fecha}`),
+        supabase.from('banco_horas_config_empresa')
+          .select('modalidad')
+          .eq('empresa_id', empresaActiva.id)
+          .maybeSingle(),
+      ])
+      const modalidadEmpresa = (cfgEmpresa as any)?.modalidad ?? 'nominal'
+      for (const a of (acuerdos || [])) {
+        acuerdosBHMap[a.legajo_id] = {
+          modalidad: a.modalidad === 'hereda_empresa' ? modalidadEmpresa : a.modalidad,
+        }
+      }
+    }
+
     let errores = 0
 
     for (const fila of filas) {
@@ -358,6 +405,35 @@ export default function NovedadesClient({
         .single()
 
       if (error) { errores++; continue }
+
+      // Banco de horas: acreditar extras si el empleado tiene acuerdo activo
+      if (novedad && fila.tieneAcuerdoBH && acuerdosBHMap[fila.id_legajo]) {
+        const hsExtra50 = parseFloat(fila.hs_extra_50) || 0
+        const hsExtra100 = parseFloat(fila.hs_extra_100) || 0
+        if (hsExtra50 > 0 || hsExtra100 > 0) {
+          const modalidad = acuerdosBHMap[fila.id_legajo].modalidad
+          // recargo_tipo: el tipo dominante (en la práctica nunca hay ambos el mismo día)
+          const recargo_tipo = hsExtra50 > 0 ? '50%' : '100%'
+          const hsReales = hsExtra50 + hsExtra100
+          const hsBanco = modalidad === 'proporcional'
+            ? hsExtra50 * 1.5 + hsExtra100 * 2
+            : hsReales
+
+          await supabase.from('banco_horas_movimientos').upsert({
+            id_legajo: fila.id_legajo,
+            id_empresa: empresaActiva.id,
+            fecha,
+            tipo: 'acreditacion',
+            origen: 'novedad_diaria',
+            recargo_tipo,
+            horas: hsBanco,
+            horas_reales: hsReales,
+            horas_banco: hsBanco,
+            concepto: `Horas extras — ${modalidad}${hsExtra50 > 0 ? ` · ${hsExtra50}h al 50%` : ''}${hsExtra100 > 0 ? ` · ${hsExtra100}h al 100%` : ''}`,
+            novedad_diaria_id: novedad.id,
+          }, { onConflict: 'novedad_diaria_id' })
+        }
+      }
 
       // Guardar adicionales: siempre borrar los anteriores y reinsertar
       if (novedad) {
@@ -533,6 +609,12 @@ export default function NovedadesClient({
             ) : feriadoDelDia ? (
               <span style={{ background: 'rgba(224,123,57,0.15)', color: 'var(--c-orange-alt)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>FER</span>
             ) : null}
+            {fila.francoBH && (
+              <span style={{ background: 'rgba(156,97,249,0.15)', color: '#9c61f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }} title={fila.francoBHHoras ? `Franco banco de horas: ${fila.francoBHHoras}h` : 'Franco banco de horas'}>FRANCO BH</span>
+            )}
+            {!fila.francoBH && fila.tieneAcuerdoBH && (
+              <span style={{ background: 'rgba(156,97,249,0.15)', color: '#9c61f9', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }} title="Banco de horas activo">BH</span>
+            )}
           </div>
         </td>
 
