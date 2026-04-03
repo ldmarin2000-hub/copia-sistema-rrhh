@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../../context/EmpresaContext'
 import { Download, ChevronDown, ChevronRight, FileText } from 'lucide-react'
+import { getFeriadosEfectivos } from '@/lib/feriados'
 import * as XLSX from 'xlsx'
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
@@ -215,24 +216,8 @@ export default function ExportarClient({
     const idsLegajos = (legajosData || []).map((l: any) => l.id)
     if (idsLegajos.length === 0) { setFilas([]); setCargando(false); setConsultado(true); return }
 
-    // Feriados del período (filtrando por excepción empresa)
-    const { data: ferBase } = await supabase
-      .from('feriados')
-      .select('id, fecha, descripcion')
-      .eq('activo', true)
-      .gte('fecha', desde)
-      .lte('fecha', hasta)
-
-    let feriadosEfectivos: { id: number; fecha: string; descripcion: string }[] = []
-    if (ferBase && ferBase.length > 0) {
-      const { data: excepciones } = await supabase
-        .from('feriados_empresa')
-        .select('id_feriado, trabaja')
-        .eq('id_empresa', empresaActiva.id)
-        .in('id_feriado', ferBase.map((f: any) => f.id))
-      const trabajaIds = new Set((excepciones || []).filter((e: any) => e.trabaja).map((e: any) => e.id_feriado))
-      feriadosEfectivos = ferBase.filter((f: any) => !trabajaIds.has(f.id))
-    }
+    // Feriados del período (nacionales + propios, respetando excepciones empresa)
+    const feriadosEfectivos = await getFeriadosEfectivos(supabase, desde, hasta, empresaActiva.id)
     const feriadosFechas = new Set(feriadosEfectivos.map(f => f.fecha))
     setFeriadosDelPeriodo(feriadosEfectivos)
 

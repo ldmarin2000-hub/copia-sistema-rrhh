@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase-browser'
+import { getFeriadosEfectivos } from '@/lib/feriados'
 
 type Props = {
   idLegajo: number
@@ -58,7 +59,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
       { data: novsData },
       { data: ausData },
       { data: vacData },
-      { data: ferData },
+      ferEfectivos,
       { data: legData },
       { data: histObrasData },
     ] = await Promise.all([
@@ -66,7 +67,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
       supabase.from('novedades_diarias').select('*, obras(nombre)').eq('id_legajo', idLegajo).gte('fecha', desde).lte('fecha', hasta).order('fecha'),
       supabase.from('ausencias_periodo').select('*, tipos_ausencia(id, codigo, descripcion, cuenta_dias_corridos)').eq('id_legajo', idLegajo).lte('fecha_desde', hasta).gte('fecha_hasta', desde),
       supabase.from('vacaciones_periodo').select('*').eq('id_legajo', idLegajo).lte('fecha_desde', hasta).gte('fecha_hasta', desde),
-      supabase.from('feriados').select('id, fecha, descripcion').eq('activo', true).gte('fecha', desde).lte('fecha', hasta),
+      getFeriadosEfectivos(supabase, desde, hasta, idEmpresa),
       supabase.from('legajos').select('id_plantilla, id_categoria, categorias(id_plantilla)').eq('id', idLegajo).single(),
       supabase.from('legajos_historico_obras').select('id_obra, fecha_desde, fecha_hasta').eq('id_legajo', idLegajo).lte('fecha_desde', hasta).or(`fecha_hasta.is.null,fecha_hasta.gte.${desde}`).order('fecha_desde'),
     ])
@@ -77,19 +78,7 @@ export default function NovedadesTab({ idLegajo, idEmpresa }: Props) {
     setVacaciones(vacData || [])
     setHistoricoObras(histObrasData || [])
 
-    // Filtrar feriados donde la empresa tiene excepción "trabaja = true"
-    const feriadosBase = ferData || []
-    if (feriadosBase.length > 0) {
-      const { data: excepciones } = await supabase
-        .from('feriados_empresa')
-        .select('id_feriado, trabaja')
-        .eq('id_empresa', idEmpresa)
-        .in('id_feriado', feriadosBase.map((f: any) => f.id))
-      const trabajaIds = new Set((excepciones || []).filter((e: any) => e.trabaja).map((e: any) => e.id_feriado))
-      setFeriados(feriadosBase.filter((f: any) => !trabajaIds.has(f.id)))
-    } else {
-      setFeriados([])
-    }
+    setFeriados(ferEfectivos)
 
     const plantillaId = legData?.id_plantilla || (legData?.categorias as any)?.id_plantilla
     if (plantillaId) {

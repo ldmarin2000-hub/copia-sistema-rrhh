@@ -1,6 +1,7 @@
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import FichaClient from './FichaClient'
+import { getFeriadosEfectivos } from '@/lib/feriados'
 
 export default async function FichaLegajo({
   params
@@ -26,7 +27,6 @@ export default async function FichaLegajo({
     { data: eppTalles },
     { data: eppHabitual },
     { data: documentos },
-    { data: feriadosData },
     { data: bancoHoras },
   ] = await Promise.all([
     supabase.from('legajos')
@@ -79,8 +79,6 @@ export default async function FichaLegajo({
       .select('*')
       .eq('id_legajo', id)
       .order('created_at', { ascending: false }),
-    supabase.from('feriados')
-      .select('fecha'),
     supabase.from('banco_horas_movimientos')
       .select('id, fecha, tipo, origen, horas, horas_reales, horas_banco, concepto, iniciativa_descuento, saldo_resultante')
       .eq('id_legajo', id)
@@ -89,7 +87,7 @@ export default async function FichaLegajo({
 
   if (!legajo) notFound()
 
-  const [{ data: acuerdoBH }, { data: configBH }] = await Promise.all([
+  const [{ data: acuerdoBH }, { data: configBH }, feriadosEfectivos] = await Promise.all([
     supabase.from('banco_horas_acuerdos')
       .select('id, fecha_inicio, fecha_fin, activo, modalidad, observacion')
       .eq('legajo_id', id)
@@ -101,9 +99,10 @@ export default async function FichaLegajo({
       .select('modalidad, tope_mensual_horas, tope_anual_horas, tope_acumulado_banco')
       .eq('empresa_id', legajo.id_empresa)
       .maybeSingle(),
+    getFeriadosEfectivos(supabase, '2020-01-01', '2030-12-31', legajo.id_empresa),
   ])
 
-  const feriados = (feriadosData || []).map((f: any) => f.fecha as string)
+  const feriados = (feriadosEfectivos || []).map((f) => f.fecha)
   const fechaReconocida: string | undefined = (legajo as any).fecha_reconocida ?? undefined
 
   // Baja date from historial laboral

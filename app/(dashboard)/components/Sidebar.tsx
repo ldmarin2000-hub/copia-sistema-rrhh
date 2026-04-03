@@ -24,7 +24,7 @@ const maestras = [
   { href: '/adicionales',        label: 'Adicionales' },
   { href: '/plantillas-jornada', label: 'Plantillas jornada' },
   { href: '/tipos-ausencia',     label: 'Tipos de ausencia' },
-  { href: '/feriados',           label: 'Feriados' },
+  { href: '/feriados-empresa',   label: 'Feriados de la empresa' },
   { href: '/epp-catalogo',       label: 'EPP catálogo' },
   { href: '/metodos-vacaciones', label: 'Métodos de vacaciones' },
 ]
@@ -59,7 +59,7 @@ export default function Sidebar() {
   const { rol, esSuperadmin } = useEmpresa()
 
   const enNovedades = pathname.startsWith('/novedades')
-  const adminAbierta = administracion.some(i => pathname.startsWith(i.href))
+  const adminAbierta = administracion.some(i => pathname.startsWith(i.href)) || pathname.startsWith('/feriados') && !pathname.startsWith('/feriados-empresa')
   const maestrasAbiertas = maestras.some(i => pathname.startsWith(i.href))
 
   const [adminOpen, setAdminOpen] = useState(adminAbierta)
@@ -144,6 +144,14 @@ export default function Sidebar() {
                   </div>
                 </Link>
               ))}
+              {esSuperadmin && (
+                <Link href="/feriados" style={{ textDecoration: 'none' }}>
+                  <div style={itemStyle('/feriados')}>
+                    <Calendar size={15} color={activo('/feriados') ? 'var(--c-blue)' : 'var(--c-text-secondary)'} />
+                    <span style={labelStyle('/feriados')}>Feriados</span>
+                  </div>
+                </Link>
+              )}
             </div>
           )}
         </div>

@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
 import { Search, ChevronDown, ChevronUp } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
+import { getFeriadoDelDia } from '@/lib/feriados'
 
 type Legajo = {
   id: number
@@ -176,26 +177,9 @@ export default function NovedadesClient({
     }
 
     // Verificar si el día es feriado para esta empresa
-    const { data: feriadoData } = await supabase
-      .from('feriados')
-      .select('id, descripcion, tipo')
-      .eq('fecha', fecha)
-      .eq('activo', true)
-      .maybeSingle()
-
-    let esFeriado = false
-    if (feriadoData) {
-      const { data: excepcion } = await supabase
-        .from('feriados_empresa')
-        .select('trabaja')
-        .eq('id_empresa', empresaActiva.id)
-        .eq('id_feriado', feriadoData.id)
-        .maybeSingle()
-      esFeriado = !excepcion?.trabaja
-      setFeriadoDelDia(esFeriado ? { descripcion: feriadoData.descripcion, tipo: feriadoData.tipo } : null)
-    } else {
-      setFeriadoDelDia(null)
-    }
+    const feriadoInfo = await getFeriadoDelDia(supabase, fecha, empresaActiva.id)
+    const esFeriado = feriadoInfo !== null
+    setFeriadoDelDia(feriadoInfo)
 
     const idsLegajos = empleadosObra.map(e => e.id)
 
