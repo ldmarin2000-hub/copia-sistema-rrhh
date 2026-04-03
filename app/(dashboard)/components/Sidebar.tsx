@@ -12,9 +12,8 @@ import { useEmpresa } from '../context/EmpresaContext'
 import ThemeToggle from './ThemeToggle'
 
 const administracion = [
-  { href: '/empresas',            label: 'Empresas',           icon: Building2 },
-  { href: '/usuarios',            label: 'Usuarios',           icon: UserCog },
-  { href: '/conceptos-bejerman',  label: 'Conceptos Bejerman', icon: BookOpen },
+  { href: '/empresas',  label: 'Empresas', icon: Building2 },
+  { href: '/usuarios',  label: 'Usuarios',  icon: UserCog },
 ]
 
 const maestras = [
@@ -27,7 +26,8 @@ const maestras = [
   { href: '/tipos-ausencia',     label: 'Tipos de ausencia' },
   { href: '/feriados',           label: 'Feriados' },
   { href: '/epp-catalogo',       label: 'EPP catálogo' },
-  { href: '/metodos-vacaciones', label: 'Métodos de vacaciones' },
+  { href: '/metodos-vacaciones',  label: 'Métodos de vacaciones' },
+  { href: '/conceptos-bejerman', label: 'Conceptos Bejerman' },
   { href: '/exportacion-config', label: 'Config. exportación' },
 ]
 
