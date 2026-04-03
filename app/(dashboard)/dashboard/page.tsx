@@ -11,7 +11,6 @@ export default async function Dashboard() {
     .eq('id', user?.id)
     .single()
 
-  // Traer empresas del usuario
   let idEmpresas: number[] = []
   if (usuario?.es_superadmin) {
     const { data } = await supabase.from('empresas').select('id').eq('activo', true)
@@ -25,76 +24,98 @@ export default async function Dashboard() {
   const hoy = new Date().toISOString().split('T')[0]
   const en30dias = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
+  // Round 1 — queries paralelas
   const [
     { count: totalActivos },
-    { count: novedadesHoy },
-    { count: ausenciasHoy },
-    { data: eppPorVencer },
-    { data: eppVencidos },
-    { data: stockTodos },
-    { count: remitosSinFirmar },
-    { data: vacacionesHoy },
-    { data: ultimasNovedades },
+    { data: ausenciasHoyList },
+    { count: vacacionesHoyCount },
+    { data: legajosActivosList },
+    { data: novedadesHoyList },
+    { data: documentosPorVencer },
+    { data: feriadosNacHoy },
+    { data: ferEmpresaHoy },
+    { data: feriadosNacProx },
+    { data: ferEmpresaProx },
   ] = await Promise.all([
     supabase.from('legajos')
       .select('*', { count: 'exact', head: true })
       .in('id_empresa', idEmpresas)
       .eq('estado', 'Activo'),
-    supabase.from('novedades_diarias')
-      .select('*', { count: 'exact', head: true })
-      .in('id_empresa', idEmpresas)
-      .eq('fecha', hoy),
     supabase.from('ausencias_periodo')
+      .select('id, id_legajo, id_empresa, fecha_desde, fecha_hasta, tipos_ausencia(id, descripcion), legajos(apellido, nombre)')
+      .in('id_empresa', idEmpresas)
+      .lte('fecha_desde', hoy)
+      .gte('fecha_hasta', hoy),
+    supabase.from('vacaciones_periodo')
       .select('*', { count: 'exact', head: true })
       .in('id_empresa', idEmpresas)
       .lte('fecha_desde', hoy)
       .gte('fecha_hasta', hoy),
-    supabase.from('epp_entregas')
-      .select('*, epp_catalogo(descripcion), legajos(apellido, nombre, id_empresa)')
+    supabase.from('legajos')
+      .select('id, id_empresa')
       .in('id_empresa', idEmpresas)
-      .eq('devuelto', false)
+      .eq('estado', 'Activo'),
+    supabase.from('novedades_diarias')
+      .select('id_legajo, id_empresa')
+      .in('id_empresa', idEmpresas)
+      .eq('fecha', hoy),
+    supabase.from('legajo_documentos')
+      .select('id, id_legajo, nombre, fecha_vencimiento, legajos(apellido, nombre, id_empresa)')
+      .in('id_empresa', idEmpresas)
+      .not('fecha_vencimiento', 'is', null)
       .lte('fecha_vencimiento', en30dias)
       .gte('fecha_vencimiento', hoy)
-      .order('fecha_vencimiento')
-      .limit(5),
-    supabase.from('epp_entregas')
-      .select('*, epp_catalogo(descripcion), legajos(apellido, nombre, nro_legajo, id_empresa)')
+      .order('fecha_vencimiento'),
+    supabase.from('feriados')
+      .select('id, fecha, descripcion')
+      .eq('activo', true)
+      .eq('fecha', hoy),
+    supabase.from('feriados_empresa')
+      .select('id_empresa, id_feriado, tipo, trabaja, fecha, descripcion')
       .in('id_empresa', idEmpresas)
-      .eq('devuelto', false)
-      .lt('fecha_vencimiento', hoy)
-      .order('fecha_vencimiento')
-      .limit(6),
-    supabase.from('epp_stock')
-      .select('*, epp_catalogo(descripcion)')
-      .in('id_empresa', idEmpresas),
-    supabase.from('epp_detalle_entregas')
-      .select('*', { count: 'exact', head: true })
+      .or(`fecha.eq.${hoy},and(tipo.eq.heredado,id_feriado.not.is.null)`),
+    supabase.from('feriados')
+      .select('id, fecha, descripcion')
+      .eq('activo', true)
+      .gte('fecha', hoy)
+      .lte('fecha', en30dias)
+      .order('fecha'),
+    supabase.from('feriados_empresa')
+      .select('id_empresa, id_feriado, tipo, trabaja, fecha, descripcion, feriados(fecha, descripcion)')
       .in('id_empresa', idEmpresas)
-      .eq('firmado', false),
-    supabase.from('vacaciones_periodo')
-      .select('*, legajos(apellido, nombre, id_empresa)')
-      .in('id_empresa', idEmpresas)
-      .lte('fecha_desde', hoy)
-      .gte('fecha_hasta', hoy)
-      .limit(5),
-    supabase.from('novedades_diarias')
-      .select('*, legajos(apellido, nombre), obras(nombre)')
-      .in('id_empresa', idEmpresas)
-      .order('created_at', { ascending: false })
-      .limit(8),
+      .gte('fecha', hoy)
+      .lte('fecha', en30dias)
+      .order('fecha'),
   ])
+
+  // Round 2 — banco de horas (necesita ids de legajos)
+  const todosLosIds = (legajosActivosList || []).map(l => l.id)
+  let bancoHorasMovs: any[] = []
+  if (todosLosIds.length > 0) {
+    const { data } = await supabase
+      .from('banco_horas_movimientos')
+      .select('id_legajo, saldo_resultante')
+      .in('id_legajo', todosLosIds)
+      .order('fecha', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(1000)
+    bancoHorasMovs = data || []
+  }
 
   return (
     <DashboardClient
+      hoy={hoy}
       totalActivos={totalActivos || 0}
-      novedadesHoy={novedadesHoy || 0}
-      ausenciasHoy={ausenciasHoy || 0}
-      eppPorVencer={eppPorVencer || []}
-      eppVencidos={eppVencidos || []}
-      stockTodos={stockTodos || []}
-      remitosSinFirmar={remitosSinFirmar || 0}
-      vacacionesHoy={vacacionesHoy || []}
-      ultimasNovedades={ultimasNovedades || []}
+      ausenciasHoyList={ausenciasHoyList || []}
+      vacacionesHoyCount={vacacionesHoyCount || 0}
+      legajosActivosList={legajosActivosList || []}
+      novedadesHoyList={novedadesHoyList || []}
+      documentosPorVencer={documentosPorVencer || []}
+      feriadosNacHoy={feriadosNacHoy || []}
+      ferEmpresaHoy={ferEmpresaHoy || []}
+      feriadosNacProx={feriadosNacProx || []}
+      ferEmpresaProx={ferEmpresaProx || []}
+      bancoHorasMovs={bancoHorasMovs}
     />
   )
 }
