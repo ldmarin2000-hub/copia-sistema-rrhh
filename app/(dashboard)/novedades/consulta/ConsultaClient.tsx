@@ -42,6 +42,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
   const [plantillasPeriodo, setPlantillasPeriodo] = useState<any[]>([])
   const [categoriasPeriodo, setCategoriasPeriodo] = useState<any[]>([])
   const [expandidos, setExpandidos] = useState<Set<number>>(new Set())
+  const [bhMovPeriodo, setBhMovPeriodo] = useState<any[]>([])
   const [cargando, setCargando] = useState(false)
   const [buscado, setBuscado] = useState(false)
 
@@ -106,7 +107,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
         ? supabase.from('novedades_adicionales').select('id_novedad, id_adicional, cantidad').in('id_novedad', idsNovs)
         : { data: [] },
       supabase.from('ausencias_periodo')
-        .select('id_legajo, fecha_desde, fecha_hasta, tipos_ausencia(id, codigo, descripcion, pierde_presentismo, cuenta_dias_corridos)')
+        .select('id_legajo, fecha_desde, fecha_hasta, observacion, tipos_ausencia(id, codigo, descripcion, pierde_presentismo, cuenta_dias_corridos)')
         .eq('id_empresa', empresaActiva.id)
         .lte('fecha_desde', hasta).gte('fecha_hasta', desde),
       supabase.from('vacaciones_periodo')
@@ -153,6 +154,17 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
       extraPlantData = ep || []
     }
 
+    // Fetch banco de horas acreditaciones vinculadas a novedades del período
+    let bhMovs: any[] = []
+    if (idsNovs.length > 0) {
+      const { data: bhData } = await supabase
+        .from('banco_horas_movimientos')
+        .select('id, novedad_diaria_id, fecha, id_legajo, horas_banco, horas_reales, horas, recargo_tipo')
+        .in('novedad_diaria_id', idsNovs)
+        .eq('tipo', 'acreditacion')
+      bhMovs = bhData || []
+    }
+
     setNovedades(novs as unknown as Novedad[])
     setNovedadesAdics(adicsData || [])
     setAusenciasPeriodo(ausData || [])
@@ -161,6 +173,7 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
     setLegajosPeriodo(legajosArr)
     setCategoriasPeriodo(catsData || [])
     setPlantillasPeriodo([...(plantData || []), ...extraPlantData])
+    setBhMovPeriodo(bhMovs)
     setCargando(false)
     setBuscado(true)
   }
@@ -226,6 +239,16 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
   function getTiposAusenciaEmpleado(idLegajo: number) {
     const ausEmp = ausenciasPeriodo.filter(a => a.id_legajo === idLegajo)
     return Array.from(new Map(ausEmp.filter(a => a.tipos_ausencia).map((a: any) => [a.tipos_ausencia.id, a.tipos_ausencia])).values())
+  }
+
+  function getBHMovimiento(idLegajo: number, fecha: string): any | null {
+    return bhMovPeriodo.find(m => m.id_legajo === idLegajo && String(m.fecha).slice(0, 10) === fecha) ?? null
+  }
+
+  // Retorna true si el día tiene acreditación BH del recargo indicado ('50%' o '100%')
+  function tieneBHRecargo(idLegajo: number, fecha: string, recargo: '50%' | '100%'): boolean {
+    const mov = getBHMovimiento(idLegajo, fecha)
+    return !!(mov && mov.recargo_tipo === recargo)
   }
 
   // ── Empleados (agrupados y ordenados) ──────────────────
@@ -407,6 +430,31 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                       const isLast = empIdx === empleados.length - 1
                       const sepStyle = { borderBottom: '0.5px solid var(--c-elevated)' }
 
+                      // BH: acreditaciones de este legajo — mapa fecha→movimiento para lookup directo
+                      const bhMovsLegajo = bhMovPeriodo.filter(m => m.id_legajo === idLegajo)
+                      const bh50PorFecha = new Map<string, number>()
+                      const bh100PorFecha = new Map<string, number>()
+                      const fechasConBH50 = new Set<string>()
+                      const fechasConBH100 = new Set<string>()
+                      bhMovsLegajo.forEach(m => {
+                        const f = String(m.fecha).slice(0, 10)
+                        const hs = Number(m.horas_reales) || Number(m.horas) || 0
+                        if (m.recargo_tipo === '50%') { bh50PorFecha.set(f, hs); fechasConBH50.add(f) }
+                        if (m.recargo_tipo === '100%') { bh100PorFecha.set(f, hs); fechasConBH100.add(f) }
+                      })
+                      const totalBH50Real = Array.from(bh50PorFecha.values()).reduce((s, h) => s + h, 0)
+                      const totalBH100Real = Array.from(bh100PorFecha.values()).reduce((s, h) => s + h, 0)
+                      // extra que NO fue al banco (por novedad_diaria_id)
+                      const novsLegajo = novedades.filter(n => n.id_legajo === idLegajo)
+                      const totalExtra50Real = novsLegajo.reduce((s, n) => {
+                        const bh = bhMovPeriodo.find(m => m.novedad_diaria_id === n.id && m.recargo_tipo === '50%')
+                        return s + (bh ? 0 : (n.hs_extra_50 || 0))
+                      }, 0)
+                      const totalExtra100Real = novsLegajo.reduce((s, n) => {
+                        const bh = bhMovPeriodo.find(m => m.novedad_diaria_id === n.id && m.recargo_tipo === '100%')
+                        return s + (bh ? 0 : (n.hs_extra_100 || 0))
+                      }, 0)
+
                       const filaConcepto = (
                         label: string,
                         color: string,
@@ -444,27 +492,59 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                         false
                       ))
 
-                      // Hs. Extra 50%
-                      if (totalExtra50 > 0) conceptos.push(filaConcepto(
+                      // Hs. Extra 50% (solo las que NO fueron al banco)
+                      if (totalExtra50Real > 0) conceptos.push(filaConcepto(
                         'Hs. Extra 50%', 'var(--c-blue)', 'var(--c-weekend-bg)',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_50 || 0
-                          return val > 0 ? <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                          if (val <= 0) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                          return fechasConBH50.has(fecha)
+                            ? <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                            : <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span>
                         },
-                        <span style={{ color: 'var(--c-blue)' }}>{totalExtra50}</span>,
+                        <span style={{ color: 'var(--c-blue)' }}>{totalExtra50Real}</span>,
                         false
                       ))
 
-                      // Hs. Extra 100%
-                      if (totalExtra100 > 0) conceptos.push(filaConcepto(
+                      // Hs. Banco de Horas 50% (horas reales trabajadas que fueron al banco)
+                      if (totalBH50Real > 0) conceptos.push(filaConcepto(
+                        'Hs. Banco de Horas 50%', 'var(--c-purple, #a78bfa)', 'var(--c-weekend-bg)',
+                        fecha => {
+                          const hs = bh50PorFecha.get(fecha) || 0
+                          return hs > 0
+                            ? <span style={{ color: 'var(--c-purple, #a78bfa)', fontSize: '12px' }}>{hs}</span>
+                            : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                        },
+                        <span style={{ color: 'var(--c-purple, #a78bfa)' }}>{totalBH50Real}</span>,
+                        false
+                      ))
+
+                      // Hs. Extra 100% (solo las que NO fueron al banco)
+                      if (totalExtra100Real > 0) conceptos.push(filaConcepto(
                         'Hs. Extra 100%', 'var(--c-blue)', 'var(--c-weekend-bg)',
                         fecha => {
                           const nov = getNov(idLegajo, fecha)
                           const val = nov?.hs_extra_100 || 0
-                          return val > 0 ? <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span> : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                          if (val <= 0) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                          return fechasConBH100.has(fecha)
+                            ? <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                            : <span style={{ color: 'var(--c-blue)', fontSize: '12px' }}>{val}</span>
                         },
-                        <span style={{ color: 'var(--c-blue)' }}>{totalExtra100}</span>,
+                        <span style={{ color: 'var(--c-blue)' }}>{totalExtra100Real}</span>,
+                        false
+                      ))
+
+                      // Hs. Banco de Horas 100% (horas reales trabajadas que fueron al banco)
+                      if (totalBH100Real > 0) conceptos.push(filaConcepto(
+                        'Hs. Banco de Horas 100%', 'var(--c-purple, #a78bfa)', 'var(--c-weekend-bg)',
+                        fecha => {
+                          const hs = bh100PorFecha.get(fecha) || 0
+                          return hs > 0
+                            ? <span style={{ color: 'var(--c-purple, #a78bfa)', fontSize: '12px' }}>{hs}</span>
+                            : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                        },
+                        <span style={{ color: 'var(--c-purple, #a78bfa)' }}>{totalBH100Real}</span>,
                         false
                       ))
 
@@ -503,23 +583,44 @@ export default function ConsultaClient({ obras, adicionales }: { obras: Obra[]; 
                       // Ausencias por tipo
                       tiposAusEmp.forEach(tipo => {
                         const plantilla = getPlantilla(idLegajo)
-                        const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
-                        const totalDias = dias.filter(d => {
-                          const aus = ausenciasPeriodo.find(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= d && a.fecha_hasta >= d)
-                          if (!aus) return false
-                          return cuentaCorridos ? true : esDiaLaboral(d, plantilla)
-                        }).length
-                        conceptos.push(filaConcepto(
-                          tipo.descripcion, 'var(--c-red)', 'var(--c-red-bg)',
-                          fecha => {
-                            const aus = ausenciasPeriodo.find(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= fecha && a.fecha_hasta >= fecha)
-                            return aus
-                              ? <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-red)', background: 'var(--c-red-bg)', padding: '1px 5px', borderRadius: '3px' }}>{tipo.codigo || 'AUS'}</span>
-                              : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
-                          },
-                          <span style={{ color: 'var(--c-red)' }}>{totalDias}d</span>,
-                          false
-                        ))
+                        const esFrancoBH = tipo.codigo === 'FRANCO_BH'
+
+                        if (esFrancoBH) {
+                          // Franco BH: siempre en horas (de observacion), nunca días
+                          const ausenciasFranco = ausenciasPeriodo.filter(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id)
+                          const totalHsFranco = ausenciasFranco.reduce((s: number, a: any) => s + (parseFloat(a.observacion) || 0), 0)
+                          conceptos.push(filaConcepto(
+                            'Franco Banco de Horas', 'var(--c-purple, #a78bfa)', 'var(--c-weekend-bg)',
+                            fecha => {
+                              const aus = ausenciasPeriodo.find(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= fecha && a.fecha_hasta >= fecha)
+                              if (!aus) return <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                              const hs = parseFloat((aus as any).observacion) || null
+                              return <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--c-purple, #a78bfa)' }}>{hs != null ? `${hs}h` : 'BH'}</span>
+                            },
+                            totalHsFranco > 0
+                              ? <span style={{ color: 'var(--c-purple, #a78bfa)' }}>{totalHsFranco}h</span>
+                              : <span style={{ color: 'var(--c-purple, #a78bfa)' }}>{ausenciasFranco.length}×BH</span>,
+                            false
+                          ))
+                        } else {
+                          const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
+                          const totalDias = dias.filter(d => {
+                            const aus = ausenciasPeriodo.find(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= d && a.fecha_hasta >= d)
+                            if (!aus) return false
+                            return cuentaCorridos ? true : esDiaLaboral(d, plantilla)
+                          }).length
+                          conceptos.push(filaConcepto(
+                            tipo.descripcion, 'var(--c-red)', 'var(--c-red-bg)',
+                            fecha => {
+                              const aus = ausenciasPeriodo.find(a => a.id_legajo === idLegajo && a.tipos_ausencia?.id === tipo.id && a.fecha_desde <= fecha && a.fecha_hasta >= fecha)
+                              return aus
+                                ? <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--c-red)', background: 'var(--c-red-bg)', padding: '1px 5px', borderRadius: '3px' }}>{tipo.codigo || 'AUS'}</span>
+                                : <span style={{ color: 'var(--c-elevated)', fontSize: '12px' }}>—</span>
+                            },
+                            <span style={{ color: 'var(--c-red)' }}>{totalDias}d</span>,
+                            false
+                          ))
+                        }
                       })
 
                       // Vacaciones

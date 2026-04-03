@@ -25,6 +25,8 @@ type FilaResumen = {
   hs_extra_50: number
   hs_extra_100: number
   hs_nocturnas: number
+  hs_bh_50: number
+  hs_bh_100: number
   adicionales: Record<number, number>
   ausencias: Record<number, number>
   vacaciones: number
@@ -99,12 +101,14 @@ export default function ExportarClient({
   // ── Conceptos de liquidación ──────────────────────────────
   function getConceptosConfig() {
     return [
-      { tipo: 'hs_normales',  label: 'Hs. Normales',   grupo: 'Horas' },
-      { tipo: 'hs_extra_50',  label: 'Hs. Extra 50%',  grupo: 'Horas' },
-      { tipo: 'hs_extra_100', label: 'Hs. Extra 100%', grupo: 'Horas' },
-      { tipo: 'hs_nocturnas', label: 'Hs. Nocturnas',  grupo: 'Horas' },
-      { tipo: 'feriados',     label: 'Feriados',        grupo: 'Otros' },
-      { tipo: 'vacaciones',   label: 'Vacaciones',      grupo: 'Otros' },
+      { tipo: 'hs_normales',  label: 'Hs. Normales',            grupo: 'Horas' },
+      { tipo: 'hs_extra_50',  label: 'Hs. Extra 50%',           grupo: 'Horas' },
+      { tipo: 'hs_extra_100', label: 'Hs. Extra 100%',          grupo: 'Horas' },
+      { tipo: 'hs_nocturnas', label: 'Hs. Nocturnas',           grupo: 'Horas' },
+      { tipo: 'hs_bh_50',     label: 'Hs. Banco de Horas 50%',  grupo: 'Horas' },
+      { tipo: 'hs_bh_100',    label: 'Hs. Banco de Horas 100%', grupo: 'Horas' },
+      { tipo: 'feriados',     label: 'Feriados',                 grupo: 'Otros' },
+      { tipo: 'vacaciones',   label: 'Vacaciones',               grupo: 'Otros' },
       ...tiposAusencia.map(t => ({ tipo: `aus_${t.id}`, label: t.descripcion, grupo: 'Ausencias' })),
       ...adicionalesFiltrados.map(a => ({ tipo: `adic_${a.id}`, label: a.descripcion, grupo: 'Adicionales' })),
     ]
@@ -149,12 +153,14 @@ export default function ExportarClient({
         if (!codigo || valor <= 0) return
         lineas.push({ legajo: legajoStr, concepto: codigo.padStart(4, '0'), valor, label })
       }
-      add('hs_normales',  'Hs. Normales',   fila.hs_normales)
-      add('hs_extra_50',  'Hs. Extra 50%',  fila.hs_extra_50)
-      add('hs_extra_100', 'Hs. Extra 100%', fila.hs_extra_100)
-      add('hs_nocturnas', 'Hs. Nocturnas',  fila.hs_nocturnas)
-      add('feriados',     'Feriados',        fila.feriados)
-      add('vacaciones',   'Vacaciones',      fila.vacaciones)
+      add('hs_normales',  'Hs. Normales',            fila.hs_normales)
+      add('hs_extra_50',  'Hs. Extra 50%',           fila.hs_extra_50)
+      add('hs_extra_100', 'Hs. Extra 100%',          fila.hs_extra_100)
+      add('hs_nocturnas', 'Hs. Nocturnas',           fila.hs_nocturnas)
+      add('hs_bh_50',     'Hs. Banco de Horas 50%',  fila.hs_bh_50)
+      add('hs_bh_100',    'Hs. Banco de Horas 100%', fila.hs_bh_100)
+      add('feriados',     'Feriados',                 fila.feriados)
+      add('vacaciones',   'Vacaciones',               fila.vacaciones)
       for (const t of tiposAusencia) add(`aus_${t.id}`, t.descripcion, fila.ausencias[t.id] || 0)
       for (const a of adicionalesFiltrados) add(`adic_${a.id}`, a.descripcion, fila.adicionales[a.id] || 0)
     }
@@ -243,17 +249,18 @@ export default function ExportarClient({
 
     const idsNovedades = (novedades || []).map((n: any) => n.id)
 
-    // Novedades adicionales + ausencias + vacaciones en paralelo
+    // Novedades adicionales + ausencias + vacaciones + banco de horas en paralelo
     const [
       { data: novsAdics },
       { data: ausencias },
       { data: vacaciones },
+      { data: bhMovs },
     ] = await Promise.all([
       idsNovedades.length > 0
         ? supabase.from('novedades_adicionales').select('id_novedad, id_adicional, cantidad').in('id_novedad', idsNovedades)
         : { data: [] },
       supabase.from('ausencias_periodo')
-        .select('id_legajo, fecha_desde, fecha_hasta, tipos_ausencia(id, codigo, descripcion, cuenta_dias_corridos)')
+        .select('id_legajo, fecha_desde, fecha_hasta, observacion, tipos_ausencia(id, codigo, descripcion, cuenta_dias_corridos)')
         .eq('id_empresa', empresaActiva.id)
         .in('id_legajo', idsLegajos)
         .lte('fecha_desde', hasta)
@@ -264,6 +271,12 @@ export default function ExportarClient({
         .in('id_legajo', idsLegajos)
         .lte('fecha_desde', hasta)
         .gte('fecha_hasta', desde),
+      idsNovedades.length > 0
+        ? supabase.from('banco_horas_movimientos')
+            .select('novedad_diaria_id, id_legajo, horas_reales, horas, recargo_tipo')
+            .in('novedad_diaria_id', idsNovedades)
+            .eq('tipo', 'acreditacion')
+        : { data: [] },
     ])
 
     // Tipos de ausencia que aparecen en el período
@@ -291,20 +304,38 @@ export default function ExportarClient({
         apellido: leg.apellido,
         nombre: leg.nombre,
         obra: (leg as any).obras?.nombre || '—',
-        hs_normales: 0, hs_extra_50: 0, hs_extra_100: 0, hs_nocturnas: 0,
+        hs_normales: 0, hs_extra_50: 0, hs_extra_100: 0, hs_nocturnas: 0, hs_bh_50: 0, hs_bh_100: 0,
         adicionales: {}, ausencias: {}, vacaciones: 0,
         feriados: 0,
       })
     }
 
-    // Sumar horas
+    // Sets de novedad_diaria_id que tienen BH (para excluir de extra)
+    const bhNovsBH50 = new Set<number>()
+    const bhNovsBH100 = new Set<number>()
+    for (const bh of (bhMovs || [])) {
+      if ((bh as any).recargo_tipo === '50%') bhNovsBH50.add((bh as any).novedad_diaria_id)
+      if ((bh as any).recargo_tipo === '100%') bhNovsBH100.add((bh as any).novedad_diaria_id)
+    }
+
+    // Sumar horas (excluye días banco de horas de hs_extra)
     for (const nov of (novedades || [])) {
       const fila = resumenMap.get(nov.id_legajo)
       if (!fila) continue
       fila.hs_normales += nov.hs_normales || 0
-      fila.hs_extra_50 += nov.hs_extra_50 || 0
-      fila.hs_extra_100 += nov.hs_extra_100 || 0
+      if (!bhNovsBH50.has(nov.id)) fila.hs_extra_50 += nov.hs_extra_50 || 0
+      if (!bhNovsBH100.has(nov.id)) fila.hs_extra_100 += nov.hs_extra_100 || 0
       fila.hs_nocturnas += nov.hs_nocturnas || 0
+    }
+
+    // Sumar banco de horas
+    for (const bh of (bhMovs || [])) {
+      const idLeg = (bh as any).id_legajo
+      const fila = resumenMap.get(idLeg)
+      if (!fila) continue
+      const hs = Number((bh as any).horas_reales) || Number((bh as any).horas) || 0
+      if ((bh as any).recargo_tipo === '50%') fila.hs_bh_50 += hs
+      if ((bh as any).recargo_tipo === '100%') fila.hs_bh_100 += hs
     }
 
     // Sumar adicionales
@@ -324,18 +355,24 @@ export default function ExportarClient({
     }
 
     // Contar ausencias por tipo (respetando cuenta_dias_corridos)
+    // FRANCO_BH: acumula horas de observacion en lugar de días
     for (const aus of (ausencias || [])) {
       const tipo = (aus as any).tipos_ausencia
       if (!tipo) continue
       const fila = resumenMap.get(aus.id_legajo)
       if (!fila) continue
-      const plantillaId = getPlantillaId(aus.id_legajo, legajosData || [])
-      const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
-      const diasAus = dias.filter(d =>
-        aus.fecha_desde <= d && aus.fecha_hasta >= d &&
-        (cuentaCorridos ? true : esDiaLaboral(d, plantillaId))
-      ).length
-      fila.ausencias[tipo.id] = (fila.ausencias[tipo.id] || 0) + diasAus
+      if (tipo.codigo === 'FRANCO_BH') {
+        const hs = parseFloat((aus as any).observacion) || 0
+        fila.ausencias[tipo.id] = (fila.ausencias[tipo.id] || 0) + hs
+      } else {
+        const plantillaId = getPlantillaId(aus.id_legajo, legajosData || [])
+        const cuentaCorridos: boolean = tipo.cuenta_dias_corridos ?? false
+        const diasAus = dias.filter(d =>
+          aus.fecha_desde <= d && aus.fecha_hasta >= d &&
+          (cuentaCorridos ? true : esDiaLaboral(d, plantillaId))
+        ).length
+        fila.ausencias[tipo.id] = (fila.ausencias[tipo.id] || 0) + diasAus
+      }
     }
 
     // Contar vacaciones (días corridos)
@@ -369,7 +406,7 @@ export default function ExportarClient({
     // Encabezados
     const headers = [
       'Legajo', 'Cód. externo', 'Apellido', 'Nombre', 'Obra',
-      'Hs. Normales', 'Hs. Extra 50%', 'Hs. Extra 100%', 'Hs. Nocturnas',
+      'Hs. Normales', 'Hs. Extra 50%', 'Hs. Extra 100%', 'Hs. Nocturnas', 'Hs. Banco 50%', 'Hs. Banco 100%',
       ...adicionalesEnPeriodo.map(a => a.descripcion),
       ...tiposEnPeriodo.map(t => `${t.descripcion} (${t.cuenta_dias_corridos ? 'corridos' : 'hábiles'})`),
       'Vacaciones', 'Feriados',
@@ -386,6 +423,8 @@ export default function ExportarClient({
       f.hs_extra_50,
       f.hs_extra_100,
       f.hs_nocturnas,
+      f.hs_bh_50,
+      f.hs_bh_100,
       ...adicionalesEnPeriodo.map(a => f.adicionales[a.id] || 0),
       ...tiposEnPeriodo.map(t => f.ausencias[t.id] || 0),
       f.vacaciones,
@@ -399,6 +438,8 @@ export default function ExportarClient({
       filas.reduce((s, f) => s + f.hs_extra_50, 0),
       filas.reduce((s, f) => s + f.hs_extra_100, 0),
       filas.reduce((s, f) => s + f.hs_nocturnas, 0),
+      filas.reduce((s, f) => s + f.hs_bh_50, 0),
+      filas.reduce((s, f) => s + f.hs_bh_100, 0),
       ...adicionalesEnPeriodo.map(a => filas.reduce((s, f) => s + (f.adicionales[a.id] || 0), 0)),
       ...tiposEnPeriodo.map(t => filas.reduce((s, f) => s + (f.ausencias[t.id] || 0), 0)),
       filas.reduce((s, f) => s + f.vacaciones, 0),
@@ -418,7 +459,7 @@ export default function ExportarClient({
     // Ancho de columnas
     ws['!cols'] = [
       { wch: 8 }, { wch: 12 }, { wch: 20 }, { wch: 16 }, { wch: 24 },
-      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+      { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 14 },
       ...adicionalesEnPeriodo.map(() => ({ wch: 14 })),
       ...tiposEnPeriodo.map(() => ({ wch: 18 })),
       { wch: 12 }, { wch: 10 },
@@ -443,7 +484,7 @@ export default function ExportarClient({
 
   const periodoLabel = `${MESES[parseInt(mes) - 1]} ${anio}${periodo === '1' ? ' — 1ª quincena' : periodo === '2' ? ' — 2ª quincena' : ' — mes completo'}`
 
-  const totalFilas = (key: 'hs_normales' | 'hs_extra_50' | 'hs_extra_100' | 'hs_nocturnas' | 'vacaciones' | 'feriados') =>
+  const totalFilas = (key: 'hs_normales' | 'hs_extra_50' | 'hs_extra_100' | 'hs_nocturnas' | 'hs_bh_50' | 'hs_bh_100' | 'vacaciones' | 'feriados') =>
     filas.reduce((s, f) => s + f[key], 0)
 
   if (!empresaActiva) {
@@ -598,6 +639,8 @@ export default function ExportarClient({
                   <th style={thStyle}>Hs. 50%</th>
                   <th style={thStyle}>Hs. 100%</th>
                   <th style={thStyle}>Hs. Noct.</th>
+                  <th style={{ ...thStyle, color: 'var(--c-purple)' }}>Banco 50%</th>
+                  <th style={{ ...thStyle, color: 'var(--c-purple)' }}>Banco 100%</th>
                   {adicionalesEnPeriodo.map(a => (
                     <th key={a.id} style={{ ...thStyle, color: 'var(--c-blue)' }}>{a.descripcion}</th>
                   ))}
@@ -627,14 +670,16 @@ export default function ExportarClient({
                     <td style={{ ...tdStyle, color: fila.hs_extra_50 > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{fila.hs_extra_50 || '—'}</td>
                     <td style={{ ...tdStyle, color: fila.hs_extra_100 > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{fila.hs_extra_100 || '—'}</td>
                     <td style={{ ...tdStyle, color: fila.hs_nocturnas > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{fila.hs_nocturnas || '—'}</td>
+                    <td style={{ ...tdStyle, color: fila.hs_bh_50 > 0 ? 'var(--c-purple)' : 'var(--c-text-muted)' }}>{fila.hs_bh_50 || '—'}</td>
+                    <td style={{ ...tdStyle, color: fila.hs_bh_100 > 0 ? 'var(--c-purple)' : 'var(--c-text-muted)' }}>{fila.hs_bh_100 || '—'}</td>
                     {adicionalesEnPeriodo.map(a => (
                       <td key={a.id} style={{ ...tdStyle, color: fila.adicionales[a.id] > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>
                         {fila.adicionales[a.id] || '—'}
                       </td>
                     ))}
                     {tiposEnPeriodo.map(t => (
-                      <td key={t.id} style={{ ...tdStyle, color: fila.ausencias[t.id] > 0 ? 'var(--c-red)' : 'var(--c-text-muted)' }}>
-                        {fila.ausencias[t.id] ? `${fila.ausencias[t.id]}d` : '—'}
+                      <td key={t.id} style={{ ...tdStyle, color: fila.ausencias[t.id] > 0 ? (t.codigo === 'FRANCO_BH' ? 'var(--c-purple)' : 'var(--c-red)') : 'var(--c-text-muted)' }}>
+                        {fila.ausencias[t.id] ? `${fila.ausencias[t.id]}${t.codigo === 'FRANCO_BH' ? 'h' : 'd'}` : '—'}
                       </td>
                     ))}
                     <td style={{ ...tdStyle, color: fila.vacaciones > 0 ? 'var(--c-green)' : 'var(--c-text-muted)' }}>
@@ -654,13 +699,16 @@ export default function ExportarClient({
                   <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_extra_50') > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{totalFilas('hs_extra_50') || '—'}</td>
                   <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_extra_100') > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{totalFilas('hs_extra_100') || '—'}</td>
                   <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_nocturnas') > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{totalFilas('hs_nocturnas') || '—'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_bh_50') > 0 ? 'var(--c-purple)' : 'var(--c-text-muted)' }}>{totalFilas('hs_bh_50') || '—'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('hs_bh_100') > 0 ? 'var(--c-purple)' : 'var(--c-text-muted)' }}>{totalFilas('hs_bh_100') || '—'}</td>
                   {adicionalesEnPeriodo.map(a => {
                     const t = filas.reduce((s, f) => s + (f.adicionales[a.id] || 0), 0)
                     return <td key={a.id} style={{ ...tdStyle, fontWeight: 700, color: t > 0 ? 'var(--c-blue)' : 'var(--c-text-muted)' }}>{t || '—'}</td>
                   })}
                   {tiposEnPeriodo.map(t => {
                     const tot = filas.reduce((s, f) => s + (f.ausencias[t.id] || 0), 0)
-                    return <td key={t.id} style={{ ...tdStyle, fontWeight: 700, color: tot > 0 ? 'var(--c-red)' : 'var(--c-text-muted)' }}>{tot ? `${tot}d` : '—'}</td>
+                    const esFranco = t.codigo === 'FRANCO_BH'
+                    return <td key={t.id} style={{ ...tdStyle, fontWeight: 700, color: tot > 0 ? (esFranco ? 'var(--c-purple)' : 'var(--c-red)') : 'var(--c-text-muted)' }}>{tot ? `${tot}${esFranco ? 'h' : 'd'}` : '—'}</td>
                   })}
                   <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('vacaciones') > 0 ? 'var(--c-green)' : 'var(--c-text-muted)' }}>{totalFilas('vacaciones') ? `${totalFilas('vacaciones')}d` : '—'}</td>
                   <td style={{ ...tdStyle, fontWeight: 700, color: totalFilas('feriados') > 0 ? 'var(--c-orange)' : 'var(--c-text-muted)' }}>{totalFilas('feriados') ? `${totalFilas('feriados')}d` : '—'}</td>

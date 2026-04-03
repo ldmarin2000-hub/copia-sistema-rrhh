@@ -412,6 +412,8 @@ export default function NovedadesClient({
         const hsExtra100 = parseFloat(fila.hs_extra_100) || 0
         if (hsExtra50 > 0 || hsExtra100 > 0) {
           const modalidad = acuerdosBHMap[fila.id_legajo].modalidad
+          // recargo_tipo: el tipo dominante (en la práctica nunca hay ambos el mismo día)
+          const recargo_tipo = hsExtra50 > 0 ? '50%' : '100%'
           const hsReales = hsExtra50 + hsExtra100
           const hsBanco = modalidad === 'proporcional'
             ? hsExtra50 * 1.5 + hsExtra100 * 2
@@ -423,6 +425,7 @@ export default function NovedadesClient({
             fecha,
             tipo: 'acreditacion',
             origen: 'novedad_diaria',
+            recargo_tipo,
             horas: hsBanco,
             horas_reales: hsReales,
             horas_banco: hsBanco,
