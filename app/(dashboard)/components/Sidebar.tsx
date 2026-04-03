@@ -12,8 +12,9 @@ import { useEmpresa } from '../context/EmpresaContext'
 import ThemeToggle from './ThemeToggle'
 
 const administracion = [
-  { href: '/empresas',  label: 'Empresas', icon: Building2 },
-  { href: '/usuarios',  label: 'Usuarios',  icon: UserCog },
+  { href: '/empresas',            label: 'Empresas',           icon: Building2 },
+  { href: '/usuarios',            label: 'Usuarios',           icon: UserCog },
+  { href: '/conceptos-bejerman',  label: 'Conceptos Bejerman', icon: BookOpen },
 ]
 
 const maestras = [
