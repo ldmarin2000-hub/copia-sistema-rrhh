@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
-import { X, Plus } from 'lucide-react'
+import { X, Plus, Trash2 } from 'lucide-react'
 import { formatFecha } from '@/lib/fecha'
 import { traducirError } from '@/lib/errores'
 import { calcularDiasCorridos, calcularDiasHabiles } from '@/lib/vacaciones'
@@ -169,9 +169,27 @@ export default function VacacionesTab({
     setALoading(false)
   }
 
-  // Años para los selects (current year + some range)
+  // --- Eliminar movimiento ---
+  async function eliminarMovimiento(m: Movimiento) {
+    if (!confirm(`¿Eliminar este movimiento (${labelMovimiento(m)}, ${m.dias > 0 ? '+' : ''}${m.dias} días)?`)) return
+    const supabase = createClient()
+
+    const { error } = await supabase.from('vacaciones_cuenta_corriente').delete().eq('id', m.id)
+    if (error) { alert(traducirError(error.message)); return }
+
+    if (m.tipo === 'consumo' && m.periodo_vacacional_id) {
+      await supabase.from('vacaciones_periodo').delete().eq('id', m.periodo_vacacional_id)
+    }
+
+    router.refresh()
+  }
+
+  // Años para los selects: unión de años con movimientos + rango actual
   const anoActual = new Date().getFullYear()
-  const anosSelect = [anoActual - 1, anoActual, anoActual + 1]
+  const anosSelect = Array.from(new Set([
+    ...anosDisponibles,
+    anoActual - 1, anoActual, anoActual + 1,
+  ])).sort((a, b) => b - a)
 
   return (
     <>
@@ -341,7 +359,7 @@ export default function VacacionesTab({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: 'var(--c-base)', borderBottom: '0.5px solid var(--c-border)' }}>
-                {['Fecha', 'Tipo', 'Año', 'Días', 'Observación'].map(col => (
+                {['Fecha', 'Tipo', 'Año', 'Días', 'Observación', ''].map(col => (
                   <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500, fontSize: '12px' }}>{col}</th>
                 ))}
               </tr>
@@ -356,6 +374,11 @@ export default function VacacionesTab({
                     {m.dias > 0 ? `+${m.dias}` : m.dias}
                   </td>
                   <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)', fontSize: '12px' }}>{m.observacion || '—'}</td>
+                  <td style={{ padding: '10px 16px', textAlign: 'right' }}>
+                    <button onClick={() => eliminarMovimiento(m)} title="Eliminar movimiento" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-muted)', padding: '2px 4px', lineHeight: 1 }}>
+                      <Trash2 size={13} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

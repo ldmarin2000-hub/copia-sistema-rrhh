@@ -19,6 +19,7 @@ type Vacacion = {
   id_legajo: number
   fecha_desde: string
   fecha_hasta: string
+  año_correspondiente?: number | null
   observacion?: string
   legajos: { apellido: string, nombre: string, nro_legajo: number, id_empresa: number, id_obra?: number }
 }
@@ -62,6 +63,7 @@ export default function VacacionesGeneralClient({
   const [formIdLegajo, setFormIdLegajo] = useState('')
   const [formDesde, setFormDesde] = useState('')
   const [formHasta, setFormHasta] = useState('')
+  const [formAno, setFormAno] = useState(String(new Date().getFullYear()))
   const [formObs, setFormObs] = useState('')
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
@@ -111,7 +113,8 @@ export default function VacacionesGeneralClient({
 
   function abrirNuevo() {
     setEditandoVac(null)
-    setFormIdLegajo(''); setFormDesde(''); setFormHasta(''); setFormObs(''); setFormError('')
+    setFormIdLegajo(''); setFormDesde(''); setFormHasta('')
+    setFormAno(String(anoActual)); setFormObs(''); setFormError('')
     setMostrarForm(true)
   }
 
@@ -119,6 +122,7 @@ export default function VacacionesGeneralClient({
     setEditandoVac(v)
     setFormIdLegajo(String(v.id_legajo))
     setFormDesde(v.fecha_desde); setFormHasta(v.fecha_hasta)
+    setFormAno(String(v.año_correspondiente ?? anoActual))
     setFormObs(v.observacion || ''); setFormError('')
     setMostrarForm(true)
   }
@@ -136,19 +140,37 @@ export default function VacacionesGeneralClient({
   async function guardar() {
     if (!formIdLegajo || !formDesde || !formHasta) { setFormError('Completá todos los campos obligatorios.'); return }
     if (formHasta < formDesde) { setFormError('La fecha hasta no puede ser menor a la fecha desde.'); return }
+    if (!formAno) { setFormError('Seleccioná el año al que corresponde.'); return }
     setFormLoading(true); setFormError('')
     const supabase = createClient()
     const legajo = legajosFiltrados.find(l => l.id === parseInt(formIdLegajo))
     if (!legajo) { setFormError('Legajo no encontrado.'); setFormLoading(false); return }
 
-    const datos = { fecha_desde: formDesde, fecha_hasta: formHasta, observacion: formObs || null }
+    const ano = parseInt(formAno)
+    const datos = { fecha_desde: formDesde, fecha_hasta: formHasta, año_correspondiente: ano, observacion: formObs || null }
 
     if (editandoVac) {
       const { error } = await supabase.from('vacaciones_periodo').update(datos).eq('id', editandoVac.id)
       if (error) { setFormError(traducirError(error.message)); setFormLoading(false); return }
     } else {
-      const { error } = await supabase.from('vacaciones_periodo').insert({ ...datos, id_empresa: legajo.id_empresa, id_legajo: legajo.id })
-      if (error) { setFormError(traducirError(error.message)); setFormLoading(false); return }
+      const { data: periodo, error } = await supabase
+        .from('vacaciones_periodo')
+        .insert({ ...datos, id_empresa: legajo.id_empresa, id_legajo: legajo.id })
+        .select('id').single()
+      if (error || !periodo) { setFormError(traducirError(error?.message || 'Error al guardar')); setFormLoading(false); return }
+
+      // Crear movimiento consumo en cuenta corriente
+      const dias = getDias()
+      await supabase.from('vacaciones_cuenta_corriente').insert({
+        legajo_id: legajo.id,
+        empresa_id: legajo.id_empresa,
+        tipo: 'consumo',
+        año_correspondiente: ano,
+        fecha_movimiento: formDesde,
+        dias: -dias,
+        periodo_vacacional_id: periodo.id,
+        observacion: formObs || null,
+      })
     }
 
     router.refresh(); cerrarForm(); setFormLoading(false)
@@ -320,6 +342,14 @@ export default function VacacionesGeneralClient({
               {formDesde && formHasta && getDias() > 0 && (
                 <p style={{ fontSize: '12px', color: 'var(--c-blue)', margin: 0 }}>{getDias()} día{getDias() !== 1 ? 's' : ''}</p>
               )}
+              <div>
+                <label style={labelStyle}>Año al que corresponde *</label>
+                <select value={formAno} onChange={e => setFormAno(e.target.value)} style={{ ...inputStyle }}>
+                  {[anoActual - 2, anoActual - 1, anoActual, anoActual + 1].map(a => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label style={labelStyle}>Observación</label>
                 <textarea value={formObs} onChange={e => setFormObs(e.target.value)} rows={2} style={{ ...inputStyle, resize: 'vertical' as const }} />
