@@ -1,145 +1,252 @@
 "use client"
 
+import { useState } from 'react'
 import { useEmpresa } from '../context/EmpresaContext'
 import { formatFecha } from '@/lib/fecha'
 import Link from 'next/link'
-import { Users, Calendar, AlertTriangle, Umbrella, Package, FileWarning, ShieldAlert } from 'lucide-react'
+import { Users, AlertTriangle, Umbrella, Calendar, Clock, FileText, ChevronDown, ChevronRight } from 'lucide-react'
 
-type EppVencer = {
+type Ausencia = {
   id: number
-  fecha_vencimiento: string
-  epp_catalogo: { descripcion: string }
-  legajos: { apellido: string, nombre: string, id_empresa: number }
-}
-
-type EppVencido = {
-  id: number
-  fecha_vencimiento: string
-  talle?: string
-  epp_catalogo: { descripcion: string }
-  legajos: { apellido: string, nombre: string, nro_legajo: number, id_empresa: number }
-}
-
-type EppStock = {
-  id: number
+  id_legajo: number
   id_empresa: number
-  id_epp: number
-  talle?: string
-  cantidad_disponible: number
-  cantidad_minima: number
-  epp_catalogo: { descripcion: string }
-}
-
-type VacacionHoy = {
-  id: number
   fecha_desde: string
   fecha_hasta: string
-  id_legajo: number
-  legajos: { apellido: string, nombre: string, id_empresa: number }
+  tipos_ausencia: { id: number; descripcion: string } | null
+  legajos: { apellido: string; nombre: string } | null
 }
 
-type UltimaNovedades = {
+type Legajo = { id: number; id_empresa: number }
+
+type Novedad = { id_legajo: number; id_empresa: number }
+
+type Documento = {
   id: number
-  fecha: string
+  id_legajo: number
+  nombre: string
+  fecha_vencimiento: string
+  legajos: { apellido: string; nombre: string; id_empresa: number } | null
+}
+
+type FeriadoNac = { id: number; fecha: string; descripcion: string }
+type FerEmpresa = {
   id_empresa: number
-  legajos: { apellido: string, nombre: string }
-  obras: { nombre: string }
+  id_feriado: number | null
+  tipo: string
+  trabaja: boolean
+  fecha: string | null
+  descripcion: string | null
+  feriados?: { fecha: string; descripcion: string } | null
+}
+type BancoMov = { id_legajo: number; saldo_resultante: number | null }
+
+const cardStyle: React.CSSProperties = {
+  background: 'var(--c-surface)',
+  border: '0.5px solid var(--c-border)',
+  borderRadius: '8px',
+  padding: '18px',
+}
+
+function Card({
+  label, valor, sub, color, bg, icon: Icon, href,
+}: {
+  label: string
+  valor: number | string
+  sub?: string
+  color: string
+  bg: string
+  icon: any
+  href?: string
+}) {
+  const inner = (
+    <div style={{ ...cardStyle, cursor: href ? 'pointer' : 'default', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{label}</span>
+        <div style={{ background: bg, borderRadius: '6px', padding: '6px' }}>
+          <Icon size={14} color={color} />
+        </div>
+      </div>
+      <span style={{ fontSize: '28px', fontWeight: 500, color }}>{valor}</span>
+      <div style={{ height: '18px', marginTop: '4px' }}>
+        {sub && <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', margin: 0 }}>{sub}</p>}
+      </div>
+    </div>
+  )
+  if (href) return <Link href={href} style={{ textDecoration: 'none' }}>{inner}</Link>
+  return inner
+}
+
+function Panel({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
+      <div
+        onClick={() => setOpen(o => !o)}
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '14px 16px', cursor: 'pointer', userSelect: 'none', borderBottom: open ? '0.5px solid var(--c-border)' : 'none' }}
+      >
+        {open ? <ChevronDown size={14} color="var(--c-text-secondary)" /> : <ChevronRight size={14} color="var(--c-text-secondary)" />}
+        <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)', flex: 1 }}>
+          {title} <span style={{ color: 'var(--c-text-muted)', fontWeight: 400 }}>({count})</span>
+        </span>
+      </div>
+      <div style={{
+        maxHeight: open ? '400px' : '0',
+        overflow: 'hidden',
+        transition: 'max-height 0.2s ease',
+      }}>
+        {children}
+      </div>
+    </div>
+  )
 }
 
 export default function DashboardClient({
-  totalActivos, novedadesHoy, ausenciasHoy,
-  eppPorVencer, eppVencidos, stockTodos, remitosSinFirmar,
-  vacacionesHoy, ultimasNovedades
+  hoy,
+  totalActivos,
+  ausenciasHoyList,
+  vacacionesHoyCount,
+  legajosActivosList,
+  novedadesHoyList,
+  documentosPorVencer,
+  feriadosNacHoy,
+  ferEmpresaHoy,
+  feriadosNacProx,
+  ferEmpresaProx,
+  bancoHorasMovs,
 }: {
+  hoy: string
   totalActivos: number
-  novedadesHoy: number
-  ausenciasHoy: number
-  eppPorVencer: EppVencer[]
-  eppVencidos: EppVencido[]
-  stockTodos: EppStock[]
-  remitosSinFirmar: number
-  vacacionesHoy: VacacionHoy[]
-  ultimasNovedades: UltimaNovedades[]
+  ausenciasHoyList: Ausencia[]
+  vacacionesHoyCount: number
+  legajosActivosList: Legajo[]
+  novedadesHoyList: Novedad[]
+  documentosPorVencer: Documento[]
+  feriadosNacHoy: FeriadoNac[]
+  ferEmpresaHoy: FerEmpresa[]
+  feriadosNacProx: FeriadoNac[]
+  ferEmpresaProx: FerEmpresa[]
+  bancoHorasMovs: BancoMov[]
 }) {
   const { empresaActiva } = useEmpresa()
-  const hoy = new Date().toISOString().split('T')[0]
+  const idEmpresa = empresaActiva?.id
 
-  // Filtrar por empresa activa si hay una seleccionada
-  const vencidosFiltrados = empresaActiva
-    ? eppVencidos.filter(e => e.legajos.id_empresa === empresaActiva.id)
-    : eppVencidos
-  const porVencerFiltrados = empresaActiva
-    ? eppPorVencer.filter(e => e.legajos.id_empresa === empresaActiva.id)
-    : eppPorVencer
-  const stockFiltrado = empresaActiva
-    ? stockTodos.filter(s => s.id_empresa === empresaActiva.id)
-    : stockTodos
-  const stockBajo = stockFiltrado.filter(s => s.cantidad_disponible <= s.cantidad_minima)
-  const vacacionesHoyFiltradas = empresaActiva
-    ? vacacionesHoy.filter(v => v.legajos.id_empresa === empresaActiva.id)
-    : vacacionesHoy
-  const ultimasNovedadesFiltradas = empresaActiva
-    ? ultimasNovedades.filter(n => n.id_empresa === empresaActiva.id)
-    : ultimasNovedades
+  // ── Filtrar por empresa activa ───────────────────────────────
+  const ausenciasEmpresa = idEmpresa
+    ? ausenciasHoyList.filter(a => a.id_empresa === idEmpresa)
+    : ausenciasHoyList
 
-  const cards = [
-    {
-      label: 'Empleados activos',
-      valor: totalActivos,
-      color: 'var(--c-green)',
-      bg: 'var(--c-green-bg)',
-      icon: Users,
-      href: '/legajos',
-    },
-    {
-      label: 'Novedades cargadas hoy',
-      valor: novedadesHoy,
-      color: 'var(--c-blue)',
-      bg: 'var(--c-blue-bg)',
-      icon: Calendar,
-      href: '/novedades/consulta',
-    },
-    {
-      label: 'Ausencias activas hoy',
-      valor: ausenciasHoy,
-      color: ausenciasHoy > 0 ? 'var(--c-orange)' : 'var(--c-green)',
-      bg: ausenciasHoy > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)',
-      icon: AlertTriangle,
-      href: '/ausencias',
-    },
-    {
-      label: 'EPP por vencer (30 días)',
-      valor: porVencerFiltrados.length,
-      color: porVencerFiltrados.length > 0 ? 'var(--c-orange)' : 'var(--c-green)',
-      bg: porVencerFiltrados.length > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)',
-      icon: ShieldAlert,
-      href: '/epp',
-    },
-    {
-      label: 'EPP vencidos',
-      valor: vencidosFiltrados.length,
-      color: vencidosFiltrados.length > 0 ? 'var(--c-red)' : 'var(--c-green)',
-      bg: vencidosFiltrados.length > 0 ? 'var(--c-red-bg)' : 'var(--c-green-bg)',
-      icon: FileWarning,
-      href: '/epp',
-    },
-    {
-      label: 'Stock bajo mínimo',
-      valor: stockBajo.length,
-      color: stockBajo.length > 0 ? 'var(--c-red)' : 'var(--c-green)',
-      bg: stockBajo.length > 0 ? 'var(--c-red-bg)' : 'var(--c-green-bg)',
-      icon: Package,
-      href: '/epp',
-    },
-    {
-      label: 'Remitos sin firmar',
-      valor: remitosSinFirmar,
-      color: remitosSinFirmar > 0 ? 'var(--c-orange)' : 'var(--c-green)',
-      bg: remitosSinFirmar > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)',
-      icon: Umbrella,
-      href: '/epp',
-    },
-  ]
+  const legajosEmpresa = idEmpresa
+    ? legajosActivosList.filter(l => l.id_empresa === idEmpresa)
+    : legajosActivosList
+
+  const novedadesEmpresa = idEmpresa
+    ? novedadesHoyList.filter(n => n.id_empresa === idEmpresa)
+    : novedadesHoyList
+
+  const docsEmpresa = idEmpresa
+    ? documentosPorVencer.filter(d => (d.legajos as any)?.id_empresa === idEmpresa)
+    : documentosPorVencer
+
+  // ── Desglose ausencias ───────────────────────────────────────
+  let enfermos = 0, art = 0, otrosAus = 0
+  for (const a of ausenciasEmpresa) {
+    const desc = (a.tipos_ausencia?.descripcion || '').toLowerCase()
+    if (desc.includes('enferm')) enfermos++
+    else if (desc.includes('art') || desc.includes('accidente') || desc.includes('donac')) art++
+    else otrosAus++
+  }
+  const subAusencias = ausenciasEmpresa.length === 0
+    ? undefined
+    : [enfermos > 0 && `${enfermos} enfermos`, art > 0 && `${art} ART`, otrosAus > 0 && `${otrosAus} otros`]
+        .filter(Boolean).join(' · ')
+
+  // ── Es día hábil ─────────────────────────────────────────────
+  const diaSemana = new Date(hoy + 'T00:00:00').getDay()
+  const esFinDeSemana = diaSemana === 0 || diaSemana === 6
+
+  const trabaja_hoy_empresa = (() => {
+    if (!idEmpresa) return false
+    // Nacional sin excepción trabaja=true
+    const trabajaIds = new Set(
+      ferEmpresaHoy
+        .filter(e => e.id_empresa === idEmpresa && e.trabaja === true && e.id_feriado)
+        .map(e => e.id_feriado)
+    )
+    const hayNacional = feriadosNacHoy.some(f => !trabajaIds.has(f.id))
+    // Propio con trabaja=false
+    const hayPropio = ferEmpresaHoy.some(
+      e => e.id_empresa === idEmpresa && e.tipo === 'propio' && e.trabaja === false
+    )
+    return hayNacional || hayPropio
+  })()
+
+  const esDiaHabil = !esFinDeSemana && !trabaja_hoy_empresa
+
+  // ── Sin novedad hoy ──────────────────────────────────────────
+  const idsConNovedad = new Set(novedadesEmpresa.map(n => n.id_legajo))
+  const sinNovedadHoy = legajosEmpresa.filter(l => !idsConNovedad.has(l.id)).length
+
+  // ── Banco de horas alto (≥30h) ───────────────────────────────
+  const legajosEmpresaIds = new Set(legajosEmpresa.map(l => l.id))
+  const latestBanco = new Map<number, number>()
+  for (const m of bancoHorasMovs) {
+    if (!legajosEmpresaIds.has(m.id_legajo)) continue
+    if (!latestBanco.has(m.id_legajo)) {
+      latestBanco.set(m.id_legajo, m.saldo_resultante ?? 0)
+    }
+  }
+  const bancoHorasAlto = Array.from(latestBanco.values()).filter(s => s >= 30).length
+
+  // ── Documentos por vencer ────────────────────────────────────
+  const en7dias = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  const docsCriticos = docsEmpresa.filter(d => d.fecha_vencimiento <= en7dias).length
+
+  // ── Próximos feriados ────────────────────────────────────────
+  type FeriadoProx = { fecha: string; descripcion: string; trabajan: boolean }
+  const feriadosProximos: FeriadoProx[] = []
+  if (idEmpresa) {
+    const trabajaIds = new Set(
+      ferEmpresaProx
+        .filter(e => e.id_empresa === idEmpresa && e.trabaja === true && e.id_feriado)
+        .map(e => e.id_feriado)
+    )
+    // Nacionales
+    for (const f of feriadosNacProx) {
+      const trabajan = trabajaIds.has(f.id)
+      feriadosProximos.push({ fecha: f.fecha, descripcion: f.descripcion, trabajan })
+    }
+    // Propios de empresa
+    for (const e of ferEmpresaProx) {
+      if (e.id_empresa !== idEmpresa || e.tipo !== 'propio' || !e.fecha) continue
+      feriadosProximos.push({ fecha: e.fecha, descripcion: e.descripcion || '', trabajan: e.trabaja })
+    }
+    feriadosProximos.sort((a, b) => a.fecha.localeCompare(b.fecha))
+  }
+
+  // ── Colores alertas ──────────────────────────────────────────
+  const sinNovedadColor = sinNovedadHoy === 0
+    ? 'var(--c-green)'
+    : sinNovedadHoy > 5 ? 'var(--c-red)' : 'var(--c-orange)'
+  const sinNovedadBg = sinNovedadHoy === 0
+    ? 'var(--c-green-bg)'
+    : sinNovedadHoy > 5 ? 'var(--c-red-bg)' : 'var(--c-orange-bg)'
+
+  const bancoColor = bancoHorasAlto === 0 ? 'var(--c-green)' : 'var(--c-orange)'
+  const bancoBg = bancoHorasAlto === 0 ? 'var(--c-green-bg)' : 'var(--c-orange-bg)'
+
+  const docsColor = docsCriticos > 0
+    ? 'var(--c-red)'
+    : docsEmpresa.length > 0 ? 'var(--c-orange)' : 'var(--c-green)'
+  const docsBg = docsCriticos > 0
+    ? 'var(--c-red-bg)'
+    : docsEmpresa.length > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)'
+
+  const tdStyle: React.CSSProperties = {
+    padding: '9px 14px',
+    fontSize: '13px',
+    color: 'var(--c-text-primary)',
+    borderTop: '0.5px solid var(--c-border)',
+  }
 
   return (
     <div>
@@ -153,209 +260,138 @@ export default function DashboardClient({
         </span>
       </div>
 
-      {/* Cards — fila 1: RRHH */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '12px' }}>
-        {cards.slice(0, 3).map((card, i) => (
-          <Link key={i} href={card.href} style={{ textDecoration: 'none' }}>
-            <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', padding: '18px', cursor: 'pointer' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{card.label}</span>
-                <div style={{ background: card.bg, borderRadius: '6px', padding: '6px' }}>
-                  <card.icon size={14} color={card.color} />
-                </div>
-              </div>
-              <span style={{ fontSize: '28px', fontWeight: 500, color: card.color }}>{card.valor}</span>
-            </div>
-          </Link>
-        ))}
-        {/* Placeholder para mantener la grilla */}
-        <div />
+      {/* Fila 1 — Números clave */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+        <Card
+          label="Empleados activos"
+          valor={totalActivos}
+          color="var(--c-green)"
+          bg="var(--c-green-bg)"
+          icon={Users}
+          href="/legajos"
+        />
+        <Card
+          label="Ausencias activas hoy"
+          valor={ausenciasEmpresa.length}
+          sub={subAusencias}
+          color={ausenciasEmpresa.length > 0 ? 'var(--c-orange)' : 'var(--c-green)'}
+          bg={ausenciasEmpresa.length > 0 ? 'var(--c-orange-bg)' : 'var(--c-green-bg)'}
+          icon={AlertTriangle}
+          href="/ausencias"
+        />
+        <Card
+          label="En vacaciones hoy"
+          valor={vacacionesHoyCount}
+          color={vacacionesHoyCount > 0 ? 'var(--c-blue)' : 'var(--c-green)'}
+          bg={vacacionesHoyCount > 0 ? 'var(--c-blue-bg)' : 'var(--c-green-bg)'}
+          icon={Umbrella}
+          href="/vacaciones"
+        />
       </div>
 
-      {/* Cards — fila 2: EPP */}
-      <div style={{ marginBottom: '6px' }}>
-        <p style={{ fontSize: '11px', color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ShieldAlert size={12} /> EPP y Ropa de trabajo
-        </p>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
-        {cards.slice(3).map((card, i) => (
-          <Link key={i} href={card.href} style={{ textDecoration: 'none' }}>
-            <div style={{ background: 'var(--c-surface)', border: `0.5px solid ${card.valor > 0 && card.color !== 'var(--c-green)' ? card.color + '30' : 'var(--c-border)'}`, borderRadius: '8px', padding: '18px', cursor: 'pointer' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>{card.label}</span>
-                <div style={{ background: card.bg, borderRadius: '6px', padding: '6px' }}>
-                  <card.icon size={14} color={card.color} />
-                </div>
-              </div>
-              <span style={{ fontSize: '28px', fontWeight: 500, color: card.color }}>{card.valor}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Paneles EPP */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-
-        {/* EPP vencidos */}
-        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>EPP vencidos</span>
-            <Link href="/epp" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver necesidades ↗</Link>
-          </div>
-          {vencidosFiltrados.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>Sin EPP vencido</div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-              <tbody>
-                {vencidosFiltrados.map((e, i) => {
-                  const diasVencido = Math.floor((Date.now() - new Date(e.fecha_vencimiento + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24))
-                  return (
-                    <tr key={e.id} style={{ borderBottom: i < vencidosFiltrados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
-                      <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
-                        {e.legajos.apellido}, {e.legajos.nombre}
-                        <span style={{ display: 'block', fontSize: '11px', color: 'var(--c-text-secondary)' }}>
-                          {e.epp_catalogo.descripcion}{e.talle ? ` · ${e.talle}` : ''}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <span style={{ background: 'var(--c-red-bg)', color: 'var(--c-red)', fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }}>
-                          hace {diasVencido}d
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Stock bajo */}
-        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>Stock bajo mínimo</span>
-            <Link href="/epp" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver stock ↗</Link>
-          </div>
-          {stockBajo.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>Todo el stock en nivel correcto</div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-              <tbody>
-                {stockBajo.slice(0, 6).map((s, i) => (
-                  <tr key={s.id} style={{ borderBottom: i < Math.min(stockBajo.length, 6) - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
-                    <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
-                      {s.epp_catalogo.descripcion}
-                      {s.talle && <span style={{ marginLeft: '6px', background: 'var(--c-talle-bg)', color: 'var(--c-talle-color)', fontSize: '11px', padding: '1px 6px', borderRadius: '4px' }}>{s.talle}</span>}
-                    </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--c-red)', fontSize: '14px' }}>{s.cantidad_disponible}</span>
-                      <span style={{ color: 'var(--c-text-muted)', fontSize: '12px' }}> / mín {s.cantidad_minima}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
-
-      {/* Paneles RRHH */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-
-        {/* EPP por vencer */}
-        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>EPP por vencer (30 días)</span>
-            <Link href="/epp" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver todos ↗</Link>
-          </div>
-          {porVencerFiltrados.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>Sin vencimientos próximos</div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-              <tbody>
-                {porVencerFiltrados.map((e, i) => {
-                  const diasRestantes = Math.floor(
-                    (new Date(e.fecha_vencimiento + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                  )
-                  return (
-                    <tr key={e.id} style={{ borderBottom: i < porVencerFiltrados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
-                      <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
-                        {e.legajos.apellido}, {e.legajos.nombre}
-                        <span style={{ display: 'block', fontSize: '11px', color: 'var(--c-text-secondary)' }}>{e.epp_catalogo.descripcion}</span>
-                      </td>
-                      <td style={{ padding: '10px 16px', textAlign: 'right' }}>
-                        <span style={{
-                          background: diasRestantes <= 7 ? 'var(--c-red-bg)' : 'var(--c-orange-bg)',
-                          color: diasRestantes <= 7 ? 'var(--c-red)' : 'var(--c-orange)',
-                          fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
-                        }}>
-                          {diasRestantes}d
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Vacaciones hoy */}
-        <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>En vacaciones hoy</span>
-            <Link href="/vacaciones" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver todos ↗</Link>
-          </div>
-          {vacacionesHoyFiltradas.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>Nadie de vacaciones hoy</div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-              <tbody>
-                {vacacionesHoyFiltradas.map((v, i) => (
-                  <tr key={v.id} style={{ borderBottom: i < vacacionesHoyFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
-                    <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
-                      {v.legajos.apellido}, {v.legajos.nombre}
-                    </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'right', color: 'var(--c-text-secondary)', fontSize: '12px' }}>
-                      hasta {formatFecha(v.fecha_hasta)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
-
-      {/* Últimas novedades */}
-      <div style={{ background: 'var(--c-surface)', border: '0.5px solid var(--c-border)', borderRadius: '8px', overflow: 'hidden' }}>
-        <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--c-text-primary)' }}>Últimas novedades cargadas</span>
-          <Link href="/novedades/consulta" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver consulta ↗</Link>
-        </div>
-        {ultimasNovedadesFiltradas.length === 0 ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>No hay novedades cargadas</div>
-        ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead>
-              <tr style={{ borderBottom: '0.5px solid var(--c-border)' }}>
-                {['Empleado', 'Obra', 'Fecha'].map(col => (
-                  <th key={col} style={{ textAlign: 'left', padding: '10px 16px', color: 'var(--c-text-secondary)', fontWeight: 500 }}>{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ultimasNovedadesFiltradas.map((n, i) => (
-                <tr key={n.id} style={{ borderBottom: i < ultimasNovedadesFiltradas.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
-                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>{n.legajos.apellido}, {n.legajos.nombre}</td>
-                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{n.obras?.nombre || '—'}</td>
-                  <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>{formatFecha(n.fecha)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Fila 2 — Alertas operativas */}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${esDiaHabil ? 3 : 2}, 1fr)`, gap: '12px', marginBottom: '24px' }}>
+        {esDiaHabil && (
+          <Card
+            label="Novedades sin cargar hoy"
+            valor={sinNovedadHoy}
+            color={sinNovedadColor}
+            bg={sinNovedadBg}
+            icon={Calendar}
+            href="/novedades"
+          />
         )}
+        <Card
+          label="Banco de horas alto (≥30h)"
+          valor={bancoHorasAlto}
+          color={bancoColor}
+          bg={bancoBg}
+          icon={Clock}
+        />
+        <Card
+          label="Documentos por vencer (30 días)"
+          valor={docsEmpresa.length}
+          sub={docsCriticos > 0 ? `${docsCriticos} vencen en menos de 7 días` : undefined}
+          color={docsColor}
+          bg={docsBg}
+          icon={FileText}
+          href="/legajos"
+        />
+      </div>
+
+      {/* Fila 3 — Paneles colapsables */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+
+        {/* Panel: Ausencias de hoy */}
+        <Panel title="Ausencias de hoy" count={ausenciasEmpresa.length}>
+          {ausenciasEmpresa.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>
+              Sin ausencias para hoy
+            </div>
+          ) : (
+            <>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ background: 'var(--c-base)' }}>
+                    {['Legajo', 'Tipo', 'Desde', 'Hasta'].map(col => (
+                      <th key={col} style={{ padding: '8px 14px', textAlign: 'left', fontSize: '11px', color: 'var(--c-text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.4px', borderTop: '0.5px solid var(--c-border)' }}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {ausenciasEmpresa.map(a => (
+                    <tr key={a.id}>
+                      <td style={tdStyle}>{a.legajos ? `${a.legajos.apellido}, ${a.legajos.nombre}` : a.id_legajo}</td>
+                      <td style={{ ...tdStyle, color: 'var(--c-text-secondary)' }}>{a.tipos_ausencia?.descripcion || '—'}</td>
+                      <td style={{ ...tdStyle, color: 'var(--c-text-secondary)' }}>{formatFecha(a.fecha_desde)}</td>
+                      <td style={{ ...tdStyle, color: 'var(--c-text-secondary)' }}>{formatFecha(a.fecha_hasta)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{ padding: '10px 14px', borderTop: '0.5px solid var(--c-border)', textAlign: 'right' }}>
+                <Link href="/ausencias" style={{ fontSize: '12px', color: 'var(--c-blue)', textDecoration: 'none' }}>Ver todos →</Link>
+              </div>
+            </>
+          )}
+        </Panel>
+
+        {/* Panel: Próximos feriados */}
+        <Panel title="Próximos feriados (30 días)" count={feriadosProximos.length}>
+          {feriadosProximos.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--c-text-secondary)', fontSize: '13px' }}>
+              Sin feriados en los próximos 30 días
+            </div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <thead>
+                <tr style={{ background: 'var(--c-base)' }}>
+                  {['Fecha', 'Descripción', '¿Trabajan?'].map(col => (
+                    <th key={col} style={{ padding: '8px 14px', textAlign: 'left', fontSize: '11px', color: 'var(--c-text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.4px', borderTop: '0.5px solid var(--c-border)' }}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {feriadosProximos.map((f, i) => (
+                  <tr key={i}>
+                    <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>{formatFecha(f.fecha)}</td>
+                    <td style={{ ...tdStyle, color: 'var(--c-text-secondary)' }}>{f.descripcion}</td>
+                    <td style={tdStyle}>
+                      <span style={{
+                        fontSize: '11px', padding: '2px 8px', borderRadius: '4px',
+                        background: f.trabajan ? 'var(--c-orange-bg)' : 'var(--c-green-bg)',
+                        color: f.trabajan ? 'var(--c-orange)' : 'var(--c-green)',
+                      }}>
+                        {f.trabajan ? 'Sí' : 'No'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Panel>
+
       </div>
     </div>
   )
