@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
@@ -78,10 +78,21 @@ export default function FeriadosClient({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [trabajaMap, setTrabajaMap] = useState<Record<number, boolean>>(() => {
-  const map: Record<number, boolean> = {}
-    feriadosEmpresa.forEach(fe => { map[fe.id_feriado] = fe.trabaja })
+    const map: Record<number, boolean> = {}
+    feriadosEmpresa
+      .filter(fe => fe.id_empresa === empresaActiva?.id)
+      .forEach(fe => { map[fe.id_feriado] = fe.trabaja })
     return map
   })
+
+  // Reconstruir el map cuando cambia la empresa activa
+  useEffect(() => {
+    const map: Record<number, boolean> = {}
+    feriadosEmpresa
+      .filter(fe => fe.id_empresa === empresaActiva?.id)
+      .forEach(fe => { map[fe.id_feriado] = fe.trabaja })
+    setTrabajaMap(map)
+  }, [empresaActiva?.id])
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
