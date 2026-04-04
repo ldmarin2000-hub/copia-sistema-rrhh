@@ -105,6 +105,7 @@ export default async function Dashboard() {
   return (
     <DashboardClient
       hoy={hoy}
+      sinEmpresas={idEmpresas.length === 0 && !usuario?.es_superadmin}
       totalActivos={totalActivos || 0}
       ausenciasHoyList={ausenciasHoyList || []}
       vacacionesHoyCount={vacacionesHoyCount || 0}

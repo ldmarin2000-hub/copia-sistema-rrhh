@@ -102,6 +102,7 @@ function Panel({ title, count, children }: { title: string; count: number; child
 
 export default function DashboardClient({
   hoy,
+  sinEmpresas,
   totalActivos,
   ausenciasHoyList,
   vacacionesHoyCount,
@@ -115,6 +116,7 @@ export default function DashboardClient({
   bancoHorasMovs,
 }: {
   hoy: string
+  sinEmpresas: boolean
   totalActivos: number
   ausenciasHoyList: Ausencia[]
   vacacionesHoyCount: number
@@ -128,6 +130,16 @@ export default function DashboardClient({
   bancoHorasMovs: BancoMov[]
 }) {
   const { empresaActiva } = useEmpresa()
+
+  if (sinEmpresas) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '12px' }}>
+        <span style={{ fontSize: '32px' }}>🏢</span>
+        <p style={{ fontSize: '16px', fontWeight: 500, color: 'var(--c-text-primary)', margin: 0 }}>Sin empresa asignada</p>
+        <p style={{ fontSize: '13px', color: 'var(--c-text-secondary)', margin: 0 }}>Tu usuario no tiene acceso a ninguna empresa. Contactá al administrador del sistema.</p>
+      </div>
+    )
+  }
   const idEmpresa = empresaActiva?.id
 
   // ── Filtrar por empresa activa ───────────────────────────────
