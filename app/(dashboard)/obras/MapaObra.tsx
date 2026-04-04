@@ -23,7 +23,11 @@ export default function MapaObra({ latitud, longitud, onChange }: Props) {
     if (typeof window === 'undefined') return
     if (mapRef.current) return
 
+    let mounted = true
+
     import('leaflet').then((L) => {
+      if (!mounted || !containerRef.current) return
+
       delete (L.Icon.Default.prototype as any)._getIconUrl
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -34,7 +38,7 @@ export default function MapaObra({ latitud, longitud, onChange }: Props) {
       const lat = latitud || -38.4161
       const lng = longitud || -63.6167
 
-      const map = L.map(containerRef.current!).setView([lat, lng], latitud ? 15 : 4)
+      const map = L.map(containerRef.current).setView([lat, lng], latitud ? 15 : 4)
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
@@ -66,6 +70,7 @@ export default function MapaObra({ latitud, longitud, onChange }: Props) {
     })
 
     return () => {
+      mounted = false
       if (mapRef.current) {
         mapRef.current.remove()
         mapRef.current = null

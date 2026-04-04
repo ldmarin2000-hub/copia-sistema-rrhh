@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { useEmpresa } from '../context/EmpresaContext'
@@ -14,6 +14,7 @@ type Feriado = {
   tipo: string
   provincia?: string
   id_convenio?: number
+  id_empresa?: number | null
   activo: boolean
   convenios?: { descripcion: string }
 }
@@ -63,7 +64,7 @@ export default function FeriadosClient({
   feriadosEmpresa: FeriadoEmpresa[]
 }) {
   const router = useRouter()
-  const { empresaActiva } = useEmpresa()
+  const { empresaActiva, esSuperadmin } = useEmpresa()
 
   const [mostrarForm, setMostrarForm] = useState(false)
   const [editando, setEditando] = useState<Feriado | null>(null)
@@ -73,15 +74,27 @@ export default function FeriadosClient({
   const [provincia, setProvincia] = useState('')
   const [idConvenio, setIdConvenio] = useState('')
   const [activo, setActivo] = useState(true)
+  const [esGlobal, setEsGlobal] = useState(false)
   const [filtroAnio, setFiltroAnio] = useState(String(new Date().getFullYear()))
   const [filtroTipo, setFiltroTipo] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [trabajaMap, setTrabajaMap] = useState<Record<number, boolean>>(() => {
-  const map: Record<number, boolean> = {}
-    feriadosEmpresa.forEach(fe => { map[fe.id_feriado] = fe.trabaja })
+    const map: Record<number, boolean> = {}
+    feriadosEmpresa
+      .filter(fe => fe.id_empresa === empresaActiva?.id)
+      .forEach(fe => { map[fe.id_feriado] = fe.trabaja })
     return map
   })
+
+  // Reconstruir el map cuando cambia la empresa activa
+  useEffect(() => {
+    const map: Record<number, boolean> = {}
+    feriadosEmpresa
+      .filter(fe => fe.id_empresa === empresaActiva?.id)
+      .forEach(fe => { map[fe.id_feriado] = fe.trabaja })
+    setTrabajaMap(map)
+  }, [empresaActiva?.id])
 
   const inputStyle = {
     width: '100%', padding: '7px 10px', borderRadius: '6px',
@@ -157,6 +170,7 @@ export default function FeriadosClient({
     setProvincia('')
     setIdConvenio('')
     setActivo(true)
+    setEsGlobal(false)
     setError('')
     setMostrarForm(true)
   }
@@ -169,6 +183,7 @@ export default function FeriadosClient({
     setProvincia(f.provincia || '')
     setIdConvenio(f.id_convenio ? String(f.id_convenio) : '')
     setActivo(f.activo)
+    setEsGlobal(f.id_empresa == null)
     setError('')
     setMostrarForm(true)
   }
@@ -190,6 +205,7 @@ export default function FeriadosClient({
       provincia: tipo === 'provincial_municipal' ? provincia : null,
       id_convenio: tipo === 'sindical' && idConvenio ? parseInt(idConvenio) : null,
       activo,
+      id_empresa: (esSuperadmin && esGlobal) ? null : (empresaActiva?.id ?? null),
     }
 
     if (editando) {
@@ -273,9 +289,17 @@ export default function FeriadosClient({
                 </div>
               )}
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input type="checkbox" id="activo" checked={activo} onChange={(e) => setActivo(e.target.checked)} />
-                <label htmlFor="activo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Activo</label>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input type="checkbox" id="activo" checked={activo} onChange={(e) => setActivo(e.target.checked)} />
+                  <label htmlFor="activo" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Activo</label>
+                </div>
+                {esSuperadmin && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="checkbox" id="esGlobal" checked={esGlobal} onChange={(e) => setEsGlobal(e.target.checked)} />
+                    <label htmlFor="esGlobal" style={{ fontSize: '13px', color: 'var(--c-text-secondary)', cursor: 'pointer' }}>Global (todas las empresas)</label>
+                  </div>
+                )}
               </div>
 
               {error && <p style={{ color: 'var(--c-red)', fontSize: '12px', margin: 0 }}>{error}</p>}
@@ -378,7 +402,14 @@ export default function FeriadosClient({
               {feriadosFiltrados.map((f, i) => (
                 <tr key={f.id} style={{ borderBottom: i < feriadosFiltrados.length - 1 ? '0.5px solid var(--c-elevated)' : 'none' }}>
                   <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)', fontWeight: 500 }}>{formatFecha(f.fecha)}</td>
-                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>{f.descripcion}</td>
+                  <td style={{ padding: '10px 16px', color: 'var(--c-text-primary)' }}>
+                    {f.descripcion}
+                    {f.id_empresa != null && (
+                      <span style={{ marginLeft: '8px', fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: 'var(--c-purple-bg)', color: 'var(--c-purple)' }}>
+                        propio
+                      </span>
+                    )}
+                  </td>
                   <td style={{ padding: '10px 16px' }}>{badgeTipo(f.tipo)}</td>
                   <td style={{ padding: '10px 16px', color: 'var(--c-text-secondary)' }}>
                     {f.provincia || f.convenios?.descripcion || '—'}
