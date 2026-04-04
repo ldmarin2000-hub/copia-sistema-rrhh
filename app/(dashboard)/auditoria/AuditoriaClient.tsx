@@ -20,7 +20,6 @@ type RegistroAuditoria = {
   datos_ant: Record<string, any> | null
   datos_nuevo: Record<string, any> | null
   empresas?: { razon_social: string } | null
-  usuarios?: { nombre: string; email: string } | null
 }
 
 const TABLAS = [
@@ -191,7 +190,7 @@ export default function AuditoriaClient({
 
     let q = supabase
       .from('auditoria')
-      .select('*, empresas(razon_social), usuarios(nombre, email)')
+      .select('*, empresas(razon_social)')
       .order('created_at', { ascending: false })
       .limit(200)
 
@@ -306,9 +305,7 @@ export default function AuditoriaClient({
                         {formatTimestamp(r.created_at)}
                       </td>
                       <td style={tdStyle}>
-                        {(r.usuarios as any)?.nombre || (r.usuarios as any)?.email || (
-                          <span style={{ color: 'var(--c-text-muted)', fontStyle: 'italic' }}>sistema</span>
-                        )}
+                        {(() => { const u = usuarios.find(u => u.id === r.usuario_id); return u?.nombre || u?.email || <span style={{ color: 'var(--c-text-muted)', fontStyle: 'italic' }}>sistema</span> })()}
                       </td>
                       {esSuperadmin && (
                         <td style={{ ...tdStyle, color: 'var(--c-text-secondary)' }}>
@@ -368,7 +365,7 @@ export default function AuditoriaClient({
                     {formatTimestamp(detalle.created_at)}
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
-                    {(detalle.usuarios as any)?.nombre || (detalle.usuarios as any)?.email || 'sistema'}
+                    {(() => { const u = usuarios.find(u => u.id === detalle.usuario_id); return u?.nombre || u?.email || 'sistema' })()}
                   </span>
                 </div>
               </div>

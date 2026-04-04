@@ -65,6 +65,7 @@ export default function ExportacionConfigClient() {
     Promise.all([
       supabase.from('conceptos_bejerman')
         .select('id, codigo, descripcion')
+        .eq('id_empresa', empresaActiva.id)
         .eq('activo', true)
         .order('codigo'),
       supabase.from('exportacion_config')

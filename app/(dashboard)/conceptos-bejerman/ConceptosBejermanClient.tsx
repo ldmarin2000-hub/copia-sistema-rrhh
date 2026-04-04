@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
+import { useEmpresa } from '../context/EmpresaContext'
 import { traducirError } from '@/lib/errores'
 
 type Concepto = {
@@ -31,6 +32,7 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function ConceptosBejermanClient() {
+  const { empresaActiva } = useEmpresa()
   const [conceptos, setConceptos] = useState<Concepto[]>([])
   const [cargando, setCargando] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -42,16 +44,18 @@ export default function ConceptosBejermanClient() {
   const [error, setError] = useState('')
 
   async function cargar() {
+    if (!empresaActiva) return
     const supabase = createClient()
     const { data } = await supabase
       .from('conceptos_bejerman')
       .select('id, codigo, descripcion, activo')
+      .eq('id_empresa', empresaActiva.id)
       .order('codigo')
     setConceptos(data || [])
     setCargando(false)
   }
 
-  useEffect(() => { cargar() }, [])
+  useEffect(() => { cargar() }, [empresaActiva?.id])
 
   function abrirNuevo() {
     setEditando(null)
@@ -80,10 +84,12 @@ export default function ConceptosBejermanClient() {
     setError('')
     const supabase = createClient()
 
+    if (!empresaActiva) return
     const payload = {
       codigo: formCodigo.trim(),
       descripcion: formDescripcion.trim(),
       activo: formActivo,
+      id_empresa: empresaActiva.id,
     }
 
     let err: string | null = null
@@ -122,6 +128,10 @@ export default function ConceptosBejermanClient() {
     fontSize: '13px',
     color: 'var(--c-text-primary)',
     borderTop: '0.5px solid var(--c-border)',
+  }
+
+  if (!empresaActiva) {
+    return <div style={{ color: 'var(--c-text-secondary)', fontSize: '14px' }}>Seleccioná una empresa en el header.</div>
   }
 
   return (
