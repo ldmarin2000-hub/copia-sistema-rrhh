@@ -19,7 +19,7 @@ export default async function FichaLegajo({
     { data: obras },
     { data: ausencias },
     { data: tiposAusencia },
-    { data: vacaciones },
+    { data: movimientos },
     { data: plantillas },
     { data: eppEntregas },
     { data: eppCatalogo },
@@ -51,10 +51,10 @@ export default async function FichaLegajo({
       .order('fecha_desde', { ascending: false }),
     supabase.from('tipos_ausencia')
       .select('id, descripcion, requiere_certificado').eq('activo', true).order('descripcion'),
-    supabase.from('vacaciones_periodo')
-      .select('*')
-      .eq('id_legajo', id)
-      .order('fecha_desde', { ascending: false }),
+    supabase.from('vacaciones_cuenta_corriente')
+      .select('id, tipo, año_correspondiente, fecha_movimiento, dias, observacion, periodo_vacacional_id, vacaciones_periodo(fecha_desde, fecha_hasta)')
+      .eq('legajo_id', id)
+      .order('fecha_movimiento', { ascending: false }),
     supabase.from('plantillas_jornada')
       .select('id, id_empresa, nombre')
       .eq('activo', true)
@@ -126,23 +126,19 @@ export default async function FichaLegajo({
 
   let tramosVacaciones: { id: number; anios_desde: number; anios_hasta: number | null; dias: number }[] = []
   let metodoNombre = ''
-  let saldoInicial: { fecha_corte: string; saldo_dias: number; observacion?: string } | null = null
+  let tipoDias: 'corridos' | 'habiles' = 'corridos'
 
   if (idMetodo) {
-    const [{ data: metodo }, { data: tramos }, { data: saldo }] = await Promise.all([
-      supabase.from('metodos_vacaciones').select('nombre').eq('id', idMetodo).single(),
+    const [{ data: metodo }, { data: tramos }] = await Promise.all([
+      supabase.from('metodos_vacaciones').select('nombre, tipo_dias').eq('id', idMetodo).single(),
       supabase.from('metodos_vacaciones_tramos')
         .select('id, anios_desde, anios_hasta, dias')
         .eq('id_metodo', idMetodo)
         .order('anios_desde'),
-      supabase.from('vacaciones_saldo_inicial')
-        .select('fecha_corte, saldo_dias, observacion')
-        .eq('id_legajo', id)
-        .single(),
     ])
     tramosVacaciones = tramos || []
     metodoNombre = metodo?.nombre || ''
-    saldoInicial = saldo ?? null
+    tipoDias = (metodo as any)?.tipo_dias ?? 'corridos'
   }
 
   return (
@@ -155,7 +151,7 @@ export default async function FichaLegajo({
       obras={obras || []}
       ausencias={ausencias || []}
       tiposAusencia={tiposAusencia || []}
-      vacaciones={vacaciones || []}
+      movimientos={movimientos || []}
       plantillas={plantillas || []}
       eppEntregas={eppEntregas || []}
       eppCatalogo={eppCatalogo || []}
@@ -164,7 +160,7 @@ export default async function FichaLegajo({
       documentos={documentos || []}
       tramosVacaciones={tramosVacaciones}
       metodoNombre={metodoNombre}
-      saldoInicial={saldoInicial}
+      tipoDias={tipoDias}
       fechaBaja={fechaBaja}
       fechaReconocida={fechaReconocida}
       feriados={feriados}

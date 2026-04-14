@@ -32,6 +32,13 @@ export function getDiasTramo(anios: number, tramos: TramoVacaciones[]): number {
   return sorted[sorted.length - 1]?.dias || 0
 }
 
+// Cuenta días corridos (inclusive) entre dos fechas
+export function calcularDiasCorridos(desde: string, hasta: string): number {
+  const d = new Date(desde + 'T00:00:00')
+  const h = new Date(hasta + 'T00:00:00')
+  return Math.max(0, Math.floor((h.getTime() - d.getTime()) / 86400000) + 1)
+}
+
 // Cuenta días hábiles (lunes a viernes, excluyendo feriados) entre dos fechas, inclusive
 export function calcularDiasHabiles(desde: string, hasta: string, feriados: string[] = []): number {
   const d = new Date(desde + 'T00:00:00')

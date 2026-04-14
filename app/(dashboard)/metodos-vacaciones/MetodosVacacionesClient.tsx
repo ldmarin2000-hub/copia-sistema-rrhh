@@ -12,6 +12,7 @@ type Metodo = {
   id_empresa: number | null
   nombre: string
   activo: boolean
+  tipo_dias: 'corridos' | 'habiles'
 }
 
 type Tramo = {
@@ -39,6 +40,7 @@ export default function MetodosVacacionesClient({ metodos, tramos }: Props) {
   const [editandoMetodo, setEditandoMetodo] = useState<Metodo | null>(null)
   const [nombre, setNombre] = useState('')
   const [activo, setActivo] = useState(true)
+  const [tipoDias, setTipoDias] = useState<'corridos' | 'habiles'>('corridos')
   const [loadingMetodo, setLoadingMetodo] = useState(false)
   const [errorMetodo, setErrorMetodo] = useState('')
 
@@ -72,6 +74,7 @@ export default function MetodosVacacionesClient({ metodos, tramos }: Props) {
     setEditandoMetodo(null)
     setNombre('')
     setActivo(true)
+    setTipoDias('corridos')
     setErrorMetodo('')
     setMostrarForm(true)
   }
@@ -80,6 +83,7 @@ export default function MetodosVacacionesClient({ metodos, tramos }: Props) {
     setEditandoMetodo(m)
     setNombre(m.nombre)
     setActivo(m.activo)
+    setTipoDias(m.tipo_dias ?? 'corridos')
     setErrorMetodo('')
     setMostrarForm(true)
   }
@@ -93,13 +97,13 @@ export default function MetodosVacacionesClient({ metodos, tramos }: Props) {
     if (editandoMetodo) {
       const { error } = await supabase
         .from('metodos_vacaciones')
-        .update({ nombre: nombre.trim(), activo })
+        .update({ nombre: nombre.trim(), activo, tipo_dias: tipoDias })
         .eq('id', editandoMetodo.id)
       if (error) { setErrorMetodo(traducirError(error.message)); setLoadingMetodo(false); return }
     } else {
       const { error } = await supabase
         .from('metodos_vacaciones')
-        .insert({ nombre: nombre.trim(), activo, id_empresa: empresaActiva?.id ?? null })
+        .insert({ nombre: nombre.trim(), activo, tipo_dias: tipoDias, id_empresa: empresaActiva?.id ?? null })
       if (error) { setErrorMetodo(traducirError(error.message)); setLoadingMetodo(false); return }
     }
 
@@ -218,6 +222,9 @@ export default function MetodosVacacionesClient({ metodos, tramos }: Props) {
                   <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', background: 'var(--c-elevated)', borderRadius: '4px', padding: '2px 8px' }}>
                     Sistema
                   </span>
+                  <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', background: 'var(--c-elevated)', borderRadius: '4px', padding: '2px 8px' }}>
+                    {m.tipo_dias === 'habiles' ? 'Hábiles' : 'Corridos'}
+                  </span>
                   <span style={{ fontSize: '12px', color: 'var(--c-text-secondary)' }}>
                     {tramosDeMetodo(m.id).length} tramo{tramosDeMetodo(m.id).length !== 1 ? 's' : ''}
                   </span>
@@ -257,6 +264,9 @@ export default function MetodosVacacionesClient({ metodos, tramos }: Props) {
                       ? <ChevronDown size={14} color="var(--c-text-secondary)" />
                       : <ChevronRight size={14} color="var(--c-text-secondary)" />}
                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--c-text-primary)' }}>{m.nombre}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', background: 'var(--c-elevated)', borderRadius: '4px', padding: '2px 8px' }}>
+                      {m.tipo_dias === 'habiles' ? 'Hábiles' : 'Corridos'}
+                    </span>
                     {!m.activo && (
                       <span style={{ fontSize: '11px', color: 'var(--c-text-muted)', background: 'var(--c-elevated)', borderRadius: '4px', padding: '2px 8px' }}>
                         Inactivo
@@ -320,6 +330,13 @@ export default function MetodosVacacionesClient({ metodos, tramos }: Props) {
               <div>
                 <label style={labelStyle}>Nombre *</label>
                 <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Ej: UOCRA Propio" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Tipo de días</label>
+                <select value={tipoDias} onChange={e => setTipoDias(e.target.value as 'corridos' | 'habiles')} style={inputStyle}>
+                  <option value="corridos">Corridos</option>
+                  <option value="habiles">Hábiles</option>
+                </select>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input type="checkbox" id="metodoActivo" checked={activo} onChange={e => setActivo(e.target.checked)} />
